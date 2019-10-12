@@ -1,3 +1,23 @@
+<style>
+    #uns {
+        width:100px;
+        height:100px;
+    }
+    #flag {
+        width:100px;
+        height:70px;
+    }
+    #dcic {
+        width:90px;
+        height:90px;
+    }
+    .container{
+        display:flex;
+        justify-content: space-between;
+        align-items:center;
+    }
+</style>
+
 # Aulas Sustentables
 
 Proyecto final de carrera, Ingenieria en Computación, Departamento de Ciencias e Ingenieria de la Computacion, **Universidad Nacional del Sur**.
@@ -21,25 +41,7 @@ Proyecto final de carrera, Ingenieria en Computación, Departamento de Ciencias 
 <img src="repoassets/dcic-logo.jpg" alt="DCIC" id="dcic">
 </div>
 
-<style>
-    #uns {
-        width:100px;
-        height:100px;
-    }
-    #flag {
-        width:100px;
-        height:70px;
-    }
-    #dcic {
-        width:90px;
-        height:90px;
-    }
-    .container{
-        display:flex;
-        justify-content: space-between;
-        align-items:center;
-    }
-</style>
+
 
 
 
