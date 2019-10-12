@@ -15,7 +15,8 @@ Proyecto final de carrera, Ingenieria en Computación, Departamento de Ciencias 
 <br>
 <br>
 
-<link rel="stylesheet" type="text/css" media="all" href="repoassets/style.css" />
+(setq markdown-css-paths '("repoassets/style.css"))
+
 
 <div class="container">
    <img src="repoassets/logo-uns-square.png" alt="UNS" id="uns">  
