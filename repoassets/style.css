@@ -1,16 +1,16 @@
-#uns {
+#user-content-uns {
     width:100px;
     height:100px;
 }
-#flag {
+#user-content-flag {
     width:100px;
     height:70px;
 }
-#dcic {
+#user-content-dcic {
     width:90px;
     height:90px;
 }
-.container{
+#user-content-container{
     display:flex;
     justify-content: space-between;
     align-items:center;
