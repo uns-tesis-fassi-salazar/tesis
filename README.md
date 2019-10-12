@@ -1,4 +1,4 @@
-<link href="repoassets/style.css" rel="stylesheet"></link>
+<link href="repoassets/style.css" rel="stylesheet">
 # Aulas Sustentables
 
 Proyecto final de carrera, Ingenieria en Computación, Departamento de Ciencias e Ingenieria de la Computacion, **Universidad Nacional del Sur**.
