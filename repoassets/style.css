@@ -1,0 +1,16 @@
+#uns {
+    width:100px;
+    height:100px;
+}
+#flag {
+    width:177px;
+    height:100px;
+}
+#dcic {
+    width:100px;
+    height:100px;
+}
+.container{
+    display:flex;
+    justify-content: space-between;
+}
