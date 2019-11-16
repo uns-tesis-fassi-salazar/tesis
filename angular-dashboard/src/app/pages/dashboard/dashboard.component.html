@@ -1,4 +1,9 @@
-<h1>{{ (fireValue | async)?.Data1 }}</h1>
+<!-- <h1>{{ (fireValue | async)?.Data1 }}</h1> -->
+<ul>
+  <li *ngFor="let value of listSensorValue | async">
+     {{ value | json }}
+  </li>
+</ul>
 <div class="row">
   <div class="col-xxxl-3 col-md-6" *ngFor="let statusCard of statusCards">
     <ngx-status-card [title]="statusCard.title" [type]="statusCard.type">
