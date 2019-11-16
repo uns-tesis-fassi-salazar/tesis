@@ -1,30 +1,29 @@
-/*
- * Created by K. Suwatchai (Mobizt)
- * 
- * Email: k_suwatchai@hotmail.com
- * 
- * Github: https://github.com/mobizt
- * 
- * Copyright (c) 2019 mobizt
- *
-*/
-
 #include <FirebaseESP32.h>
 #include <WiFi.h>
+
+#include <Wire.h>
+#include <BH1750.h>
+#include <DHT.h>
 
 #define FIREBASE_HOST "https://finalproject-35a1b.firebaseio.com"
 #define FIREBASE_AUTH "603o4dr3kNDaNIfJotOhbN82cfMGbAOh9nJ21MPh"
 #define WIFI_SSID "DIEGO"
 #define WIFI_PASSWORD "MontyPython"
 
-//Define FirebaseESP data object
 FirebaseData firebaseData;
-
 void printResult(FirebaseData &data);
 
-void setup() {
-    Serial.begin(9600);
+BH1750 lightMeter;
+DHT dht;
 
+String path = "/DCIC/Labo4/Nodo1/Sensores";
+
+void setup(){
+
+    Serial.begin(9600);
+    while (!Serial) {
+        ; // wait for serial port to connect. Needed for native USB port only
+    }
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
     Serial.print("Connecting to Wi-Fi");
     while (WiFi.status() != WL_CONNECTED) {
@@ -51,196 +50,60 @@ void setup() {
     
     Firebase.enableClassicRequest(firebaseData, true);
     */
-
-    String path = "/ESP32_Test";
-
     FirebaseJson json;
 
-    Serial.println("------------------------------------");
-    Serial.println("Set double test...");
+    // Inicializacion sensor Luz
+    Wire.begin(GPIO_NUM_22,GPIO_NUM_21);
+    lightMeter.begin(BH1750::ONE_TIME_HIGH_RES_MODE_2);
+    
+    // Inicializacion Sensor Humedad y Tempreratura
+    pinMode(GPIO_NUM_5,PULLUP);
+    dht.setup(GPIO_NUM_5);
 
-    for (uint8_t i = 0; i < 10; i++) {
-        //Also can use Firebase.set instead of Firebase.setDouble
-        if (Firebase.setDouble(firebaseData, path + "/Double/Data" + (i + 1), ((i + 1) * 10) + 0.123456789)) {
-            Serial.println("PASSED");
-            Serial.println("PATH: " + firebaseData.dataPath());
-            Serial.println("TYPE: " + firebaseData.dataType());
-            Serial.println("ETag: " + firebaseData.ETag());
-            Serial.print("VALUE: ");
-            printResult(firebaseData);
-            Serial.println("------------------------------------");
-            Serial.println();
-        } else {
-            Serial.println("FAILED");
-            Serial.println("REASON: " + firebaseData.errorReason());
-            Serial.println("------------------------------------");
-            Serial.println();
-        }
-    }
-
-    Serial.println("------------------------------------");
-    Serial.println("Get double test...");
-
-    for (uint8_t i = 0; i < 10; i++) {
-        //Also can use Firebase.get instead of Firebase.setInt
-        if (Firebase.getInt(firebaseData, path + "/Double/Data" + (i + 1))) {
-            Serial.println("PASSED");
-            Serial.println("PATH: " + firebaseData.dataPath());
-            Serial.println("TYPE: " + firebaseData.dataType());
-            Serial.println("ETag: " + firebaseData.ETag());
-            Serial.print("VALUE: ");
-            printResult(firebaseData);
-            Serial.println("------------------------------------");
-            Serial.println();
-        } else {
-            Serial.println("FAILED");
-            Serial.println("REASON: " + firebaseData.errorReason());
-            Serial.println("------------------------------------");
-            Serial.println();
-        }
-    }
-
-    Serial.println("------------------------------------");
-    Serial.println("Push integer test...");
-
-    for (uint8_t i = 0; i < 5; i++) {
-        //Also can use Firebase.push instead of Firebase.pushInt
-        if (Firebase.pushInt(firebaseData, path + "/Push/Int", (i + 1))) {
-            Serial.println("PASSED");
-            Serial.println("PATH: " + firebaseData.dataPath());
-            Serial.print("PUSH NAME: ");
-            Serial.println(firebaseData.pushName());
-            Serial.println("ETag: " + firebaseData.ETag());
-            Serial.println("------------------------------------");
-            Serial.println();
-        } else {
-            Serial.println("FAILED");
-            Serial.println("REASON: " + firebaseData.errorReason());
-            Serial.println("------------------------------------");
-            Serial.println();
-        }
-    }
-
-    Serial.println("------------------------------------");
-    Serial.println("Push JSON test...");
-
-    for (uint8_t i = 5; i < 10; i++) {
-        json.clear().add("Data" + String(i + 1), i + 1);
-
-        //Also can use Firebase.push instead of Firebase.pushJSON
-        //Json string is not support in v 2.6.0 and later, only FirebaseJson object is supported.
-        if (Firebase.pushJSON(firebaseData, path + "/Push/Int", json)) {
-            Serial.println("PASSED");
-            Serial.println("PATH: " + firebaseData.dataPath());
-            Serial.print("PUSH NAME: ");
-            Serial.println(firebaseData.pushName());
-            Serial.println("ETag: " + firebaseData.ETag());
-            Serial.println("------------------------------------");
-            Serial.println();
-        } else {
-            Serial.println("FAILED");
-            Serial.println("REASON: " + firebaseData.errorReason());
-            Serial.println("------------------------------------");
-            Serial.println();
-        }
-    }
-
-    Serial.println("------------------------------------");
-    Serial.println("Update test...");
-
-    for (uint8_t i = 0; i < 5; i++) {
-        json.set("Data" + String(i + 1), i + 5.5);
-
-        if (Firebase.updateNode(firebaseData, path + "/float", json)) {
-            Serial.println("PASSED");
-            Serial.println("PATH: " + firebaseData.dataPath());
-            Serial.println("TYPE: " + firebaseData.dataType());
-            //No ETag available
-            Serial.print("VALUE: ");
-            printResult(firebaseData);
-            Serial.println("------------------------------------");
-            Serial.println();
-        } else {
-            Serial.println("FAILED");
-            Serial.println("REASON: " + firebaseData.errorReason());
-            Serial.println("------------------------------------");
-            Serial.println();
-        }
-    }
+    Serial.println("*** Setup OK ***");
 }
+
+float lux,temp,humidity;
 
 void loop() {
-}
 
-void printResult(FirebaseData &data) {
-    if (data.dataType() == "int")
-        Serial.println(data.intData());
-    else if (data.dataType() == "float")
-        Serial.println(data.floatData(), 5);
-    else if (data.dataType() == "double")
-        printf("%.9lf\n", data.doubleData());
-    else if (data.dataType() == "boolean")
-        Serial.println(data.boolData() == 1 ? "true" : "false");
-    else if (data.dataType() == "string")
-        Serial.println(data.stringData());
-    else if (data.dataType() == "json") {
-        Serial.println();
-        FirebaseJson &json = data.jsonObject();
-        //Print all object data
-        Serial.println("Pretty printed JSON data:");
-        String jsonStr;
-        json.toString(jsonStr, true);
-        Serial.println(jsonStr);
-        Serial.println();
-        Serial.println("Iterate JSON data:");
-        Serial.println();
-        size_t len = json.iteratorBegin();
-        String key, value = "";
-        int type = 0;
-        for (size_t i = 0; i < len; i++) {
-            json.iteratorGet(i, type, key, value);
-            Serial.print(i);
-            Serial.print(", ");
-            Serial.print("Type: ");
-            Serial.print(type == JSON_OBJECT ? "object" : "array");
-            if (type == JSON_OBJECT) {
-                Serial.print(", Key: ");
-                Serial.print(key);
-            }
-            Serial.print(", Value: ");
-            Serial.println(value);
-        }
-        json.iteratorEnd();
-    } else if (data.dataType() == "array") {
-        Serial.println();
-        //get array data from FirebaseData using FirebaseJsonArray object
-        FirebaseJsonArray &arr = data.jsonArray();
-        //Print all array values
-        Serial.println("Pretty printed Array:");
-        String arrStr;
-        arr.toString(arrStr, true);
-        Serial.println(arrStr);
-        Serial.println();
-        Serial.println("Iterate array values:");
-        Serial.println();
-        for (size_t i = 0; i < arr.size(); i++) {
-            Serial.print(i);
-            Serial.print(", Value: ");
+    delay(500);
+    delay(dht.getMinimumSamplingPeriod());
+    
+    lux = lightMeter.readLightLevel();
+    Serial.print("\nLight: ");
+    Serial.print(lux);
+    Serial.println(" lx");
+    lightMeter.configure(BH1750::ONE_TIME_HIGH_RES_MODE_2);
+    delay(500);
 
-            FirebaseJsonData &jsonData = data.jsonData();
-            //Get the result data from FirebaseJsonArray object
-            arr.get(jsonData, i);
-            if (jsonData.typeNum == JSON_BOOL)
-                Serial.println(jsonData.boolValue ? "true" : "false");
-            else if (jsonData.typeNum == JSON_INT)
-                Serial.println(jsonData.intValue);
-            else if (jsonData.typeNum == JSON_DOUBLE)
-                printf("%.9lf\n", jsonData.doubleValue);
-            else if (jsonData.typeNum == JSON_STRING ||
-                     jsonData.typeNum == JSON_NULL ||
-                     jsonData.typeNum == JSON_OBJECT ||
-                     jsonData.typeNum == JSON_ARRAY)
-                Serial.println(jsonData.stringValue);
-        }
+    Serial.print("Humedad\t Temperatura\n");
+
+    temp = dht.getTemperature();
+    humidity = dht.getHumidity();
+
+    Serial.print(humidity);
+    Serial.print("\t");
+    Serial.print(temp);
+    Serial.print("\n");
+
+    if (Firebase.setFloat(firebaseData, path + "/Humedad", humidity)) {
+        Serial.println("upload Humedad");
+    } else {
+        Serial.println("error al upload Humedad");
     }
+
+    if (Firebase.setFloat(firebaseData, path + "/Temperatura", temp)) {
+        Serial.println("upload Temperatura");
+    } else {
+        Serial.println("error al upload Temperatura");
+    }
+
+    if (Firebase.setFloat(firebaseData, path + "/Luminocidad", lux)) {
+        Serial.println("upload Luminocidad");
+    } else {
+        Serial.println("error al upload Luminocidad");
+    }
+
+    delay(2500);
 }
