@@ -7,8 +7,39 @@
   </div>
 </div>
 
+
 <div class="row">
-  <div class="col-xxxl-3 col-xxl-4 col-lg-5 col-md-6">
-    <ngx-temperature></ngx-temperature>
+  <div class="col-xxxl-3 col-xxl-4 col-lg-4 col-md-6">
+    <ngx-sensor-display
+      [title]="'Temperatura'"
+      [value]='28'
+      [unit_name]="'Celsius'"
+      [unit_symbol]="'temperature'"
+      [minValue]=0
+      [maxValue]=100
+      [displayOff]=false
+    ></ngx-sensor-display>
+  </div>
+  <div class="col-xxxl-3 col-xxl-4 col-lg-4 col-md-6">
+    <ngx-sensor-display
+      [title]="'Luminocidad'"
+      [value]='80'
+      [unit_name]="'Lux'"
+      [unit_symbol]="'none'"
+      [minValue]=1
+      [maxValue]=100
+      [displayOff]=false
+    ></ngx-sensor-display>
+  </div>
+  <div class="col-xxxl-3 col-xxl-4 col-lg-4 col-md-6">
+    <ngx-sensor-display
+      [title]="'Sin uso'"
+      [value]='0'
+      [unit_name]="''"
+      [unit_symbol]="'none'"
+      [minValue]=0
+      [maxValue]=100
+      [displayOff]=true
+    ></ngx-sensor-display>
   </div>
 </div>

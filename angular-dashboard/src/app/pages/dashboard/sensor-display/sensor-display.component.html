@@ -1,0 +1,30 @@
+<nb-card size="medium">
+  <nb-tabset fullWidth>
+    <nb-tab tabTitle="{{title}}">
+      <div class="slider-container" (mousedown)="mouseDown($event)">
+        <ngx-temperature-dragger 
+          [(value)]="value" 
+          [off]="displayOff" 
+          (power)="displayOff = !$event" 
+          [min]="minValue" 
+          [max]="maxValue"
+          [disableArcColor]="theme.arcEmpty" 
+          [fillColors]="theme.arcFill"
+          [thumbBg]="theme.thumbBg" 
+          [thumbBorderColor]="theme.thumbBorder"
+          [thumbRadius]="8"
+        >
+          <div class="slider-value-container" [ngClass]="{ 'off': displayOff }">
+            <div class="value {{unit_symbol}} h1">
+              {{ displayOff ? '--' : (value | ngxRound) }}
+            </div>
+            <div class="desc">
+                {{unit_name}}
+            </div>
+          </div>
+        </ngx-temperature-dragger>
+      </div>
+    </nb-tab>
+  </nb-tabset>
+</nb-card>
+

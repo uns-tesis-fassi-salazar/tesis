@@ -14,12 +14,12 @@ import { AppRoutingModule } from './app-routing.module';
 import { AngularFireModule } from '@angular/fire';
 import { AngularFireDatabaseModule } from '@angular/fire/database';
 import {
-  NbChatModule,
-  NbDatepickerModule,
-  NbDialogModule,
+  // NbChatModule,
+  // NbDatepickerModule,
+  // NbDialogModule,
   NbMenuModule,
   NbSidebarModule,
-  NbToastrModule,
+  // NbToastrModule,
   NbWindowModule,
 } from '@nebular/theme';
 import { environment } from '../environments/environment';
@@ -36,13 +36,13 @@ import { environment } from '../environments/environment';
 
     NbSidebarModule.forRoot(),
     NbMenuModule.forRoot(),
-    NbDatepickerModule.forRoot(),
-    NbDialogModule.forRoot(),
+    // NbDatepickerModule.forRoot(),
+    // NbDialogModule.forRoot(),
     NbWindowModule.forRoot(),
-    NbToastrModule.forRoot(),
-    NbChatModule.forRoot({
-      messageGoogleMapKey: 'AIzaSyA_wNuCzia92MAmdLRzmqitRGvCF7wCZPY',
-    }),
+    // NbToastrModule.forRoot(),
+    // NbChatModule.forRoot({
+    //   messageGoogleMapKey: 'AIzaSyA_wNuCzia92MAmdLRzmqitRGvCF7wCZPY',
+    // }),
     CoreModule.forRoot(),
 
     AngularFireModule.initializeApp(environment.firebase),

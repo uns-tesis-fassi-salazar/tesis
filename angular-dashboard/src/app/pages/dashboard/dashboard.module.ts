@@ -18,28 +18,29 @@ import { StatusCardComponent } from './status-card/status-card.component';
 import { TemperatureComponent } from './temperature/temperature.component';
 import { TemperatureDraggerComponent } from './temperature/temperature-dragger/temperature-dragger.component';
 import { FormsModule } from '@angular/forms';
+import { SensorDisplayComponent } from './sensor-display/sensor-display.component';
 
 @NgModule({
   imports: [
     FormsModule,
     ThemeModule,
     NbCardModule,
-    NbUserModule,
+    // NbUserModule,
     NbButtonModule,
     NbTabsetModule,
-    NbActionsModule,
+    // NbActionsModule,
     NbRadioModule,
-    NbSelectModule,
-    NbListModule,
+    // NbSelectModule,
+    // NbListModule,
     NbIconModule,
-    NbButtonModule,
-    NgxEchartsModule,
+    // NgxEchartsModule,
   ],
   declarations: [
     DashboardComponent,
     StatusCardComponent,
     TemperatureDraggerComponent,
     TemperatureComponent,
+    SensorDisplayComponent,
   ],
 })
 export class DashboardModule { }
