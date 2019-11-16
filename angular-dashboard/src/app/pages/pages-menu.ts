@@ -7,7 +7,7 @@ export const MENU_ITEMS: NbMenuItem[] = [
     link: '/pages/iot-dashboard',
   },
   {
-    title: 'Grupos de aulas',
+    title: 'Universidad Nacional del Sur',
     group: true,
   },
   {

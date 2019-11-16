@@ -10,4 +10,15 @@
 
 export const environment = {
   production: false,
+
+  firebase: {
+    apiKey: '603o4dr3kNDaNIfJotOhbN82cfMGbAOh9nJ21MPh',
+    // apiKey: "AIzaSyDm_UKlFtJZIxJDhLBCw4ypad-Erefg-Ow",
+    authDomain: 'aulas-sustentables.firebaseapp.com',
+    databaseURL: 'https://finalproject-35a1b.firebaseio.com',
+    projectId: 'finalproject-35a1b',
+    // storageBucket: "gs://finalproject-35a1b.appspot.com",
+    // messagingSenderId: "1077643404202"
+  }
 };
+

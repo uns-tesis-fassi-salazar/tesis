@@ -2,6 +2,8 @@ import {Component, OnDestroy} from '@angular/core';
 import { NbThemeService } from '@nebular/theme';
 import { takeWhile } from 'rxjs/operators' ;
 import { SolarData } from '../../@core/data/solar';
+import { FiredbService } from '../../services/firedb.service';
+import { Observable } from 'rxjs';
 
 interface CardSettings {
   title: string;
@@ -78,8 +80,11 @@ export class DashboardComponent implements OnDestroy {
     dark: this.commonStatusCardsSet,
   };
 
+  public fireValue: Observable<any>;
   constructor(private themeService: NbThemeService,
-              private solarService: SolarData) {
+              private solarService: SolarData,
+              private firedbService: FiredbService) {
+    this.fireValue = firedbService.getTest();
     this.themeService.getJsTheme()
       .pipe(takeWhile(() => this.alive))
       .subscribe(theme => {
