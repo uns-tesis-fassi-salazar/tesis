@@ -6,10 +6,16 @@ import { AngularFireDatabase } from '@angular/fire/database';
 })
 export class FiredbService {
 
-  constructor(private db: AngularFireDatabase) { }
+  constructor(
+    private db: AngularFireDatabase
+  ) { }
 
   getTest(){
     return this.db.object('ESP32_Test/Double').valueChanges();
+  }
+
+  getSensorList(){
+    return this.db.list('DCIC/Labo4/Nodo1/Sensores').valueChanges();
   }
 
   getSensor(nodoId, sensorId){

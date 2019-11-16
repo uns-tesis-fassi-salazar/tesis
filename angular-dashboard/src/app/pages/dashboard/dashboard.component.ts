@@ -81,10 +81,12 @@ export class DashboardComponent implements OnDestroy {
   };
 
   public fireValue: Observable<any>;
+  public listSensorValue: Observable<any>;
   constructor(private themeService: NbThemeService,
               private solarService: SolarData,
               private firedbService: FiredbService) {
     this.fireValue = firedbService.getTest();
+    this.listSensorValue = firedbService.getSensorList();
     this.themeService.getJsTheme()
       .pipe(takeWhile(() => this.alive))
       .subscribe(theme => {
