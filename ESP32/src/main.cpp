@@ -13,7 +13,7 @@
 void setupInet();
 void setupFirebase();
 void setupSensors();
-boolean lookupConfig();
+boolean lookupActiveMode();
 
 void printResult(FirebaseData &data);
 
@@ -22,18 +22,13 @@ FirebaseJson json,json2;
 BH1750 lightMeter;
 DHT dht;
 
-// String workPath = "Edificios/DCIC/Labo4/Nodo1/Sensores";
-String workPath = "";
-String cfgPath = "config/nodos/";
+String nodePath = "Nodos/";
 String ip;
 String mac;
-
-String edificio,aula,nro_nodo;
 
 float lux,temp,humidity;
 
 boolean activeMode = 0;
-boolean configOK = 0;
 
 void setup(){
 
@@ -53,18 +48,10 @@ void setup(){
 
 void loop() {
 
-    if ((!edificio.isEmpty()) & (!aula.isEmpty()) & (!nro_nodo.isEmpty())) {
-        workPath = "Edificios/" + edificio + "/" + aula + "/" + nro_nodo + "/Sensores";
-        if (Firebase.pathExist(firebaseData,workPath)) {
-            activeMode = 1;
-        }
-        else {
-            activeMode = 0;
-            lookupConfig();
-        }
-    } else {
-        lookupConfig();
-    }
+    if (lookupActiveMode())
+        activeMode = 1;
+    else
+        activeMode = 0;
 
     if (activeMode) {
         delay(500);
@@ -88,19 +75,19 @@ void loop() {
         Serial.print(" C°");
         Serial.print("\n");
 
-        if (Firebase.setFloat(firebaseData, workPath + "/Humedad", humidity)) {
+        if (Firebase.setFloat(firebaseData, nodePath + mac + "/Sensores/Humedad", humidity)) {
             Serial.println("upload Humedad");
         } else {
             Serial.println("error al upload Humedad");
         }
 
-        if (Firebase.setFloat(firebaseData, workPath + "/Temperatura", temp)) {
+        if (Firebase.setFloat(firebaseData, nodePath + mac + "/Sensores/Temperatura", temp)) {
             Serial.println("upload Temperatura");
         } else {
             Serial.println("error al upload Temperatura");
         }
 
-        if (Firebase.setFloat(firebaseData, workPath + "/Luminocidad", lux)) {
+        if (Firebase.setFloat(firebaseData, nodePath + mac + "/Sensores/Luminocidad", lux)) {
             Serial.println("upload Luminocidad");
         } else {
             Serial.println("error al upload Luminocidad");
@@ -108,7 +95,7 @@ void loop() {
 
         delay(2500);
     } else {
-        Serial.println("Esperando configuracion...");
+        Serial.println("Esperando asignacion de aula...");
         delay(1000 * 10); // esperando configuracion...
     }
     
@@ -148,15 +135,24 @@ void setupFirebase() {
     Firebase.enableClassicRequest(firebaseData, true);
     */
 
-    if (lookupConfig()) {
-        Serial.println("Configuracion recuperada con exito");
+    if (Firebase.pathExist(firebaseData,nodePath + mac)) {
+        Serial.println("Nodo registrado.");
     } else {
         Serial.println("Nodo no registrado... intentando registrar...");
         json.clear();
-        json.add("edificio","");
-        json.add("aula","");
-        json.add("nro_nodo","");
-        if (Firebase.setJSON(firebaseData,cfgPath + mac,json)) {
+        json.add("AulaAsignada",0);
+        json2.clear();
+        json2.add("Aire",0);
+        json2.add("Luces",0);
+        json2.add("Proyector",0);
+        json.add("Actuadores",json2);
+        json2.clear();
+        json2.add("Luminocidad",0);
+        json2.add("Temperatura",0);
+        json2.add("Humedad",0);
+        json2.add("Movimiento",0);
+        json.add("Sensores",json2);
+        if (Firebase.setJSON(firebaseData,nodePath + mac,json)) {
             Serial.println("Nodo registrado correctamente");
         }
     }
@@ -172,27 +168,22 @@ void setupSensors() {
     dht.setup(GPIO_NUM_5);
 }
 
-boolean lookupConfig() {
-    if (Firebase.pathExist(firebaseData,cfgPath + mac)) {
-        if (Firebase.getJSON(firebaseData,cfgPath + mac)) {
-            // printResult(firebaseData);
-            FirebaseJson &json = firebaseData.jsonObject();
-            size_t len = json.iteratorBegin();
-            String key, value = "";
-            int type = 0;
-            for (size_t i = 0; i < len; i++) {
-                json.iteratorGet(i, type, key, value);
-                if (key.equals("edificio")) 
-                    edificio = value;
-                else if (key.equals("aula"))
-                    aula = value;
-                else if (key.equals("nro_nodo"))
-                    nro_nodo = value;
+boolean lookupActiveMode() {
+    if (Firebase.pathExist(firebaseData,nodePath + mac)) {
+        if (Firebase.getInt(firebaseData,nodePath + mac + "/AulaAsignada")) {
+            if (firebaseData.intData() == 0) {
+                return false;
+            } else {
+                return true;
             }
-            return true;
+        } else {
+            Serial.println("No puedo recuperar el valor AulaAsignada");
+            return false;
         }
+    } else {
+        Serial.println("No existe el path");
+        return false;
     }
-    return false;
 }
 
 void printResult(FirebaseData &data) {

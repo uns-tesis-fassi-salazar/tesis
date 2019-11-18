@@ -10,21 +10,24 @@ export class FiredbService {
     private db: AngularFireDatabase
   ) { }
 
-  getTest(){
-    return this.db.object('ESP32_Test/Double').valueChanges();
+  getNodoMAC(){
+    return this.db.object('Edificios/DCIC/Labo4/NodoMAC').valueChanges();
   }
 
-  getSensorList(){
-    return this.db.list('DCIC/Labo4/Nodo1/Sensores').valueChanges();
+  getLuminocidad(NodoMAC){
+    return this.db.object('Nodos/' + NodoMAC + '/Sensores/Luminocidad').valueChanges();
   }
 
-  getSensor(nodoId, sensorId){
-    return this.db.object(nodoId + '/Sensores/' + sensorId).valueChanges();
+  getHumedad(NodoMAC){
+    return this.db.object('Nodos/' + NodoMAC + '/Sensores/Humedad').valueChanges();
   }
 
-  getActuador(nodoId, actuadorId){
-    return this.db.object(nodoId + '/Actuadores/' + actuadorId).valueChanges();
+  getTemperatura(NodoMAC){
+    return this.db.object('Nodos/' + NodoMAC + '/Sensores/Temperatura').valueChanges();
+  }
 
+  getMovimiento(NodoMAC){
+    return this.db.object('Nodos/' + NodoMAC + '/Sensores/Movimiento').valueChanges();
   }
 
   updateActuador(nodoId, actuadorId, value){

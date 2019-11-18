@@ -12,8 +12,8 @@ export const environment = {
   production: false,
 
   firebase: {
-    apiKey: '603o4dr3kNDaNIfJotOhbN82cfMGbAOh9nJ21MPh',
-    // apiKey: "AIzaSyDm_UKlFtJZIxJDhLBCw4ypad-Erefg-Ow",
+    // apiKey: '603o4dr3kNDaNIfJotOhbN82cfMGbAOh9nJ21MPh',
+    apiKey: "AIzaSyDm_UKlFtJZIxJDhLBCw4ypad-Erefg-Ow",
     authDomain: 'aulas-sustentables.firebaseapp.com',
     databaseURL: 'https://finalproject-35a1b.firebaseio.com',
     projectId: 'finalproject-35a1b',
