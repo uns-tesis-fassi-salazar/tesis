@@ -18,6 +18,11 @@ const routes: Routes = [{
       loadChildren: () => import('./miscellaneous/miscellaneous.module')
         .then(m => m.MiscellaneousModule),
     },
+    // {
+    //   path: 'auth',
+    //   loadChildren: () => import('./auth/auth.module')
+    //     .then(m => m.AuthModule),
+    // },
     {
       path: '',
       redirectTo: 'iot-dashboard',

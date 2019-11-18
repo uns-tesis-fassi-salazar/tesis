@@ -82,6 +82,7 @@ export class DashboardComponent implements OnDestroy {
 
   public fireValue: Observable<any>;
   public listSensorValue: Observable<any>;
+  
   constructor(private themeService: NbThemeService,
               private solarService: SolarData,
               private firedbService: FiredbService) {

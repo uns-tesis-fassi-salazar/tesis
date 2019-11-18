@@ -13,6 +13,7 @@ import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { AngularFireModule } from '@angular/fire';
 import { AngularFireDatabaseModule } from '@angular/fire/database';
+import { AngularFireAuthModule } from '@angular/fire/auth';
 import {
   // NbChatModule,
   // NbDatepickerModule,
@@ -31,7 +32,6 @@ import { environment } from '../environments/environment';
     BrowserAnimationsModule,
     HttpClientModule,
     AppRoutingModule,
-
     ThemeModule.forRoot(),
 
     NbSidebarModule.forRoot(),
@@ -47,6 +47,7 @@ import { environment } from '../environments/environment';
 
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireDatabaseModule,
+    AngularFireAuthModule,
   ],
   bootstrap: [AppComponent],
 })
