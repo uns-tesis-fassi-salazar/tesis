@@ -56,7 +56,7 @@
               <div class="form-group">
                 <span class="label-with-link">
                   <label class="label" for="input-password">Contraseña:</label>
-                  <a class="forgot-password caption-2" routerLink="#">Olvidaste la contraseña?</a>
+                  <a class="forgot-password caption-2" routerLink="#" tabindex="-1">Olvidaste la contraseña?</a>
                 </span>
   
                 <!-- <input nbInput fullWidth [(ngModel)]="password" #password="ngModel" name="password" type="password"
@@ -69,7 +69,7 @@
   
                 <input nbInput type="password" fieldSize="large" formControlName="password" class="form-control"
                   placeholder="Contraseña" fullWidth name="password" id="input-password"
-                  [ngClass]="{ 'is-invalid': submitted && f.password.errors }" />
+                  [ngClass]="{ 'is-invalid': submitted && f.password.errors }"/>
                 <ng-container *ngIf="submitted && f.password.errors">
                   <p class="caption status-danger" *ngIf="f.password.errors?.required">
                     La contraseña es requerida!

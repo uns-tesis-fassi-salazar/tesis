@@ -8,10 +8,12 @@ import {
   NbRequestPasswordComponent,
   NbResetPasswordComponent,
 } from '@nebular/auth';
+import { AuthGuard } from './helpers/auth-guard.service';
 
 const routes: Routes = [
   {
     path: 'pages',
+    canActivate: [AuthGuard],
     loadChildren: () => import('./pages/pages.module')
       .then(m => m.PagesModule),
   },
@@ -50,7 +52,7 @@ const routes: Routes = [
     loadChildren: () => import('./pages/auth/auth.module')
     .then(m => m.AuthModule),
   },
-  { path: '', redirectTo: 'pages', pathMatch: 'full' },
+  { path: '', redirectTo: 'pages', pathMatch: 'full'  },
   { path: '**', redirectTo: 'pages' },
 ];
 

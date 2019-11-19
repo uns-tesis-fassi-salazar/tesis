@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../../services/auth.service';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'ngx-login',
@@ -10,8 +11,18 @@ import { AuthService } from '../../../services/auth.service';
 export class LoginComponent implements OnInit {
   registerForm: FormGroup;
   submitted = false;
+  returnUrl: string;
 
-  constructor(private formBuilder: FormBuilder) {
+  constructor(
+    private formBuilder: FormBuilder,
+    private authService: AuthService,
+    private route: ActivatedRoute,
+    private router: Router,
+  ) {
+    // redirect to home if already logged in
+    if (this.authService._currentUserValue) {
+      this.router.navigate(['/']);
+    }
   }
 
   ngOnInit() {
@@ -20,10 +31,13 @@ export class LoginComponent implements OnInit {
       password: ['', [Validators.required]],
       // acceptTerms: [false, Validators.requiredTrue]
     });
+
+    // get return url from route parameters or default to '/'
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
   }
 
   // convenience getter for easy access to form fields
-  public get f() { 
+  public get f() {
     return this.registerForm.controls;
   }
 
@@ -35,12 +49,13 @@ export class LoginComponent implements OnInit {
     }
 
     // display form values on success
-    alert('SUCCESS!! :-)\n\n' + JSON.stringify(this.registerForm.value, null, 4));
-  }
-
-  onReset() {
-    this.submitted = false;
-    this.registerForm.reset();
+    this.authService.signIn(this.registerForm.value.email, this.registerForm.value.password)
+      .then(_ => {
+        this.router.navigate([this.returnUrl]);
+      })
+      .catch(err => {
+        console.log("Error al iniciar sesion: ", err);
+      });
   }
 
 }
