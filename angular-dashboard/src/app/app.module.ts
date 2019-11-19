@@ -25,6 +25,7 @@ import {
 } from '@nebular/theme';
 import { environment } from '../environments/environment';
 import { ErrorInterceptor } from './helpers/error.interceptor';
+import { AngularFireAuthGuard } from '@angular/fire/auth-guard';
 
 @NgModule({
   declarations: [AppComponent],
@@ -52,6 +53,7 @@ import { ErrorInterceptor } from './helpers/error.interceptor';
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
+    AngularFireAuthGuard
     // { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
   ],
   bootstrap: [AppComponent],

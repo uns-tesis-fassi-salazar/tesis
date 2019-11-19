@@ -16,13 +16,9 @@ export class LoginComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
-    private route: ActivatedRoute,
     private router: Router,
   ) {
-    // redirect to home if already logged in
-    if (this.authService._currentUserValue) {
-      this.router.navigate(['/']);
-    }
+
   }
 
   ngOnInit() {
@@ -31,9 +27,6 @@ export class LoginComponent implements OnInit {
       password: ['', [Validators.required]],
       // acceptTerms: [false, Validators.requiredTrue]
     });
-
-    // get return url from route parameters or default to '/'
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
   }
 
   // convenience getter for easy access to form fields
@@ -51,7 +44,7 @@ export class LoginComponent implements OnInit {
     // display form values on success
     this.authService.signIn(this.registerForm.value.email, this.registerForm.value.password)
       .then(_ => {
-        this.router.navigate([this.returnUrl]);
+        this.router.navigate(['/']);
       })
       .catch(err => {
         console.log("Error al iniciar sesion: ", err);

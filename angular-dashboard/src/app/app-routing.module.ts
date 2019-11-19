@@ -9,14 +9,27 @@ import {
   NbResetPasswordComponent,
 } from '@nebular/auth';
 import { AuthGuard } from './helpers/auth-guard.service';
+import { AngularFireAuthGuard, redirectUnauthorizedTo, redirectLoggedInTo, canActivate } from '@angular/fire/auth-guard';
+
+const redirectUnauthorizedToLogin = () => redirectUnauthorizedTo(['auth']);
+const redirectLoggedInToDashboard = () => redirectLoggedInTo(['pages']);
 
 const routes: Routes = [
   {
     path: 'pages',
-    canActivate: [AuthGuard],
+    canActivate: [AngularFireAuthGuard], data: { authGuardPipe: redirectUnauthorizedToLogin },
+    // ...canActivate(redirectUnauthorizedToLogin),
     loadChildren: () => import('./pages/pages.module')
       .then(m => m.PagesModule),
   },
+  {
+    path: 'auth',
+    canActivate: [AngularFireAuthGuard], data: { authGuardPipe: redirectLoggedInToDashboard },
+    loadChildren: () => import('./pages/auth/auth.module')
+    .then(m => m.AuthModule),
+  },
+  { path: '', redirectTo: 'pages', pathMatch: 'full' },
+  { path: '**', redirectTo: 'pages' },
   // {
   //   path: 'auth',
   //   component: NbAuthComponent,
@@ -47,13 +60,6 @@ const routes: Routes = [
   //     },
   //   ],
   // },
-  {
-    path: 'auth',
-    loadChildren: () => import('./pages/auth/auth.module')
-    .then(m => m.AuthModule),
-  },
-  { path: '', redirectTo: 'pages', pathMatch: 'full'  },
-  { path: '**', redirectTo: 'pages' },
 ];
 
 const config: ExtraOptions = {
