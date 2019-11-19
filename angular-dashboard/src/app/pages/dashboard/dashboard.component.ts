@@ -80,14 +80,27 @@ export class DashboardComponent implements OnDestroy {
     dark: this.commonStatusCardsSet,
   };
 
-  public fireValue: Observable<any>;
-  public listSensorValue: Observable<any>;
-  
+  public luminocidad: Observable<any>;
+  public humedad: Observable<any>;
+  public temperatura: Observable<any>;
+  public movimiento: Observable<any>;
+
+  public nodoMAC: Observable<any>;
+  public nodoMACValue: String;
+
   constructor(private themeService: NbThemeService,
               private solarService: SolarData,
               private firedbService: FiredbService) {
-    this.fireValue = firedbService.getTest();
-    this.listSensorValue = firedbService.getSensorList();
+
+    this.nodoMAC = this.firedbService.getNodoMAC();
+
+    this.nodoMAC
+      .pipe(takeWhile(() => this.alive))
+      .subscribe(value => {
+        this.nodoMACValue = value;
+        this.loadValues();
+    });
+
     this.themeService.getJsTheme()
       .pipe(takeWhile(() => this.alive))
       .subscribe(theme => {
@@ -103,5 +116,12 @@ export class DashboardComponent implements OnDestroy {
 
   ngOnDestroy() {
     this.alive = false;
+  }
+
+  loadValues(){
+    this.luminocidad = this.firedbService.getLuminocidad(this.nodoMACValue);
+    this.humedad = this.firedbService.getHumedad(this.nodoMACValue);
+    this.temperatura = this.firedbService.getTemperatura(this.nodoMACValue);
+    this.movimiento = this.firedbService.getMovimiento(this.nodoMACValue);
   }
 }

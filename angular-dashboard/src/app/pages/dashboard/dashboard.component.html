@@ -1,7 +1,7 @@
 <!-- <h1>{{ (fireValue | async)?.Data1 }}</h1> -->
 <ul>
-  <li *ngFor="let value of listSensorValue | async">
-     {{ value | json }}
+  <li >
+     {{ nodoMAC | async }}
   </li>
 </ul>
 <div class="row">
@@ -17,7 +17,7 @@
   <div class="col-xxxl-3 col-xxl-4 col-lg-4 col-md-6">
     <ngx-sensor-display
       [title]="'Temperatura'"
-      [value]='28'
+      [value]='(temperatura | async)'
       [unit_name]="'Celsius'"
       [unit_symbol]="'temperature'"
       [minValue]=0
@@ -27,24 +27,24 @@
   </div>
   <div class="col-xxxl-3 col-xxl-4 col-lg-4 col-md-6">
     <ngx-sensor-display
-      [title]="'Luminocidad'"
-      [value]='80'
-      [unit_name]="'Lux'"
+      [title]="'Humedad'"
+      [value]='(humedad | async)'
+      [unit_name]="'%'"
       [unit_symbol]="'none'"
-      [minValue]=1
+      [minValue]=0
       [maxValue]=100
       [displayOff]=false
     ></ngx-sensor-display>
   </div>
   <div class="col-xxxl-3 col-xxl-4 col-lg-4 col-md-6">
     <ngx-sensor-display
-      [title]="'Sin uso'"
-      [value]='0'
-      [unit_name]="''"
+      [title]="'Luminocidad'"
+      [value]='(luminocidad | async)'
+      [unit_name]="'Lux'"
       [unit_symbol]="'none'"
-      [minValue]=0
-      [maxValue]=100
-      [displayOff]=true
+      [minValue]=1
+      [maxValue]=5000
+      [displayOff]=false
     ></ngx-sensor-display>
   </div>
 </div>
