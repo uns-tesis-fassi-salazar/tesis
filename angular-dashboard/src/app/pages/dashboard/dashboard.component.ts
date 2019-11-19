@@ -1,5 +1,5 @@
-import {Component, OnDestroy} from '@angular/core';
-import { NbThemeService } from '@nebular/theme';
+import {Component, OnDestroy, OnChanges} from '@angular/core';
+import { NbThemeService, NbMenuService } from '@nebular/theme';
 import { takeWhile } from 'rxjs/operators' ;
 import { SolarData } from '../../@core/data/solar';
 import { FiredbService } from '../../services/firedb.service';
@@ -16,7 +16,7 @@ interface CardSettings {
   styleUrls: ['./dashboard.component.scss'],
   templateUrl: './dashboard.component.html',
 })
-export class DashboardComponent implements OnDestroy {
+export class DashboardComponent implements OnDestroy, OnChanges {
 
   private alive = true;
 
@@ -90,7 +90,13 @@ export class DashboardComponent implements OnDestroy {
 
   constructor(private themeService: NbThemeService,
               private solarService: SolarData,
-              private firedbService: FiredbService) {
+              private firedbService: FiredbService,
+              private nbMenuService: NbMenuService
+  ) {
+    this.nbMenuService.getSelectedItem().subscribe( nbMenuBag => {
+      console.log(nbMenuBag);
+
+    });
 
     this.nodoMAC = this.firedbService.getNodoMAC();
 
@@ -116,6 +122,10 @@ export class DashboardComponent implements OnDestroy {
 
   ngOnDestroy() {
     this.alive = false;
+  }
+
+  ngOnChanges() {
+    console.log("cambio");
   }
 
   loadValues(){

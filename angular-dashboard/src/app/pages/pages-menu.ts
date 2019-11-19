@@ -1,34 +1,23 @@
 import { NbMenuItem } from '@nebular/theme';
 
 export const MENU_ITEMS: NbMenuItem[] = [
-  {
-    title: 'Dashboard',
-    icon: 'home-outline',
-    link: '/pages/dashboard',
-  },
+  // {
+  //   title: 'Dashboard',
+  //   icon: 'home-outline',
+  //   link: '/pages/dashboard',
+  //   // home: true,
+  // },
   {
     title: 'Universidad Nacional del Sur',
     group: true,
   },
   {
-    title: 'DCIC',
+    title: 'DCIC2',
     icon: 'keypad-outline',
     children: [
       {
         title: 'Aula 1',
         link: '/',
-      },
-      {
-        title: 'Aula 2',
-        link: '/pages/forms/layouts',
-      },
-      {
-        title: 'Aula 3',
-        link: '/pages/forms/buttons',
-      },
-      {
-        title: 'Aula 4',
-        link: '/pages/forms/datepicker',
       },
     ],
   },
