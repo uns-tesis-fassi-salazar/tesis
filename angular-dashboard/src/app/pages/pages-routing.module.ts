@@ -10,7 +10,7 @@ const routes: Routes = [{
   component: PagesComponent,
   children: [
     {
-      path: 'dashboard',
+      path: 'home',
       component: DashboardComponent,
     },
     {
@@ -18,19 +18,14 @@ const routes: Routes = [{
       loadChildren: () => import('./miscellaneous/miscellaneous.module')
         .then(m => m.MiscellaneousModule),
     },
-    // {
-    //   path: 'auth',
-    //   loadChildren: () => import('./auth/auth.module')
-    //     .then(m => m.AuthModule),
-    // },
     {
       path: '',
-      redirectTo: 'dashboard',
+      redirectTo: 'home',
       pathMatch: 'full',
     },
     {
       path: '**',
-      component: NotFoundComponent,
+      component: DashboardComponent,
     },
   ],
 }];
