@@ -31,8 +31,7 @@ String nodePath = "Nodos/";
 String ip;
 String mac;
 
-float luxValue,tempValue,humidityValue;
-int movementValue;
+float luxValue,tempValue,humidityValue,movementValue;
 int luxPortSDA = GPIO_NUM_22;
 int luxPortCSL = GPIO_NUM_21;
 int dhtPort = GPIO_NUM_5;
@@ -42,7 +41,7 @@ boolean turnOnOffLed = false;
 
 boolean activeMode = 0;
 int secondsToSleep = 10;
-int seccodsBetweenReads = 1;
+int seccodsBetweenReads = 5;
 
 void setup(){
 
@@ -170,7 +169,7 @@ void setupSensors() {
     dht.setup(dhtPort);
 
     // Inicializacion Sensor Movimiento
-    pinMode(movementSensorPort,PULLUP);
+    pinMode(movementSensorPort,PULLDOWN);
 
     // Inicializacion actuadores
     pinMode(ledPort,OUTPUT);
@@ -227,35 +226,15 @@ void printTittle() {
 
 void uploadData() {
     if (!isnan(humidityValue)) {
-        if (Firebase.setFloat(firebaseData, nodePath + mac + "/Sensores/Humedad", humidityValue)) {
-            Serial.println("upload Humedad");
-        } else {
-            Serial.println("error al upload Humedad");
-        }
+        if (Firebase.setFloat(firebaseData, nodePath + mac + "/Sensores/Humedad", humidityValue) ? Serial.println("upload Humedad") : Serial.println("error al upload Humedad"));
     }
 
     if (!isnan(tempValue)) {
-        if (Firebase.setFloat(firebaseData, nodePath + mac + "/Sensores/Temperatura", tempValue)) {
-            Serial.println("upload Temperatura");
-        } else {
-            Serial.println("error al upload Temperatura");
-        }
+        if (Firebase.setFloat(firebaseData, nodePath + mac + "/Sensores/Temperatura", tempValue) ? Serial.println("upload Temperatura") : Serial.println("error al upload Temperatura"));
     }
 
     if (!isnan(luxValue)) {
-        if (Firebase.setFloat(firebaseData, nodePath + mac + "/Sensores/Luminocidad", luxValue)) {
-            Serial.println("upload Luminocidad");
-        } else {
-            Serial.println("error al upload Luminocidad");
-        }
-    }
-
-    if (!isnan(movementValue)) {
-        if (Firebase.setInt(firebaseData, nodePath + mac + "/Sensores/Movimiento", movementValue)) {
-            Serial.println("upload Movimiento");
-        } else {
-            Serial.println("error al upload Movimiento");
-        }
+        if (Firebase.setFloat(firebaseData, nodePath + mac + "/Sensores/Luminocidad", luxValue) ? Serial.println("upload Luminocidad") : Serial.println("error al upload Luminocidad"));
     }
 }
 
