@@ -14,8 +14,9 @@ void setupInet();
 void setupFirebase();
 void setupSensors();
 boolean lookupActiveMode();
-
-void printResult(FirebaseData &data);
+void printTittle();
+void uploadData();
+void printFirebaseResult(FirebaseData &data);
 
 FirebaseData firebaseData;
 FirebaseJson json,json2;
@@ -29,6 +30,7 @@ String mac;
 float lux,temp,humidity;
 
 boolean activeMode = 0;
+boolean secondsToSleep = 10;
 
 void setup(){
 
@@ -41,64 +43,44 @@ void setup(){
     
     setupFirebase();
     
-    setupSensors();
+    if (mac != "CC:50:E3:B6:29:48") {
+        setupSensors();
+    }
 
     Serial.println("*** Setup OK ***");
 }
 
 void loop() {
 
-    if (lookupActiveMode())
-        activeMode = 1;
-    else
-        activeMode = 0;
+    if (lookupActiveMode() ? activeMode = 1 : activeMode = 0);
 
     if (activeMode) {
         delay(500);
-        delay(dht.getMinimumSamplingPeriod());
-        
-        lux = lightMeter.readLightLevel();
-        lightMeter.configure(BH1750::ONE_TIME_HIGH_RES_MODE_2);
-        delay(500);
+        if (mac != "CC:50:E3:B6:29:48") {
+            delay(dht.getMinimumSamplingPeriod());
+            
+            lux = lightMeter.readLightLevel();
+            lightMeter.configure(BH1750::ONE_TIME_HIGH_RES_MODE_2);
+            delay(500);
 
-        temp = dht.getTemperature();
-        humidity = dht.getHumidity();
-
-        Serial.print("\nLuminocidad\tHumedad\t\tTemperatura\n");
-        Serial.print(lux);
-        Serial.print(" lux");
-        Serial.print("\t");
-        Serial.print(humidity);
-        Serial.print(" %");
-        Serial.print("\t \t");
-        Serial.print(temp);
-        Serial.print(" C°");
-        Serial.print("\n");
-
-        if (Firebase.setFloat(firebaseData, nodePath + mac + "/Sensores/Humedad", humidity)) {
-            Serial.println("upload Humedad");
+            temp = dht.getTemperature();
+            humidity = dht.getHumidity();
         } else {
-            Serial.println("error al upload Humedad");
+            temp = temperatureRead();
+            humidity = 0;
+            lux = 0;
         }
 
-        if (Firebase.setFloat(firebaseData, nodePath + mac + "/Sensores/Temperatura", temp)) {
-            Serial.println("upload Temperatura");
-        } else {
-            Serial.println("error al upload Temperatura");
-        }
+        printTittle();
 
-        if (Firebase.setFloat(firebaseData, nodePath + mac + "/Sensores/Luminocidad", lux)) {
-            Serial.println("upload Luminocidad");
-        } else {
-            Serial.println("error al upload Luminocidad");
-        }
+        uploadData();
 
         delay(2500);
+
     } else {
         Serial.println("Esperando asignacion de aula...");
-        delay(1000 * 10); // esperando configuracion...
-    }
-    
+        delay(1000 * secondsToSleep); // esperando configuracion...
+    }   
 }
 
 void setupInet() {
@@ -186,7 +168,34 @@ boolean lookupActiveMode() {
     }
 }
 
-void printResult(FirebaseData &data) {
+void printTittle() {
+    Serial.print("\nLuminocidad\tHumedad\t\tTemperatura\n");
+    Serial.print(lux);
+    Serial.print(" lux");
+    Serial.print("\t");
+    Serial.print(humidity);
+    Serial.print(" %");
+    Serial.print("\t \t");
+    Serial.print(temp);
+    Serial.print(" C°");
+    Serial.print("\n");
+}
+
+void uploadData() {
+    if (!isnan(humidity)) {
+        if (Firebase.setFloat(firebaseData, nodePath + mac + "/Sensores/Humedad", humidity) ? Serial.println("upload Humedad") : Serial.println("error al upload Humedad"));
+    }
+
+    if (!isnan(temp)) {
+        if (Firebase.setFloat(firebaseData, nodePath + mac + "/Sensores/Temperatura", temp) ? Serial.println("upload Temperatura") : Serial.println("error al upload Temperatura"));
+    }
+
+    if (!isnan(lux)) {
+        if (Firebase.setFloat(firebaseData, nodePath + mac + "/Sensores/Luminocidad", lux) ? Serial.println("upload Luminocidad") : Serial.println("error al upload Luminocidad"));
+    }
+}
+
+void printFirebaseResult(FirebaseData &data) {
     if (data.dataType() == "int")
         Serial.println(data.intData());
     else if (data.dataType() == "float")
