@@ -31,6 +31,14 @@ export class FiredbService {
     return this.db.object('Nodos/' + NodoMAC + '/Sensores/Movimiento').valueChanges();
   }
 
+  getSensores(NodoMAC) {
+    return this.db.object('Nodos/' + NodoMAC + '/Sensores').valueChanges();
+  }
+
+  getActuadores(NodoMAC) {
+    return this.db.object('Nodos/' + NodoMAC + '/Actuadores').valueChanges();
+  }
+
   updateActuador(nodoId, actuadorId, value){
     this.db.object(nodoId + '/Actuadores/' + actuadorId).update({Estado:value});
   }

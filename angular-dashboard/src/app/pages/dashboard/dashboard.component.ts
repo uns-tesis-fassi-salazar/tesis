@@ -1,9 +1,11 @@
-import {Component, OnDestroy, OnChanges} from '@angular/core';
+import {Component, OnDestroy, OnInit, OnChanges} from '@angular/core';
 import { NbThemeService, NbMenuService } from '@nebular/theme';
 import { takeWhile } from 'rxjs/operators' ;
 import { SolarData } from '../../@core/data/solar';
 import { FiredbService } from '../../services/firedb.service';
 import { Observable } from 'rxjs';
+import { AulaService } from '../../services/aula.service';
+import { Aula } from '../../models/aula';
 
 interface CardSettings {
   title: string;
@@ -16,7 +18,7 @@ interface CardSettings {
   styleUrls: ['./dashboard.component.scss'],
   templateUrl: './dashboard.component.html',
 })
-export class DashboardComponent implements OnDestroy, OnChanges {
+export class DashboardComponent implements OnDestroy, OnInit {
 
   private alive = true;
 
@@ -85,27 +87,14 @@ export class DashboardComponent implements OnDestroy, OnChanges {
   public temperatura: Observable<any>;
   public movimiento: Observable<any>;
 
-  public nodoMAC: Observable<any>;
   public nodoMACValue: String;
+  public aulaData: Aula;
 
   constructor(private themeService: NbThemeService,
               private solarService: SolarData,
               private firedbService: FiredbService,
-              private nbMenuService: NbMenuService
+              private aulaService: AulaService
   ) {
-    this.nbMenuService.getSelectedItem().subscribe( nbMenuBag => {
-      console.log(nbMenuBag);
-
-    });
-
-    this.nodoMAC = this.firedbService.getNodoMAC();
-
-    this.nodoMAC
-      .pipe(takeWhile(() => this.alive))
-      .subscribe(value => {
-        this.nodoMACValue = value;
-        this.loadValues();
-    });
 
     this.themeService.getJsTheme()
       .pipe(takeWhile(() => this.alive))
@@ -118,14 +107,19 @@ export class DashboardComponent implements OnDestroy, OnChanges {
       .subscribe((data) => {
         this.solarValue = data;
       });
+
+  }
+
+  ngOnInit() {
+    this.aulaService.aulaData.subscribe(aulaObj => {
+      this.aulaData = aulaObj;
+      this.nodoMACValue = aulaObj.nodoMac;
+      this.loadValues();
+    });
   }
 
   ngOnDestroy() {
     this.alive = false;
-  }
-
-  ngOnChanges() {
-    console.log("cambio");
   }
 
   loadValues(){
