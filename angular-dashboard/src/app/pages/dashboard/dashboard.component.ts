@@ -3,16 +3,19 @@ import { NbThemeService, NbMenuService } from '@nebular/theme';
 import { takeWhile } from 'rxjs/operators' ;
 import { SolarData } from '../../@core/data/solar';
 import { FiredbService } from '../../services/firedb.service';
-import { Observable } from 'rxjs';
+import { Observable, from } from 'rxjs';
 import { AulaService } from '../../services/aula.service';
-import { Aula } from '../../models/aula';
+import { DBConstants, Aula } from '../../models';
+
 
 interface CardSettings {
   title: string;
   iconClass: string;
   type: string;
+  status: boolean;
+  actuadorId: string;
 }
-
+  
 @Component({
   selector: 'ngx-dashboard',
   styleUrls: ['./dashboard.component.scss'],
@@ -20,28 +23,36 @@ interface CardSettings {
 })
 export class DashboardComponent implements OnDestroy, OnInit {
 
-  private alive = true;
 
+  private alive = true;
   solarValue: number;
   lightCard: CardSettings = {
     title: 'Light',
     iconClass: 'nb-lightbulb',
     type: 'primary',
+    status: true,
+    actuadorId: DBConstants.actuadorLedId
   };
   rollerShadesCard: CardSettings = {
     title: 'Roller Shades',
     iconClass: 'nb-roller-shades',
     type: 'success',
+    status: true,
+    actuadorId: DBConstants.actuadorAireId
   };
   wirelessAudioCard: CardSettings = {
     title: 'Wireless Audio',
     iconClass: 'nb-audio',
     type: 'info',
+    status: true,
+    actuadorId: DBConstants.actuadorAireId
   };
   coffeeMakerCard: CardSettings = {
     title: 'Coffee Maker',
     iconClass: 'nb-coffee-maker',
     type: 'warning',
+    status: true,
+    actuadorId: DBConstants.actuadorAireId
   };
 
   statusCards: string;
@@ -123,9 +134,14 @@ export class DashboardComponent implements OnDestroy, OnInit {
   }
 
   loadValues(){
-    this.luminocidad = this.firedbService.getLuminocidad(this.nodoMACValue);
-    this.humedad = this.firedbService.getHumedad(this.nodoMACValue);
-    this.temperatura = this.firedbService.getTemperatura(this.nodoMACValue);
-    this.movimiento = this.firedbService.getMovimiento(this.nodoMACValue);
+    this.luminocidad = this.firedbService.getSensor(this.nodoMACValue, DBConstants.sensorLuminocidadId);
+    this.humedad = this.firedbService.getSensor(this.nodoMACValue, DBConstants.sensorHumedadId);
+    this.temperatura = this.firedbService.getSensor(this.nodoMACValue, DBConstants.sensorTemperaturaId);
+    this.movimiento = this.firedbService.getSensor(this.nodoMACValue, DBConstants.sensorMovimientoId);
+  }
+
+  onClickStatusButton(statusCard){
+      statusCard.status = !statusCard.status;
+      this.firedbService.updateActuador(this.nodoMACValue, statusCard.actuadorId, statusCard.status);
   }
 }

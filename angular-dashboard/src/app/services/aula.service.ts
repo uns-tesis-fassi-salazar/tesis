@@ -25,8 +25,4 @@ export class AulaService {
     updateAula(newAula: Aula) {
         this.aulaSource.next(newAula);
     }
-
-
-
-
 }
