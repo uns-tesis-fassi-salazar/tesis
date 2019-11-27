@@ -1,35 +1,40 @@
+#include <FirebaseModule.h>
+
 #include <FirebaseESP32.h>
+
 #include <WiFi.h>
 
 #include <Wire.h>
 #include <BH1750.h>
 #include <DHT.h>
 
-#define FIREBASE_HOST "https://finalproject-35a1b.firebaseio.com"
-#define FIREBASE_AUTH "603o4dr3kNDaNIfJotOhbN82cfMGbAOh9nJ21MPh"
 #define WIFI_SSID "DIEGO"
 #define WIFI_PASSWORD "MontyPython"
 
+#define SENSOR_HUMEDAD "Humedad"
+#define SENSOR_TEMPERATURA "Temperatura"
+#define SENSOR_LUX "Luminocidad"
+#define SENSOR_MOV "Movimiento"
+#define AULA_ASIGNADA "AulaAsignada"
+#define ACTUADOR_LED "Led"
+
 // Funciones
 void setupInet();
-void setupFirebase();
 void setupSensors();
-boolean lookupActiveMode();
-boolean readLedActionValue();
+int lookupActiveMode();
 void printTittle();
-void uploadData();
 void doActions();
 void printFirebaseResult(FirebaseData &data);
+bool lapTimer(ulong lapTime,ulong *lastLapTime);
 
 // Variables
-FirebaseData firebaseData;
-FirebaseJson json,json2;
 BH1750 lightMeter;
 DHT dht;
 
-String nodePath = "Nodos/";
+FirebaseJson jsonSensorData;
+
 String ip;
-String mac;
+String nodoMac;
 
 float luxValue,tempValue,humidityValue;
 int movementValue;
@@ -38,11 +43,17 @@ int luxPortCSL = GPIO_NUM_21;
 int dhtPort = GPIO_NUM_5;
 int ledPort = GPIO_NUM_32;
 int movementSensorPort = GPIO_NUM_25;
-boolean turnOnOffLed = false;
+int turnOnOffLed = 0;
 
 boolean activeMode = 0;
 int secondsToSleep = 10;
-int seccodsBetweenReads = 1;
+int seccodsBetweenReads = 0;
+
+ulong tiempoUltimaLecturaDHT = 0;
+
+ulong t0 = 0;
+ulong t1;
+ulong delta = 0;
 
 void setup(){
 
@@ -53,35 +64,40 @@ void setup(){
 
     setupInet();
     
-    setupFirebase();
+    setupFirebase(nodoMac);
     
-    if (mac != "CC:50:E3:B6:29:48") {
-        setupSensors();
-    }
+    if (nodoMac != "CC:50:E3:B6:29:48") setupSensors();
 
     Serial.println("*** Setup OK ***");
 }
 
 void loop() {
 
+    t0 = millis();
     activeMode = lookupActiveMode();
+    t1 = millis();
+    delta = abs(t1 - t0);
+    Serial.print("Request Time: ");
+    Serial.println(delta);
 
     if (activeMode) {
-        delay(500);
-        if (mac != "CC:50:E3:B6:29:48") {
-            delay(dht.getMinimumSamplingPeriod());
+        // delay(500);
+        if (nodoMac != "CC:50:E3:B6:29:48") {
+            // delay(dht.getMinimumSamplingPeriod());
             
             luxValue = lightMeter.readLightLevel();
             lightMeter.configure(BH1750::ONE_TIME_HIGH_RES_MODE_2);
-            delay(200);
+            // delay(200);
 
-            tempValue = dht.getTemperature();
-            humidityValue = dht.getHumidity();
-            delay(200);
+            if (lapTimer(dht.getMinimumSamplingPeriod(),&tiempoUltimaLecturaDHT)) {
+                tempValue = dht.getTemperature();
+                humidityValue = dht.getHumidity();
+            }
+            // delay(200);
 
             movementValue = digitalRead(movementSensorPort);
 
-            turnOnOffLed = readLedActionValue();
+            readActuador(ACTUADOR_LED,&turnOnOffLed);
         } else {
             turnOnOffLed = 0;
             tempValue = temperatureRead();
@@ -91,11 +107,44 @@ void loop() {
 
         printTittle();
 
-        uploadData();
+        jsonSensorData.clear();
+        jsonSensorData.add("Luminocidad",(double)luxValue);
+        jsonSensorData.add("Temperatura",(double)tempValue);
+        jsonSensorData.add("Humedad",(double)humidityValue);
+        jsonSensorData.add("Movimiento",(double)movementValue);
+
+        if (uploadData(jsonSensorData)) {
+            // Serial.println("Lux OK");
+        } else {
+            Serial.println("JSON NOT OK");
+        }
+
+        /*
+        if (uploadData(luxValue,SENSOR_LUX)) {
+            // Serial.println("Lux OK");
+        } else {
+            Serial.println("Lux NOT OK");
+        }
+        if (uploadData(tempValue,SENSOR_TEMPERATURA)) {
+            // Serial.println("Temperatura OK");
+        } else {
+            Serial.println("Temperatura NOT OK");
+        }
+        if (uploadData(humidityValue,SENSOR_HUMEDAD)) {
+            // Serial.println("Humedad OK");
+        } else {
+            Serial.println("Humedad NOT OK");
+        }
+        if (uploadData(movementValue,SENSOR_MOV)) {
+            // Serial.println("Movimiento OK");
+        } else {
+            Serial.println("Movimiento NOT OK");
+        }
+        */
 
         doActions();
 
-        delay(1000 * seccodsBetweenReads);
+        // delay(1000 * seccodsBetweenReads);
 
     } else {
         Serial.println("Esperando asignacion de aula...");
@@ -116,48 +165,8 @@ void setupInet() {
     Serial.println(ip);
     Serial.println();
     Serial.print("MAC Address: ");
-    mac = WiFi.macAddress();
-    Serial.println(mac);
-}
-
-void setupFirebase() {
-    Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
-    Firebase.reconnectWiFi(true);
-
-    //Set database read timeout to 1 minute (max 15 minutes)
-    Firebase.setReadTimeout(firebaseData, 1000 * 60);
-    //tiny, small, medium, large and unlimited.
-    //Size and its write timeout e.g. tiny (1s), small (10s), medium (30s) and large (60s).
-    Firebase.setwriteSizeLimit(firebaseData, "tiny");
-
-    /*
-    This option allows get and delete functions (PUT and DELETE HTTP requests) works for device connected behind the
-    Firewall that allows only GET and POST requests.
-    
-    Firebase.enableClassicRequest(firebaseData, true);
-    */
-
-    if (Firebase.pathExist(firebaseData,nodePath + mac)) {
-        Serial.println("Nodo registrado.");
-    } else {
-        Serial.println("Nodo no registrado... intentando registrar...");
-        json.clear();
-        json.add("AulaAsignada",0);
-        json2.clear();
-        json2.add("Aire",0);
-        json2.add("Luces",0);
-        json2.add("Proyector",0);
-        json.add("Actuadores",json2);
-        json2.clear();
-        json2.add("Luminocidad",0);
-        json2.add("Temperatura",0);
-        json2.add("Humedad",0);
-        json2.add("Movimiento",0);
-        json.add("Sensores",json2);
-        if (Firebase.setJSON(firebaseData,nodePath + mac,json)) {
-            Serial.println("Nodo registrado correctamente");
-        }
-    }
+    nodoMac = WiFi.macAddress();
+    Serial.println(nodoMac);
 }
 
 void setupSensors() {
@@ -176,36 +185,10 @@ void setupSensors() {
     pinMode(ledPort,OUTPUT);
 }
 
-boolean lookupActiveMode() {
-    if (Firebase.pathExist(firebaseData,nodePath + mac)) {
-        if (Firebase.getInt(firebaseData,nodePath + mac + "/AulaAsignada")) {
-            if (firebaseData.intData() == 0) {
-                return false;
-            } else {
-                return true;
-            }
-        } else {
-            Serial.println("No puedo recuperar el valor AulaAsignada");
-            return false;
-        }
-    } else {
-        Serial.println("No existe el path");
-        return false;
-    }
-}
-
-boolean readLedActionValue() {
-    if (Firebase.pathExist(firebaseData,nodePath + mac)) {
-        if (Firebase.getInt(firebaseData,nodePath + mac + "/Actuadores/Led")) {
-            return firebaseData.intData() == 1;
-        } else {
-            Serial.println("No puedo recuperar el valor del Actuador/Led");
-            return false;
-        }
-    } else {
-        Serial.println("No existe el path");
-        return false;
-    }
+int lookupActiveMode() {
+    int salida;
+    readData(AULA_ASIGNADA,&salida);
+    return salida;
 }
 
 void printTittle() {
@@ -225,113 +208,17 @@ void printTittle() {
     Serial.print("\n");
 }
 
-void uploadData() {
-    if (!isnan(humidityValue)) {
-        if (Firebase.setFloat(firebaseData, nodePath + mac + "/Sensores/Humedad", humidityValue)) {
-            Serial.println("upload Humedad");
-        } else {
-            Serial.println("error al upload Humedad");
-        }
-    }
-
-    if (!isnan(tempValue)) {
-        if (Firebase.setFloat(firebaseData, nodePath + mac + "/Sensores/Temperatura", tempValue)) {
-            Serial.println("upload Temperatura");
-        } else {
-            Serial.println("error al upload Temperatura");
-        }
-    }
-
-    if (!isnan(luxValue)) {
-        if (Firebase.setFloat(firebaseData, nodePath + mac + "/Sensores/Luminocidad", luxValue)) {
-            Serial.println("upload Luminocidad");
-        } else {
-            Serial.println("error al upload Luminocidad");
-        }
-    }
-
-    if (!isnan(movementValue)) {
-        if (Firebase.setInt(firebaseData, nodePath + mac + "/Sensores/Movimiento", movementValue)) {
-            Serial.println("upload Movimiento");
-        } else {
-            Serial.println("error al upload Movimiento");
-        }
-    }
-}
-
 void doActions() {
     turnOnOffLed ? digitalWrite(ledPort,HIGH) : digitalWrite(ledPort,LOW);
 }
 
-void printFirebaseResult(FirebaseData &data) {
-    if (data.dataType() == "int")
-        Serial.println(data.intData());
-    else if (data.dataType() == "float")
-        Serial.println(data.floatData(), 5);
-    else if (data.dataType() == "double")
-        printf("%.9lf\n", data.doubleData());
-    else if (data.dataType() == "boolean")
-        Serial.println(data.boolData() == 1 ? "true" : "false");
-    else if (data.dataType() == "string")
-        Serial.println(data.stringData());
-    else if (data.dataType() == "json") {
-        Serial.println();
-        FirebaseJson &json = data.jsonObject();
-        //Print all object data
-        Serial.println("Pretty printed JSON data:");
-        String jsonStr;
-        json.toString(jsonStr, true);
-        Serial.println(jsonStr);
-        Serial.println();
-        Serial.println("Iterate JSON data:");
-        Serial.println();
-        size_t len = json.iteratorBegin();
-        String key, value = "";
-        int type = 0;
-        for (size_t i = 0; i < len; i++) {
-            json.iteratorGet(i, type, key, value);
-            Serial.print(i);
-            Serial.print(", ");
-            Serial.print("Type: ");
-            Serial.print(type == JSON_OBJECT ? "object" : "array");
-            if (type == JSON_OBJECT) {
-                Serial.print(", Key: ");
-                Serial.print(key);
-            }
-            Serial.print(", Value: ");
-            Serial.println(value);
-        }
-        json.iteratorEnd();
-    } else if (data.dataType() == "array") {
-        Serial.println();
-        //get array data from FirebaseData using FirebaseJsonArray object
-        FirebaseJsonArray &arr = data.jsonArray();
-        //Print all array values
-        Serial.println("Pretty printed Array:");
-        String arrStr;
-        arr.toString(arrStr, true);
-        Serial.println(arrStr);
-        Serial.println();
-        Serial.println("Iterate array values:");
-        Serial.println();
-        for (size_t i = 0; i < arr.size(); i++) {
-            Serial.print(i);
-            Serial.print(", Value: ");
-
-            FirebaseJsonData &jsonData = data.jsonData();
-            //Get the result data from FirebaseJsonArray object
-            arr.get(jsonData, i);
-            if (jsonData.typeNum == JSON_BOOL)
-                Serial.println(jsonData.boolValue ? "true" : "false");
-            else if (jsonData.typeNum == JSON_INT)
-                Serial.println(jsonData.intValue);
-            else if (jsonData.typeNum == JSON_DOUBLE)
-                printf("%.9lf\n", jsonData.doubleValue);
-            else if (jsonData.typeNum == JSON_STRING ||
-                     jsonData.typeNum == JSON_NULL ||
-                     jsonData.typeNum == JSON_OBJECT ||
-                     jsonData.typeNum == JSON_ARRAY)
-                Serial.println(jsonData.stringValue);
-        }
+// Delay no Bloqueante
+bool lapTimer(ulong lapTime, ulong *lastLapTime) {
+    ulong currentTime = millis();
+    if( abs(currentTime - *lastLapTime) >= lapTime) {
+        *lastLapTime = currentTime;
+        return true;
+    } else {
+        return false;
     }
 }
