@@ -86,6 +86,4 @@ export class PagesComponent implements OnInit, OnDestroy {
         }
       });
   }
-
-
 }
