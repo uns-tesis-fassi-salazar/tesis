@@ -1,6 +1,5 @@
 #include <FirebaseModule.h>
-
-#include <FirebaseESP32.h>
+#include <Led.h>
 
 #include <WiFi.h>
 
@@ -41,19 +40,15 @@ int movementValue;
 int luxPortSDA = GPIO_NUM_22;
 int luxPortCSL = GPIO_NUM_21;
 int dhtPort = GPIO_NUM_5;
-int ledPort = GPIO_NUM_32;
+// int ledPort = GPIO_NUM_32;
 int movementSensorPort = GPIO_NUM_25;
-int turnOnOffLed = 0;
+// int turnOnOffLed = 0;
 
 boolean activeMode = 0;
 int secondsToSleep = 10;
 int seccodsBetweenReads = 0;
 
 ulong tiempoUltimaLecturaDHT = 0;
-
-ulong t0 = 0;
-ulong t1;
-ulong delta = 0;
 
 void setup(){
 
@@ -73,13 +68,6 @@ void setup(){
 
 void loop() {
 
-    t0 = millis();
-    activeMode = lookupActiveMode();
-    t1 = millis();
-    delta = abs(t1 - t0);
-    Serial.print("Request Time: ");
-    Serial.println(delta);
-
     if (activeMode) {
         // delay(500);
         if (nodoMac != "CC:50:E3:B6:29:48") {
@@ -97,9 +85,9 @@ void loop() {
 
             movementValue = digitalRead(movementSensorPort);
 
-            readActuador(ACTUADOR_LED,&turnOnOffLed);
+            // readActuador(ACTUADOR_LED,&turnOnOffLed);
         } else {
-            turnOnOffLed = 0;
+            // turnOnOffLed = 0;
             tempValue = temperatureRead();
             humidityValue = 0;
             luxValue = 0;
@@ -119,36 +107,14 @@ void loop() {
             Serial.println("JSON NOT OK");
         }
 
-        /*
-        if (uploadData(luxValue,SENSOR_LUX)) {
-            // Serial.println("Lux OK");
-        } else {
-            Serial.println("Lux NOT OK");
-        }
-        if (uploadData(tempValue,SENSOR_TEMPERATURA)) {
-            // Serial.println("Temperatura OK");
-        } else {
-            Serial.println("Temperatura NOT OK");
-        }
-        if (uploadData(humidityValue,SENSOR_HUMEDAD)) {
-            // Serial.println("Humedad OK");
-        } else {
-            Serial.println("Humedad NOT OK");
-        }
-        if (uploadData(movementValue,SENSOR_MOV)) {
-            // Serial.println("Movimiento OK");
-        } else {
-            Serial.println("Movimiento NOT OK");
-        }
-        */
-
-        doActions();
+        // doActions();
 
         // delay(1000 * seccodsBetweenReads);
 
     } else {
         Serial.println("Esperando asignacion de aula...");
         delay(1000 * secondsToSleep); // esperando configuracion...
+        activeMode = lookupActiveMode();
     }   
 }
 
@@ -182,7 +148,7 @@ void setupSensors() {
     pinMode(movementSensorPort,PULLUP);
 
     // Inicializacion actuadores
-    pinMode(ledPort,OUTPUT);
+    setUpLed();
 }
 
 int lookupActiveMode() {
@@ -202,14 +168,10 @@ void printTittle() {
     Serial.print(tempValue);
     Serial.print(" C°");
     Serial.print("\t");
-    Serial.print(turnOnOffLed);
+    Serial.print(ledValue());
     Serial.print("\t\t");
     Serial.print(movementValue);
     Serial.print("\n");
-}
-
-void doActions() {
-    turnOnOffLed ? digitalWrite(ledPort,HIGH) : digitalWrite(ledPort,LOW);
 }
 
 // Delay no Bloqueante

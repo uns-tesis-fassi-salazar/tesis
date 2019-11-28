@@ -4,6 +4,7 @@
 #define FIREBASE_AUTH "603o4dr3kNDaNIfJotOhbN82cfMGbAOh9nJ21MPh"
 
 FirebaseData firebaseData;
+FirebaseData firebaseDataStream;
 FirebaseJson json,json2;
 
 String mac;
@@ -51,6 +52,46 @@ void setupFirebase(String nodoMac) {
             Serial.println("Nodo registrado correctamente");
         }
     }
+}
+
+  //Global function that handle stream data
+void streamCallback(StreamData data)
+{
+  Serial.println("Stream Data...");
+  Serial.println(data.streamPath());
+  Serial.println(data.dataPath());
+  Serial.println(data.dataType());
+
+  if (data.dataType() == "int")
+    Serial.println(data.intData());
+  else if (data.dataType() == "float")
+    Serial.println(data.floatData(), 5);
+  else if (data.dataType() == "double")
+    printf("%.9lf\n", data.doubleData());
+  else if (data.dataType() == "boolean")
+    Serial.println(data.boolData() == 1 ? "true" : "false");
+  else if (data.dataType() == "string")
+    Serial.println(data.stringData());
+  else if (data.dataType() == "json")
+    Serial.println(data.jsonString());
+}
+
+//Global function that notify when stream connection lost
+//The library will resume the stream connection automatically
+void streamTimeoutCallback(bool timeout)
+{
+  if(timeout) {
+    //Stream timeout occurred
+    Serial.println("Stream timeout, resume streaming...");
+  }
+}
+
+void setStreamToActuador(FirebaseData &fbDataStream,String actuadorId,StreamEventCallback eventCallBack, StreamTimeoutCallback timeoutCallback) {
+    if (!Firebase.beginStream(fbDataStream, nodePath + mac + actuadorId))
+    {
+        Serial.println(fbDataStream.errorReason());
+    }
+    Firebase.setStreamCallback(fbDataStream, eventCallBack, timeoutCallback);
 }
 
 boolean readData(String path, int *value) {
