@@ -70,7 +70,7 @@ void setup() {
     Serial.print("MAC Address: ");
     nodoMac = WiFi.macAddress();
     Serial.println(nodoMac);
-    
+
     setupFirebase(nodoMac);
 
     if (nodoMac != "CC:50:E3:B6:29:48") setupSensors();
@@ -105,20 +105,22 @@ void loop() {
                 tempValue = temperatureRead();
                 humidityValue = 0;
                 luxValue = 0;
+                movementValue = 0;
             }
 
-            printTittle();
+            if (!isnan(tempValue) && !isnan(humidityValue)) {
+                printTittle();
 
-            jsonSensorData.clear();
-            jsonSensorData.add("Luminocidad", (double)luxValue);
-            jsonSensorData.add("Temperatura", (double)tempValue);
-            jsonSensorData.add("Humedad", (double)humidityValue);
-            jsonSensorData.add("Movimiento", (double)movementValue);
-
-            if (uploadData(jsonSensorData)) {
-                // Serial.println("Lux OK");
-            } else {
-                Serial.println("JSON NOT OK");
+                jsonSensorData.clear();
+                jsonSensorData.add("Luminocidad", (double)luxValue);
+                jsonSensorData.add("Temperatura", (double)tempValue);
+                jsonSensorData.add("Humedad", (double)humidityValue);
+                jsonSensorData.add("Movimiento", (double)movementValue);
+                if (uploadData(jsonSensorData)) {
+                    // Serial.println("Lux OK");
+                } else {
+                    Serial.println("JSON NOT OK");
+                }
             }
 
             // doActions();
