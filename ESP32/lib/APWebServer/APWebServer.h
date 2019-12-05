@@ -7,5 +7,6 @@
 
 void APWebServerSetup();
 void APWebServerLoop();
+void listenButtonWiFiReset();
 
 #endif

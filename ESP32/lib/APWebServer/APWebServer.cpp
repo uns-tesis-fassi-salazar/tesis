@@ -570,7 +570,6 @@ void APWebServerSetup(void) {
 }
 
 void APWebServerLoop(void) {
-    debounceButton();
     if (WiFi.getMode() == WIFI_MODE_APSTA) {
         server.handleClient();
         if (canConnect) {
@@ -579,4 +578,8 @@ void APWebServerLoop(void) {
             canConnect = false;
         }
     }
+}
+
+void listenButtonWiFiReset() {
+    debounceButton();
 }
