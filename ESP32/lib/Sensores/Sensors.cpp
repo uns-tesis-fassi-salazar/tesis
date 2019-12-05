@@ -89,7 +89,7 @@ void uploadSensorsValues() {
             jsonSensorData.add("Luminocidad", (double)currentLuxValue);
             jsonSensorData.add("Temperatura", (double)currentTempValue);
             jsonSensorData.add("Humedad", (double)currentHumidityValue);
-            jsonSensorData.add("Movimiento", (double)movement.emptyRoom);
+            jsonSensorData.add("Movimiento", !(double)movement.emptyRoom);
             if (!uploadData(jsonSensorData)) {
                 Serial.println("JSON NOT OK");
             }

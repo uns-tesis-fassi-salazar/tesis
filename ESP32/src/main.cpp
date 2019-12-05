@@ -30,8 +30,6 @@ void setup() {
     WiFi.setAutoConnect(true);
     WiFi.setAutoReconnect(true);
 
-    // setupInet();
-
     APWebServerSetup();
     while (WiFi.status() != WL_CONNECTED) {
         APWebServerLoop();
@@ -41,9 +39,11 @@ void setup() {
     nodoMac = WiFi.macAddress();
     Serial.println(nodoMac);
 
+    // Inicializacion Firebase
     setupFirebase(nodoMac);
 
-    if (nodoMac != "CC:50:E3:B6:29:48") sensorsSetup();
+    // Inicializacion sensores
+    sensorsSetup();
 
     // Inicializacion actuadores
     setUpLed();

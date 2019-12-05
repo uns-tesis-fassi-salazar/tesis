@@ -490,54 +490,60 @@ void webserverStop() {
 
 // --------------------- BUTTON -----------------------
 
-const int buttonPin = GPIO_NUM_26;
+#define BUTTON_PIN GPIO_NUM_26
 
-int buttonState;
-int lastButtonState = LOW;
+struct Button {
+    const uint8_t PIN;
+    bool pressed;
+};
 
-unsigned long lastDebounceTime = 0;
-unsigned long debounceDelay = 50;
+Button button = {BUTTON_PIN, false};
+
+void IRAM_ATTR buttonInterrupt() {
+    button.pressed = true;
+}
 
 void setupButton() {
-    pinMode(buttonPin, PULLDOWN);
+    pinMode(button.PIN, PULLDOWN);
+    attachInterrupt(button.PIN, buttonInterrupt, FALLING);
 }
+
+void buttonListener() {
+    if (button.pressed) {
+        Serial.println("Button pressss!");
+        button.pressed = false;
+        WiFi.disconnect(true, true);
+        ESP.restart();
+    }
+}
+
+// int buttonState;
+// int lastButtonState = LOW;
+
+// unsigned long lastDebounceTime = 0;
+// unsigned long debounceDelay = 50;
 
 // TODO: button with interruption
-void debounceButton() {
-    // read the state of the switch into a local variable:
-    int reading = digitalRead(buttonPin);
+// void debounceButton() {
+//     int reading = digitalRead(buttonPin);
 
-    // check to see if you just pressed the button
-    // (i.e. the input went from LOW to HIGH), and you've waited long enough
-    // since the last press to ignore any noise:
+//     if (reading != lastButtonState) {
+//         lastDebounceTime = millis();
+//     }
 
-    // If the switch changed, due to noise or pressing:
-    if (reading != lastButtonState) {
-        // reset the debouncing timer
-        lastDebounceTime = millis();
-    }
-
-    if ((millis() - lastDebounceTime) > debounceDelay) {
-        // whatever the reading is at, it's been there for longer than the debounce
-        // delay, so take it as the actual current state:
-
-        // if the button state has changed:
-        if (reading != buttonState) {
-            buttonState = reading;
-
-            // only toggle the LED if the new button state is HIGH
-            if (buttonState == HIGH) {
-                Serial.println("Button pressss!");
-                WiFi.disconnect(true, true);
-                ESP.restart();
-                // changeToAPSTAMode();
-            }
-        }
-    }
-
-    // save the reading. Next time through the loop, it'll be the lastButtonState:
-    lastButtonState = reading;
-}
+//     if ((millis() - lastDebounceTime) > debounceDelay) {
+//         if (reading != buttonState) {
+//             buttonState = reading;
+//             if (buttonState == HIGH) {
+//                 Serial.println("Button pressss!");
+//                 WiFi.disconnect(true, true);
+//                 ESP.restart();
+//                 // changeToAPSTAMode();
+//             }
+//         }
+//     }
+//     lastButtonState = reading;
+// }
 
 void APWebServerSetup(void) {
     setupButton();
@@ -581,5 +587,6 @@ void APWebServerLoop(void) {
 }
 
 void listenButtonWiFiReset() {
-    debounceButton();
+    // debounceButton();
+    buttonListener();
 }
