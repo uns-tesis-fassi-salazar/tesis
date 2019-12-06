@@ -1,5 +1,8 @@
 <h1 *ngIf="aulaData.nombre !== ''">{{ aulaData.departamento + ' - ' + aulaData.nombre + ' ( ' + aulaData.nodoMac + ' )' }}</h1>
+<!-- <h1 >{{ aulaData.departamento + ' - ' + aulaData.nombre + ' ( ' + aulaData.nodoMac + ' )' }}</h1> -->
 <h2 class="pb-2">Estado del aula: {{(movimiento | async) ? 'En uso': 'vacía'}}</h2>
+<h2 class="pb-2">Tiempo Vacia: {{(tiempoVacia | async)}}</h2>
+<h2 class="pb-2">Tiempo Lecturas: {{(tiempoEntreLecturas | async) + ' - Actualmente en desuso'}}</h2>
 <div class="row">
   <div class="col-xxxl-3 col-md-6" *ngFor="let statusCard of statusCards">
     <ngx-status-card (click)="onClickStatusButton(statusCard)"

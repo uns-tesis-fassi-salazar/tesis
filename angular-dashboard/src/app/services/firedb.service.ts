@@ -15,6 +15,10 @@ export class FiredbService {
     return this.db.object('Edificios/DCIC/Labo4/nodoMac').valueChanges();
   }
 
+  getConfig(nodoMac, configId) {
+    return this.db.object('Nodos/' + nodoMac + '/Configuracion/' + configId).valueChanges();
+  }
+
   getSensor(nodoMac, sensorId) {
     return this.db.object('Nodos/' + nodoMac + '/Sensores/' + sensorId).valueChanges();
   }

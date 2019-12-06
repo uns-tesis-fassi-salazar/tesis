@@ -15,7 +15,7 @@ interface CardSettings {
   status: boolean;
   actuadorId: string;
 }
-  
+
 @Component({
   selector: 'ngx-dashboard',
   styleUrls: ['./dashboard.component.scss'],
@@ -97,6 +97,8 @@ export class DashboardComponent implements OnDestroy, OnInit {
   public humedad: Observable<any>;
   public temperatura: Observable<any>;
   public movimiento: Observable<any>;
+  public tiempoVacia: Observable<any>;
+  public tiempoEntreLecturas: Observable<any>;
 
   public nodoMACValue: String;
   public aulaData: Aula;
@@ -138,6 +140,8 @@ export class DashboardComponent implements OnDestroy, OnInit {
     this.humedad = this.firedbService.getSensor(this.nodoMACValue, DBConstants.sensorHumedadId);
     this.temperatura = this.firedbService.getSensor(this.nodoMACValue, DBConstants.sensorTemperaturaId);
     this.movimiento = this.firedbService.getSensor(this.nodoMACValue, DBConstants.sensorMovimientoId);
+    this.tiempoVacia = this.firedbService.getConfig(this.nodoMACValue, DBConstants.configTiempoVacia);
+    this.tiempoEntreLecturas = this.firedbService.getConfig(this.nodoMACValue, DBConstants.configTiempoEntreLectura);
   }
 
   onClickStatusButton(statusCard){

@@ -9,7 +9,9 @@ FirebaseJson json,json2;
 
 String mac;
 
-#define nodePath "Nodos/"
+#define NODE "Nodos/"
+#define ACTUADOR "Actuadores/"
+#define SENSOR "Sensores/"
 
 void setupFirebase(String nodoMac) {
 
@@ -31,63 +33,38 @@ void setupFirebase(String nodoMac) {
     Firebase.enableClassicRequest(firebaseData, true);
     */
 
-    if (Firebase.pathExist(firebaseData,nodePath + mac)) {
+    if (Firebase.pathExist(firebaseData,NODE + mac)) {
         Serial.println("Nodo registrado.");
     } else {
         Serial.println("Nodo no registrado... intentando registrar...");
         json.clear();
-        json.add("AulaAsignada",0);
+        json.add("AulaAsignada",0); // -> campo sin uso.
         json2.clear();
+        // SENSORES
         json2.add("Aire",0);
         json2.add("Luces",0);
         json2.add("Proyector",0);
         json.add("Actuadores",json2);
         json2.clear();
+        // ACTUADORES
         json2.add("Luminocidad",0);
         json2.add("Temperatura",0);
         json2.add("Humedad",0);
         json2.add("Movimiento",0);
         json.add("Sensores",json2);
-        if (Firebase.setJSON(firebaseData,nodePath + mac,json)) {
+        json2.clear();
+        // CONFIGURACION
+        json2.add("TiempoVacia",10);
+        json2.add("TiempoEntreLecturas",0);
+        json.add("Sensores",json2);
+        if (Firebase.setJSON(firebaseData,NODE + mac,json)) {
             Serial.println("Nodo registrado correctamente");
         }
     }
 }
 
-  //Global function that handle stream data
-void streamCallback(StreamData data)
-{
-  Serial.println("Stream Data...");
-  Serial.println(data.streamPath());
-  Serial.println(data.dataPath());
-  Serial.println(data.dataType());
-
-  if (data.dataType() == "int")
-    Serial.println(data.intData());
-  else if (data.dataType() == "float")
-    Serial.println(data.floatData(), 5);
-  else if (data.dataType() == "double")
-    printf("%.9lf\n", data.doubleData());
-  else if (data.dataType() == "boolean")
-    Serial.println(data.boolData() == 1 ? "true" : "false");
-  else if (data.dataType() == "string")
-    Serial.println(data.stringData());
-  else if (data.dataType() == "json")
-    Serial.println(data.jsonString());
-}
-
-//Global function that notify when stream connection lost
-//The library will resume the stream connection automatically
-void streamTimeoutCallback(bool timeout)
-{
-  if(timeout) {
-    //Stream timeout occurred
-    Serial.println("Stream timeout, resume streaming...");
-  }
-}
-
 void setStreamToActuador(FirebaseData &fbDataStream,String actuadorId,StreamEventCallback eventCallBack, StreamTimeoutCallback timeoutCallback) {
-    if (!Firebase.beginStream(fbDataStream, nodePath + mac + actuadorId))
+    if (!Firebase.beginStream(fbDataStream, NODE + mac + actuadorId))
     {
         Serial.println(fbDataStream.errorReason());
     }
@@ -95,32 +72,32 @@ void setStreamToActuador(FirebaseData &fbDataStream,String actuadorId,StreamEven
 }
 
 boolean readData(String path, int *value) {
-    if (Firebase.getInt(firebaseData,nodePath + mac + path)) {
+    if (Firebase.getInt(firebaseData,NODE + mac + path)) {
         *value = firebaseData.intData();
         return true;
     } else return false;
 }
 
 boolean readActuador(String actuadorId, int *value) {
-    if (Firebase.getInt(firebaseData,nodePath + mac + "Actuadores/" + actuadorId)) {
+    if (Firebase.getInt(firebaseData,NODE + mac + ACTUADOR + actuadorId)) {
         *value = firebaseData.intData();
         return true;
     } else return false;
 }
 
 boolean uploadData(FirebaseJson &jsonData) {
-    return Firebase.setJSON(firebaseData, nodePath + mac + "Sensores/", jsonData);
+    return Firebase.setJSON(firebaseData, NODE + mac + SENSOR, jsonData);
 }
 
 boolean uploadData(float value,String sensorId) {
     if (!isnan(value)) {
-        return Firebase.setFloat(firebaseData, nodePath + mac + "Sensores/" + sensorId, value);
+        return Firebase.setFloat(firebaseData, NODE + mac + SENSOR + sensorId, value);
     } else return false;
 }
 
 boolean uploadData(int value,String sensorId) {
     if (!isnan(value)) {
-        return Firebase.setInt(firebaseData, nodePath + mac + "Sensores/" + sensorId, value);
+        return Firebase.setInt(firebaseData, NODE + mac + SENSOR + sensorId, value);
     } else return false;
 }
 
@@ -196,3 +173,35 @@ void printFirebaseResult(FirebaseData &data) {
         }
     }
 }
+
+  //Global function that handle stream data
+// void streamCallback(StreamData data)
+// {
+//   Serial.println("Stream Data...");
+//   Serial.println(data.streamPath());
+//   Serial.println(data.dataPath());
+//   Serial.println(data.dataType());
+
+//   if (data.dataType() == "int")
+//     Serial.println(data.intData());
+//   else if (data.dataType() == "float")
+//     Serial.println(data.floatData(), 5);
+//   else if (data.dataType() == "double")
+//     printf("%.9lf\n", data.doubleData());
+//   else if (data.dataType() == "boolean")
+//     Serial.println(data.boolData() == 1 ? "true" : "false");
+//   else if (data.dataType() == "string")
+//     Serial.println(data.stringData());
+//   else if (data.dataType() == "json")
+//     Serial.println(data.jsonString());
+// }
+
+//Global function that notify when stream connection lost
+//The library will resume the stream connection automatically
+// void streamTimeoutCallback(bool timeout)
+// {
+//   if(timeout) {
+//     //Stream timeout occurred
+//     Serial.println("Stream timeout, resume streaming...");
+//   }
+// }

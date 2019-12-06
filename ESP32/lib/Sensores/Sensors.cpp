@@ -6,6 +6,8 @@
 #define SENSOR_LUX "Luminocidad"
 #define SENSOR_MOV "Movimiento"
 
+#define CONFIG_TIEMPO_VACIA "Configuracion/TiempoVacia/"
+
 #define MOVEMENT_PIN GPIO_NUM_25
 #define LUX_SDA_PIN GPIO_NUM_22
 #define LUX_CSL_PIN GPIO_NUM_21
@@ -56,7 +58,10 @@ void sensorsSetup() {
     dht.setup(DHT_PIN);
 
     // Set movement sensor timer
-    movementTimer = timerTimeout(5000, aulaVacia);
+    // get value from db
+    int timeOutValue = 0;
+    readData(CONFIG_TIEMPO_VACIA,&timeOutValue);
+    movementTimer = timerTimeout(timeOutValue*1000, aulaVacia);
 
     // Inicializacion Sensor Movimiento
     pinMode(MOVEMENT_PIN, PULLUP);

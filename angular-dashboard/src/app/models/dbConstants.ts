@@ -1,4 +1,8 @@
 export class DBConstants{
+    // CONFIGURACION
+    public static get configTiempoVacia(): string { return 'TiempoVacia'; }
+    public static get configTiempoEntreLectura(): string { return 'TiempoEntreLecturas'; }
+
     // ACTUADORES
     public static get actuadorAireId(): string { return 'Aire'; }
     public static get actuadorLucesId(): string { return 'Luces'; }
