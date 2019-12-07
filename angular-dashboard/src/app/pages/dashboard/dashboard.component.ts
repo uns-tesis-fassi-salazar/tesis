@@ -34,8 +34,8 @@ export class DashboardComponent implements OnDestroy, OnInit {
     actuadorId: DBConstants.actuadorLedId
   };
   rollerShadesCard: CardSettings = {
-    title: 'Roller Shades',
-    iconClass: 'nb-roller-shades',
+    title: 'AC',
+    iconClass: 'nb-snowy-circled',
     type: 'success',
     status: true,
     actuadorId: DBConstants.actuadorAireId
