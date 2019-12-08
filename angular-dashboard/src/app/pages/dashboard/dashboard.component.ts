@@ -27,30 +27,16 @@ export class DashboardComponent implements OnDestroy, OnInit {
   private alive = true;
   solarValue: number;
   lightCard: CardSettings = {
-    title: 'Light',
+    title: 'Luces',
     iconClass: 'nb-lightbulb',
-    type: 'primary',
+    type: 'warning',
     status: true,
     actuadorId: DBConstants.actuadorLedId
   };
-  rollerShadesCard: CardSettings = {
-    title: 'Roller Shades',
-    iconClass: 'nb-roller-shades',
-    type: 'success',
-    status: true,
-    actuadorId: DBConstants.actuadorAireId
-  };
-  wirelessAudioCard: CardSettings = {
-    title: 'Wireless Audio',
-    iconClass: 'nb-audio',
-    type: 'info',
-    status: true,
-    actuadorId: DBConstants.actuadorAireId
-  };
-  coffeeMakerCard: CardSettings = {
-    title: 'Coffee Maker',
-    iconClass: 'nb-coffee-maker',
-    type: 'warning',
+  AirConditionerCard: CardSettings = {
+    title: 'Apagar aire acondicionado',
+    iconClass: 'nb-snowy-circled',
+    type: 'primary',
     status: true,
     actuadorId: DBConstants.actuadorAireId
   };
@@ -59,9 +45,7 @@ export class DashboardComponent implements OnDestroy, OnInit {
 
   commonStatusCardsSet: CardSettings[] = [
     this.lightCard,
-    this.rollerShadesCard,
-    this.wirelessAudioCard,
-    this.coffeeMakerCard,
+    this.AirConditionerCard,
   ];
 
   statusCardsByThemes: {
@@ -78,17 +62,9 @@ export class DashboardComponent implements OnDestroy, OnInit {
         type: 'warning',
       },
       {
-        ...this.rollerShadesCard,
+        ...this.AirConditionerCard,
         type: 'primary',
-      },
-      {
-        ...this.wirelessAudioCard,
-        type: 'danger',
-      },
-      {
-        ...this.coffeeMakerCard,
-        type: 'info',
-      },
+      }
     ],
     dark: this.commonStatusCardsSet,
   };
@@ -144,8 +120,13 @@ export class DashboardComponent implements OnDestroy, OnInit {
     this.tiempoEntreLecturas = this.firedbService.getConfig(this.nodoMACValue, DBConstants.configTiempoEntreLectura);
   }
 
+  private auxToggle = false;
   onClickStatusButton(statusCard){
       statusCard.status = !statusCard.status;
-      this.firedbService.updateActuador(this.nodoMACValue, statusCard.actuadorId, statusCard.status);
+      this.auxToggle = !this.auxToggle;
+      this.firedbService.updateActuador(this.nodoMACValue, statusCard.actuadorId, this.auxToggle);
+      setTimeout(() => {
+        statusCard.status = !statusCard.status;
+      }, 200);
   }
 }
