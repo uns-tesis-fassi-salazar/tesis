@@ -10,15 +10,5 @@ export const MENU_ITEMS: NbMenuItem[] = [
   {
     title: 'Universidad Nacional del Sur',
     group: true,
-  },
-  // {
-  //   title: 'Miscellaneous',
-  //   icon: 'shuffle-2-outline',
-  //   children: [
-  //     {
-  //       title: '404',
-  //       link: '/pages/miscellaneous/404',
-  //     },
-  //   ],
-  // },
+  }
 ];

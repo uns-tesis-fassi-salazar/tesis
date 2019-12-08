@@ -1,0 +1,4 @@
+#ifndef WEBPAGE_H
+#define WEBPAGE_H
+
+const char webpageHTML[] = R"(
