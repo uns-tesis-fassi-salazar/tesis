@@ -169,26 +169,37 @@ void changeToAPSTAMode() {
 
 struct Button {
     const uint8_t PIN;
+    bool state;
     bool pressed;
+    ulong pressTime;
 };
 
-Button button = {BUTTON_PIN, false};
+Button button = {BUTTON_PIN, false, false, 0};
 
 void IRAM_ATTR buttonInterrupt() {
+    button.pressTime = millis();
     button.pressed = true;
 }
 
 void setupButton() {
-    pinMode(button.PIN, PULLDOWN);
+    pinMode(button.PIN, PULLUP);
     attachInterrupt(button.PIN, buttonInterrupt, FALLING);
 }
 
 void buttonListener() {
-    if (button.pressed) {
-        Serial.println("Button pressss!");
+    if (digitalRead(button.PIN) == LOW) {
+        ulong readTime;
+        if (button.pressed) {
+            readTime = millis();
+            if ((readTime - button.pressTime) > 1000) {
+                Serial.println("Button pressss!");
+                button.pressed = false;
+                // WiFi.disconnect(true, true);
+                ESP.restart();
+            }
+        }
+    } else {
         button.pressed = false;
-        WiFi.disconnect(true, true);
-        ESP.restart();
     }
 }
 
@@ -223,6 +234,7 @@ void APWebServerSetup(void) {
 }
 
 void APWebServerLoop(void) {
+    buttonListener();
     if (WiFi.getMode() == WIFI_MODE_APSTA) {
         server.handleClient();
         if (canConnect) {

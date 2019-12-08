@@ -2,6 +2,7 @@
 #include <APWebServer.h>
 #include <FirebaseModule.h>
 #include <Sensors.h>
+#include <AC.h>
 #include <Led.h>
 #include <Utils.h>
 
@@ -47,6 +48,7 @@ void setup() {
 
     // Inicializacion actuadores
     setUpLed();
+    setUpAC();
 
     Serial.println("*** Setup OK ***");
 }
@@ -57,6 +59,8 @@ void loop() {
     if (WiFi.status() == WL_CONNECTED) {
         if (activeMode) {
             loopSensors();
+            Serial.print("Hall: ");
+            Serial.println(hallRead());
             // delay(1000 * seccodsBetweenReads);
         } else {
             Serial.println("Esperando asignacion de aula...");
