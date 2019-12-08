@@ -1,4 +1,5 @@
 #include <APWebServer.h>
+#include <Led.h>
 
 void setupButton();
 void debounceButton();
@@ -490,7 +491,7 @@ void webserverStop() {
 
 // --------------------- BUTTON -----------------------
 
-#define BUTTON_PIN GPIO_NUM_26
+#define BUTTON_PIN GPIO_NUM_2
 
 struct Button {
     const uint8_t PIN;
@@ -512,19 +513,20 @@ void setupButton() {
 }
 
 void buttonListener() {
-    if (digitalRead(button.PIN) == LOW) {
-        ulong readTime;
-        if (button.pressed) {
+    if (button.pressed) {
+        if (digitalRead(button.PIN) == LOW) {
+            ulong readTime;
             readTime = millis();
             if ((readTime - button.pressTime) > 1000) {
                 Serial.println("Button pressss!");
                 button.pressed = false;
-                // WiFi.disconnect(true, true);
+                blinkLed();
+                WiFi.disconnect(true, true);
                 ESP.restart();
             }
+        } else {
+            button.pressed = false;
         }
-    } else {
-        button.pressed = false;
     }
 }
 

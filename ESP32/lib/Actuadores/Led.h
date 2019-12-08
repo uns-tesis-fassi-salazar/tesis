@@ -6,6 +6,7 @@
 void setUpLed();
 void toggleLed();
 int ledValue();
+void blinkLed();
 
 void streamCallbackLed(StreamData data);
 void streamTimeoutCallbackLed(bool timeout);

@@ -39,24 +39,24 @@ void setupFirebase(String nodoMac) {
         Serial.println("Nodo no registrado... intentando registrar...");
         json.clear();
         json.add("AulaAsignada",0); // -> campo sin uso.
-        json2.clear();
         // SENSORES
+        json2.clear();
         json2.add("Aire",0);
         json2.add("Luces",0);
         json2.add("Proyector",0);
         json.add("Actuadores",json2);
-        json2.clear();
         // ACTUADORES
+        json2.clear();
         json2.add("Luminocidad",0);
         json2.add("Temperatura",0);
         json2.add("Humedad",0);
         json2.add("Movimiento",0);
         json.add("Sensores",json2);
-        json2.clear();
         // CONFIGURACION
+        json2.clear();
         json2.add("TiempoVacia",10);
         json2.add("TiempoEntreLecturas",0);
-        json.add("Sensores",json2);
+        json.add("Configuracion",json2);
         if (Firebase.setJSON(firebaseData,NODE + mac,json)) {
             Serial.println("Nodo registrado correctamente");
         }

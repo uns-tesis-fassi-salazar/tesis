@@ -59,6 +59,8 @@ void loop() {
     if (WiFi.status() == WL_CONNECTED) {
         if (activeMode) {
             loopSensors();
+            Serial.print("Hall: ");
+            Serial.println(hallRead());
             // delay(1000 * seccodsBetweenReads);
         } else {
             Serial.println("Esperando asignacion de aula...");
