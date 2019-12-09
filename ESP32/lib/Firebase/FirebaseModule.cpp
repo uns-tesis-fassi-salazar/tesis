@@ -12,6 +12,7 @@ String mac;
 #define NODE "Nodos/"
 #define ACTUADOR "Actuadores/"
 #define SENSOR "Sensores/"
+#define IRRESULT "IRResult/"
 
 void setupFirebase(String nodoMac) {
 
@@ -85,21 +86,26 @@ boolean readActuador(String actuadorId, int *value) {
     } else return false;
 }
 
-boolean uploadData(FirebaseJson &jsonData) {
-    return Firebase.setJSON(firebaseData, NODE + mac + SENSOR, jsonData);
+boolean uploadData(FirebaseJson &json) {
+    return Firebase.setJSON(firebaseData, NODE + mac + SENSOR, json);
 }
 
-boolean uploadData(float value,String sensorId) {
+boolean uploadData(float value, String sensorId) {
     if (!isnan(value)) {
         return Firebase.setFloat(firebaseData, NODE + mac + SENSOR + sensorId, value);
     } else return false;
 }
 
-boolean uploadData(int value,String sensorId) {
+boolean uploadData(int value, String sensorId) {
     if (!isnan(value)) {
         return Firebase.setInt(firebaseData, NODE + mac + SENSOR + sensorId, value);
     } else return false;
 }
+
+boolean uploadBlobData(String pathKey, uint8_t * data, int length) {
+    return Firebase.setBlob(firebaseData, NODE + mac + IRRESULT, data, length * sizeof(uint8_t));
+}
+
 
 void printFirebaseResult(FirebaseData &data) {
     if (data.dataType() == "int")
