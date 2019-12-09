@@ -1,5 +1,4 @@
 #include <APWebServer.h>
-#include <Led.h>
 
 void setupButton();
 void changeToAPSTAMode();
@@ -96,7 +95,7 @@ void handleNotFound() {
 void changeToSTAMode() {
     // Disable AP mode and only enable STA mode.
     if (WiFi.enableAP(false) && WiFi.enableSTA(true)) {
-        Serial.println("WIFI mode: STATION");
+        Serial.println("WIFI mode set to STATION");
     } else {
         Serial.println("ERROR: changeToSTAMode()");
     }
@@ -215,7 +214,6 @@ bool GetWifiConnection() {
     if (WiFi.getMode() == WIFI_MODE_APSTA) {
         server.handleClient();
         if (canConnect) {
-            Serial.println("canConnect OK");
             if (!server.client() || !server.client().connected()) {
                 Serial.println("changeToSTAMode...");
                 changeToSTAMode();

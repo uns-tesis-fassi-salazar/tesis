@@ -11,16 +11,14 @@
 #define AULA_ASIGNADA "AulaAsignada"
 #define ACTUADOR_LED "Led"
 
+
 // Funciones
 int lookupActiveMode();
-void printFirebaseResult(FirebaseData &data);
-
-String ip;
-String nodoMac;
+bool hasWifiConfig();
 
 boolean activeMode = 0;
 int secondsToSleep = 4;
-int seccodsBetweenReads = 0;
+int seccodsBetweenUploads = 0;
 
 void setup() {
     Serial.begin(9600);
@@ -30,35 +28,19 @@ void setup() {
 
     setupWiFiResetButton();
 
-    wifi_config_t wifi_config;
-    esp_wifi_get_config(WIFI_IF_STA,&wifi_config);
-    
-    // wifi_config_t wifi_config_aux;
-    // memset(&wifi_config_aux, 165, sizeof(wifi_config_t));
-    // Serial.println(wifi_config.sta.ssid[0] == 0);
-    // for (size_t i = 0; i < 32; i++)
-    // {
-    //     Serial.println(int(wifi_config.sta.ssid[i]));
-    // }
-    // if (memcmp(&wifi_config_aux.sta,&wifi_config.sta,sizeof(wifi_sta_config_t)) == 0) {
-    //     Serial.println("Config Vacia");
-    //     Serial.println(int(wifi_config.sta.ssid[0]));
-    //     uint8_t aux = wifi_config.sta.ssid[0] & 0b10100101;
-    //     Serial.println(aux);
-    // } else {
-    //     Serial.println("Start WiFi Info: ");
-    //     Serial.println((char *)wifi_config.sta.ssid);
-    //     Serial.println((char *)wifi_config.sta.password);
-    //     Serial.println("End WiFi Info.");
-    // }
-
-    WiFi.setAutoConnect(false);
-    WiFi.setAutoReconnect(false);
-
+    delay(100);
     WiFi.mode(WIFI_STA);
-    WiFi.begin();
+    delay(100);
 
-    Serial.println("");
+    if (!hasWifiConfig()) {
+        APWebServerSetup();
+        while (!GetWifiConnection()) { }
+    } else {
+        Serial.println("Config establecida");
+    }
+
+    WiFi.begin();
+    WiFi.setAutoReconnect(false);
 
     int timeout = 0;
     // Wait for connection
@@ -68,13 +50,9 @@ void setup() {
         Serial.print(".");
     }
 
-    Serial.println("");
-    
     // WL_CONNECT_FAILED
     if ((WiFi.status() != WL_CONNECTED) && (WiFi.status() == WL_CONNECT_FAILED)) {
         Serial.println("No se pudo conectar al wifi");
-        APWebServerSetup();
-        while (!GetWifiConnection()) { }
     } else {
         Serial.println("");
         IPAddress IP = WiFi.localIP();
@@ -83,11 +61,10 @@ void setup() {
     }
 
     Serial.print("MAC Address: ");
-    nodoMac = WiFi.macAddress();
-    Serial.println(nodoMac);
+    Serial.println(WiFi.macAddress());
 
     // Inicializacion Firebase
-    setupFirebase(nodoMac);
+    setupFirebase(WiFi.macAddress());
 
     // Inicializacion sensores
     sensorsSetup();
@@ -105,7 +82,7 @@ void loop() {
     if (WiFi.status() == WL_CONNECTED) {
         if (activeMode) {
             loopSensors();
-            // delay(1000 * seccodsBetweenReads);
+            // delay(1000 * seccodsBetweenUploads);
         } else {
             Serial.println("Esperando asignacion de aula...");
             delay(1000 * secondsToSleep);  // esperando configuracion...
@@ -118,4 +95,30 @@ int lookupActiveMode() {
     int salida;
     readData(AULA_ASIGNADA, &salida);
     return salida;
+}
+
+bool hasWifiConfig() {
+    bool hasWifiConfig = true;
+    wifi_config_t wifi_config;
+    esp_err_t err;
+    // Muy importante pedir la configuracion del wifi luego de habilitar la interfaz STA
+    err = esp_wifi_get_config(WIFI_IF_STA, &wifi_config);
+
+    if (err == ESP_OK) {
+        Serial.println("ESP_OK");
+    } else {
+        Serial.printf("ESP_ERR, code: %i", err);
+    }
+
+    wifi_config_t wifi_config_aux;
+    memset(&wifi_config_aux, 0, sizeof(wifi_config_t));
+
+    if (memcmp(wifi_config.sta.ssid, wifi_config_aux.sta.ssid, sizeof(uint8_t)*32) == 0) {
+        Serial.println("Config Vacia");
+        hasWifiConfig = false;
+    } else {
+        Serial.println("Config establecida");
+    }
+
+    return hasWifiConfig;
 }
