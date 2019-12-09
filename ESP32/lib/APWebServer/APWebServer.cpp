@@ -131,7 +131,6 @@ bool connectWiFi(const String &ssid, const String &passwd, int timeout) {
         Serial.print("STA IP address: ");
         Serial.println(IP);
         WiFi.setAutoReconnect(true);
-        // printNetworkInfo();
         return true;
     }
 }
@@ -155,7 +154,6 @@ void changeToAPSTAMode() {
             IPAddress IP = WiFi.softAPIP();
             Serial.print("AP IP address: ");
             Serial.println(IP);
-            // printNetworkInfo();
             Serial.println("ESP en modo AP y STA");
             webserverBegin();
         }
@@ -182,7 +180,7 @@ void IRAM_ATTR buttonInterrupt() {
     button.pressed = true;
 }
 
-void setupButton() {
+void setupWiFiResetButton() {
     pinMode(button.PIN, PULLUP);
     attachInterrupt(button.PIN, buttonInterrupt, FALLING);
 }
@@ -206,47 +204,28 @@ void buttonListener() {
 }
 
 void APWebServerSetup(void) {
-    setupButton();
+
     webserverSetup();
 
-    WiFi.mode(WIFI_STA);
-    WiFi.begin();
-
-    Serial.println("");
-
-    int timeout = 0;
-    // Wait for connection
-    while (WiFi.status() != WL_CONNECTED && timeout <= 5) {
-        delay(1000);
-        timeout++;
-        Serial.print(".");
-    }
-
-    if (WiFi.status() != WL_CONNECTED) {
-        Serial.println("No se pudo conectar al wifi");
-        changeToAPSTAMode();
-
-    } else {
-        Serial.println("");
-        IPAddress IP = WiFi.localIP();
-        Serial.print("STA IP address: ");
-        Serial.println(IP);
-        // printNetworkInfo();
-    }
+    changeToAPSTAMode();
 }
 
-void APWebServerLoop(void) {
+bool GetWifiConnection() {
     buttonListener();
     if (WiFi.getMode() == WIFI_MODE_APSTA) {
         server.handleClient();
         if (canConnect) {
+            Serial.println("canConnect OK");
             if (!server.client() || !server.client().connected()) {
+                Serial.println("changeToSTAMode...");
                 changeToSTAMode();
                 webserverStop();
                 canConnect = false;
+                return true;
             }
         }
     }
+    return false;
 }
 
 void listenButtonWiFiReset() {

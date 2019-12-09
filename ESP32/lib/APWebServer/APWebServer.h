@@ -6,8 +6,9 @@
 #include <WiFiClient.h>
 #include <Webpage.h>
 
+void setupWiFiResetButton();
 void APWebServerSetup();
-void APWebServerLoop();
+bool GetWifiConnection();
 void listenButtonWiFiReset();
 
 #endif
