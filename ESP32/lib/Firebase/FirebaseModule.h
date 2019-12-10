@@ -10,6 +10,7 @@ boolean uploadData(FirebaseJson &jsonData);
 boolean uploadData(int value,String sensorId);
 boolean uploadData(float value,String sensorId);
 boolean uploadBlobData(String pathKey, uint8_t * data, int length);
+void getBlobData(String pathKey, std::vector<uint8_t> * data);
 
 
 void setStreamToActuador(FirebaseData &fbDataStream,String actuadorId,StreamEventCallback eventCallBack, StreamTimeoutCallback timeoutCallback);

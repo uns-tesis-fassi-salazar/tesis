@@ -7,23 +7,21 @@
  * 
  * Copyright (c) 2019 mobizt
  * 
+ * This example is for FirebaseESP32 Arduino library v 3.5.0 and later
  *
 */
 
-
 //This example shows how to store and read binary data from memory to database.
 
-//FirebaseESP8266.h must be included before ESP8266WiFi.h
-#include "FirebaseESP8266.h"
-#include <ESP8266WiFi.h>
-#include <SD.h>
+
+#include <WiFi.h>
+#include <FirebaseESP32.h>
+// #include <SD.h>
 
 #define FIREBASE_HOST "https://finalproject-35a1b.firebaseio.com"
 #define FIREBASE_AUTH "603o4dr3kNDaNIfJotOhbN82cfMGbAOh9nJ21MPh"
 #define WIFI_SSID "DIEGO"
 #define WIFI_PASSWORD "MontyPython"
-
-
 
 //Define Firebase Data object
 FirebaseData firebaseData;
@@ -59,7 +57,6 @@ void setup()
   uint8_t data[256];
   for (int i = 0; i < 256; i++)
     data[i] = i;
-
 
   //Set binary data to database (also can use Firebase.set)
   if (Firebase.setBlob(firebaseData, path + "/Binary/Blob/data", data, sizeof(data)))

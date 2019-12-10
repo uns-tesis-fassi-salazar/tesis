@@ -103,9 +103,16 @@ boolean uploadData(int value, String sensorId) {
 }
 
 boolean uploadBlobData(String pathKey, uint8_t * data, int length) {
-    return Firebase.setBlob(firebaseData, NODE + mac + IRRESULT, data, length * sizeof(uint8_t));
+    return Firebase.setBlob(firebaseData, NODE + mac + IRRESULT + pathKey, data, length * sizeof(uint8_t));
 }
 
+void getBlobData(String pathKey, std::vector<uint8_t> * data) {
+    if (Firebase.getBlob(firebaseData, NODE + mac + IRRESULT + pathKey)) {
+        if (firebaseData.dataType() == "blob") {
+            *data = firebaseData.blobData();
+        }
+    }
+}
 
 void printFirebaseResult(FirebaseData &data) {
     if (data.dataType() == "int")
