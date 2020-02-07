@@ -1,12 +1,4 @@
-#include <Sensors.h>
-#include <FirebaseModule.h>
-
-#define SENSOR_HUMEDAD "Humedad"
-#define SENSOR_TEMPERATURA "Temperatura"
-#define SENSOR_LUX "Luminocidad"
-#define SENSOR_MOV "Movimiento"
-
-#define CONFIG_TIEMPO_VACIA "Configuracion/TiempoVacia/"
+#include <Sensores.h>
 
 #define MOVEMENT_PIN GPIO_NUM_5
 #define LUX_SDA_PIN GPIO_NUM_21
@@ -45,7 +37,7 @@ void IRAM_ATTR movementDetection() {
     timerRestart(movementTimer);
 }
 
-void sensorsSetup() {
+void setUpSensors() {
     prevLuxValue = 0;
     prevTempValue = 0;
     prevHumidityValue = 0;
@@ -59,7 +51,9 @@ void sensorsSetup() {
 
     // Set movement sensor timer
     int timeOutValue = 0;
-    readData(CONFIG_TIEMPO_VACIA,&timeOutValue);
+    if (!readData(AULAS + WiFi.macAddress() + "/" + TIEMPO_VACIA,&timeOutValue)) {
+        timeOutValue = 30;
+    }
     movementTimer = timerTimeout(timeOutValue*1000, aulaVacia);
 
     // Inicializacion Sensor Movimiento

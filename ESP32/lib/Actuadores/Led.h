@@ -1,14 +1,11 @@
 #ifndef ACTUADOR_LED_H
 #define ACTUADOR_LED_H
 
-#include <FirebaseModule.h>
+#include <Arduino.h>
 
 void setUpLed();
 void toggleLed();
-int ledValue();
+int getLedValue();
 void blinkLed();
-
-void streamCallbackLed(StreamData data);
-void streamTimeoutCallbackLed(bool timeout);
 
 #endif

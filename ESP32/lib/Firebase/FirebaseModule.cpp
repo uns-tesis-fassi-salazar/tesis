@@ -1,22 +1,12 @@
-#include "FirebaseModule.h"
+#include <FirebaseModule.h>
 
 #define FIREBASE_HOST "https://finalproject-35a1b.firebaseio.com"
 #define FIREBASE_AUTH "603o4dr3kNDaNIfJotOhbN82cfMGbAOh9nJ21MPh"
 
 FirebaseData firebaseData;
-FirebaseData firebaseDataStream;
 FirebaseJson json,json2;
 
-String mac;
-
-#define NODE "Nodos/"
-#define ACTUADOR "Actuadores/"
-#define SENSOR "Sensores/"
-#define IRRESULT "IRResult/"
-
-void setupFirebase(String nodoMac) {
-
-    mac = nodoMac + "/";
+void setUpFirebase() {
 
     Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
     Firebase.reconnectWiFi(true);
@@ -34,187 +24,123 @@ void setupFirebase(String nodoMac) {
     Firebase.enableClassicRequest(firebaseData, true);
     */
 
-    if (Firebase.pathExist(firebaseData,NODE + mac)) {
+    if (Firebase.pathExist(firebaseData,NODOS + WiFi.macAddress() + "/")) {
         Serial.println("Nodo registrado.");
     } else {
         Serial.println("Nodo no registrado... intentando registrar...");
         json.clear();
-        json.add("AulaAsignada",0); // -> campo sin uso.
+        json.add("aulaAsignada","");
+        json.add("firmwareVersion","");
         // SENSORES
         json2.clear();
-        json2.add("Aire",0);
-        json2.add("Luces",0);
-        json2.add("Proyector",0);
-        json.add("Actuadores",json2);
+        json2.add("aire",0);
+        json2.add("luces",0);
+        json2.add("proyector",0);
+        json.add("actuadores",json2);
         // ACTUADORES
         json2.clear();
-        json2.add("Luminocidad",0);
-        json2.add("Temperatura",0);
-        json2.add("Humedad",0);
-        json2.add("Movimiento",0);
-        json.add("Sensores",json2);
-        // CONFIGURACION
+        json2.add("luminocidad",0);
+        json2.add("temperatura",0);
+        json2.add("humedad",0);
+        json2.add("movimiento",0);
+        json.add("sensores",json2);
+        // // CONFIGURACION
         json2.clear();
-        json2.add("TiempoVacia",10);
-        json2.add("TiempoEntreLecturas",0);
-        json.add("Configuracion",json2);
-        if (Firebase.setJSON(firebaseData,NODE + mac,json)) {
+        json2.add("tiempoVacia",10);
+        json2.add("tiempoEntreLecturas",0);
+        json.add("configuracion",json2);
+        if (Firebase.setJSON(firebaseData,NODOS + WiFi.macAddress() + "/",json)) {
             Serial.println("Nodo registrado correctamente");
         }
     }
 }
 
-void setStreamToActuador(FirebaseData &fbDataStream,String actuadorId,StreamEventCallback eventCallBack, StreamTimeoutCallback timeoutCallback) {
-    if (!Firebase.beginStream(fbDataStream, NODE + mac + actuadorId))
+void setStreamCallback(FirebaseData &fbDataStream,String dbPath,StreamEventCallback eventCallBack, StreamTimeoutCallback timeoutCallback) {
+    if (!Firebase.beginStream(fbDataStream, dbPath))
     {
         Serial.println(fbDataStream.errorReason());
+        Serial.print("No pude beginStream: ");
+        Serial.println(dbPath);
     }
     Firebase.setStreamCallback(fbDataStream, eventCallBack, timeoutCallback);
 }
 
+void removeStreamCallback(FirebaseData &fbDataStream) {
+    Firebase.removeStreamCallback(fbDataStream);
+}
+
+String getAulaAsignada() {
+    if (Firebase.getString(firebaseData,NODOS + WiFi.macAddress() + "/" + AULA_ASIGNADA)) {
+        return firebaseData.stringData();
+    } else return "";
+}
+
+String getFirmwareVersion() {
+    if (Firebase.getString(firebaseData,NODOS + WiFi.macAddress() + "/" + DB_FIRMWARE_VERSION)) {
+        return firebaseData.stringData();
+    } else return "";
+}
+
+boolean updateFirmwareVersion(const char *fVersion) {
+    return Firebase.setString(firebaseData,NODOS + WiFi.macAddress() + "/" + DB_FIRMWARE_VERSION,fVersion);
+}
+
+String getFirmwareURL(String new_ver) {
+    if (Firebase.getString(firebaseData,FIRMWARE + new_ver + "/" + URL)) {
+        return firebaseData.stringData();
+    } else return "";
+}
+
 boolean readData(String path, int *value) {
-    if (Firebase.getInt(firebaseData,NODE + mac + path)) {
+    if (Firebase.getInt(firebaseData,NODOS + WiFi.macAddress() + "/" + path)) {
         *value = firebaseData.intData();
         return true;
     } else return false;
 }
 
 boolean readActuador(String actuadorId, int *value) {
-    if (Firebase.getInt(firebaseData,NODE + mac + ACTUADOR + actuadorId)) {
+    if (Firebase.getInt(firebaseData,NODOS + WiFi.macAddress() + "/" + ACTUADORES + actuadorId)) {
         *value = firebaseData.intData();
         return true;
     } else return false;
 }
 
 boolean uploadData(FirebaseJson &json) {
-    return Firebase.setJSON(firebaseData, NODE + mac + SENSOR, json);
+    return Firebase.setJSON(firebaseData, NODOS + WiFi.macAddress() + "/" + SENSORES, json);
 }
 
 boolean uploadData(float value, String sensorId) {
     if (!isnan(value)) {
-        return Firebase.setFloat(firebaseData, NODE + mac + SENSOR + sensorId, value);
+        return Firebase.setFloat(firebaseData, NODOS + WiFi.macAddress() + "/" + SENSORES + sensorId, value);
     } else return false;
 }
 
 boolean uploadData(int value, String sensorId) {
     if (!isnan(value)) {
-        return Firebase.setInt(firebaseData, NODE + mac + SENSOR + sensorId, value);
+        return Firebase.setInt(firebaseData, NODOS + WiFi.macAddress() + "/" + SENSORES + sensorId, value);
     } else return false;
 }
 
+String createKeyCommand() {
+    if (Firebase.pushTimestamp(firebaseData,COMANDOS_IR)) {
+        return firebaseData.pushName();
+    } return "";
+}
+
+String getKeyCommand(String pathKey) {
+    if (Firebase.getString(firebaseData,AULAS + pathKey + COMANDOS_IR)) {
+        return firebaseData.stringData();
+    } return "";
+}
+
 boolean uploadBlobData(String pathKey, uint8_t * data, int length) {
-    return Firebase.setBlob(firebaseData, NODE + mac + IRRESULT + pathKey, data, length * sizeof(uint8_t));
+    return Firebase.setBlob(firebaseData, COMANDOS_IR + pathKey, data, length * sizeof(uint8_t));
 }
 
 void getBlobData(String pathKey, std::vector<uint8_t> * data) {
-    if (Firebase.getBlob(firebaseData, NODE + mac + IRRESULT + pathKey)) {
+    if (Firebase.getBlob(firebaseData, COMANDOS_IR + pathKey)) {
         if (firebaseData.dataType() == "blob") {
             *data = firebaseData.blobData();
         }
     }
 }
-
-void printFirebaseResult(FirebaseData &data) {
-    if (data.dataType() == "int")
-        Serial.println(data.intData());
-    else if (data.dataType() == "float")
-        Serial.println(data.floatData(), 5);
-    else if (data.dataType() == "double")
-        printf("%.9lf\n", data.doubleData());
-    else if (data.dataType() == "boolean")
-        Serial.println(data.boolData() == 1 ? "true" : "false");
-    else if (data.dataType() == "string")
-        Serial.println(data.stringData());
-    else if (data.dataType() == "json") {
-        Serial.println();
-        FirebaseJson &json = data.jsonObject();
-        //Print all object data
-        Serial.println("Pretty printed JSON data:");
-        String jsonStr;
-        json.toString(jsonStr, true);
-        Serial.println(jsonStr);
-        Serial.println();
-        Serial.println("Iterate JSON data:");
-        Serial.println();
-        size_t len = json.iteratorBegin();
-        String key, value = "";
-        int type = 0;
-        for (size_t i = 0; i < len; i++) {
-            json.iteratorGet(i, type, key, value);
-            Serial.print(i);
-            Serial.print(", ");
-            Serial.print("Type: ");
-            Serial.print(type == JSON_OBJECT ? "object" : "array");
-            if (type == JSON_OBJECT) {
-                Serial.print(", Key: ");
-                Serial.print(key);
-            }
-            Serial.print(", Value: ");
-            Serial.println(value);
-        }
-        json.iteratorEnd();
-    } else if (data.dataType() == "array") {
-        Serial.println();
-        //get array data from FirebaseData using FirebaseJsonArray object
-        FirebaseJsonArray &arr = data.jsonArray();
-        //Print all array values
-        Serial.println("Pretty printed Array:");
-        String arrStr;
-        arr.toString(arrStr, true);
-        Serial.println(arrStr);
-        Serial.println();
-        Serial.println("Iterate array values:");
-        Serial.println();
-        for (size_t i = 0; i < arr.size(); i++) {
-            Serial.print(i);
-            Serial.print(", Value: ");
-
-            FirebaseJsonData &jsonData = data.jsonData();
-            //Get the result data from FirebaseJsonArray object
-            arr.get(jsonData, i);
-            if (jsonData.typeNum == JSON_BOOL)
-                Serial.println(jsonData.boolValue ? "true" : "false");
-            else if (jsonData.typeNum == JSON_INT)
-                Serial.println(jsonData.intValue);
-            else if (jsonData.typeNum == JSON_DOUBLE)
-                printf("%.9lf\n", jsonData.doubleValue);
-            else if (jsonData.typeNum == JSON_STRING ||
-                     jsonData.typeNum == JSON_NULL ||
-                     jsonData.typeNum == JSON_OBJECT ||
-                     jsonData.typeNum == JSON_ARRAY)
-                Serial.println(jsonData.stringValue);
-        }
-    }
-}
-
-  //Global function that handle stream data
-// void streamCallback(StreamData data)
-// {
-//   Serial.println("Stream Data...");
-//   Serial.println(data.streamPath());
-//   Serial.println(data.dataPath());
-//   Serial.println(data.dataType());
-
-//   if (data.dataType() == "int")
-//     Serial.println(data.intData());
-//   else if (data.dataType() == "float")
-//     Serial.println(data.floatData(), 5);
-//   else if (data.dataType() == "double")
-//     printf("%.9lf\n", data.doubleData());
-//   else if (data.dataType() == "boolean")
-//     Serial.println(data.boolData() == 1 ? "true" : "false");
-//   else if (data.dataType() == "string")
-//     Serial.println(data.stringData());
-//   else if (data.dataType() == "json")
-//     Serial.println(data.jsonString());
-// }
-
-//Global function that notify when stream connection lost
-//The library will resume the stream connection automatically
-// void streamTimeoutCallback(bool timeout)
-// {
-//   if(timeout) {
-//     //Stream timeout occurred
-//     Serial.println("Stream timeout, resume streaming...");
-//   }
-// }

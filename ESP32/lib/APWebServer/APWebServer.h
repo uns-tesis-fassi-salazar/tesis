@@ -7,7 +7,6 @@
 #include <Webpage.h>
 #include <Led.h>
 
-
 void setupWiFiResetButton();
 void APWebServerSetup();
 bool GetWifiConnection();

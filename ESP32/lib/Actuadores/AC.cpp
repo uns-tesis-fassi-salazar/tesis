@@ -1,36 +1,25 @@
-#include "AC.h"
-#include "FirebaseModule.h"
+#include <AC.h>
 
-#define ACTUADOR_AC "/Actuadores/Aire"
-
-int ACPort = GPIO_NUM_27;
-int ACState = 0;
-FirebaseData firebaseACDataStream;
+decode_results command;
+boolean hasCommand = false;
+ulong tiempoEntreComandos = 0;
 
 void setUpAC() {
-    pinMode(ACPort,OUTPUT);
-    // En este punto ya debería estar inicializada Firebase
-    setStreamToActuador(firebaseACDataStream,ACTUADOR_AC,streamCallbackAC,(StreamTimeoutCallback)__null);
+    hasCommand = getCommand(&command);
 }
 
 void turnOffAC() {
-    digitalWrite(ACPort,LOW);
-}
-
-void toggleAC() {
-    ACState ? digitalWrite(ACPort,LOW) : digitalWrite(ACPort,HIGH);
-}
-
-void streamCallbackAC(StreamData data)
-{
-    ACState = data.intData();
-    // turnOffAC();
-    toggleAC();
-}
-
-void streamTimeoutCallbackAC(bool timeout)
-{
-    if(timeout) {
-        Serial.println("AC Stream timeout, resume...");
+    if (hasCommand) {
+        for (size_t i = 0; i < 3; i++) {
+            if (lapTimer(100, &tiempoEntreComandos)) {
+                sendCommand(&command);
+            }
+        }
+    } else {
+        hasCommand = getCommand(&command);
     }
+}
+
+void updateCommand() {
+    hasCommand = getCommand(&command);
 }
