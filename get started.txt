@@ -1,0 +1,26 @@
+
+Pasos que realice al bajar el proyecto de nuevo (habiendo reinstalado windows):
+    Antes de empezar tenia instalado lo siguiente:
+        - Nodejs v12.14
+        - npm v6.13.4
+        - Angular cli 8.3.21
+        - git
+        - Arduino
+
+- Bajar repo
+    git clone https://github.com/uns-tesis-fassi-salazar/tesis
+
+- Acciones para Angular
+    $ cd tesis/angular-dashboard
+    $ npm install
+        NOTA: La primera vez me dio error por falta de permisos. Lo volvi a ejecutar con privilegios y no hubo problemas.
+    $ npm start
+
+- Acciones para ESP32
+    Instalar platformio en VSCode.
+    Una vez instalado bajar el framework de arduino para la placa ESP32. Luego las siguientes librerias:
+        - (sensor temperatura y humedad)
+        - (sensor luz)
+        - (sensor hall)
+        - 
+        

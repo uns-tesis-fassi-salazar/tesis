@@ -1,0 +1,35 @@
+<nb-card>
+    <nb-card-header>
+        Firmware
+    </nb-card-header>
+    <nb-card-body class="mb-4">
+        <p>
+
+        </p>
+        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+            <label for="validatedCustomFile">Subir nuevo firmware</label>
+            <div class="custom-file">
+                <input nbInput type="file" class="custom-file-input" id="validatedCustomFile" formControlName="archivo"
+                    [status]="(submitted && f.archivo.errors) ? 'danger' : ''" (change)="cambioArchivo($event)"
+                    required>
+                <label class="custom-file-label" for="validatedCustomFile"
+                    [innerHTML]="nombreArchivo == ''? 'Elegir archivo':nombreArchivo"></label>
+                <ng-container *ngIf="(submitted && f.archivo.errors || otherError)">
+                    <p class="caption status-danger" *ngIf="f.archivo.errors?.required">Archivo no seleccionado</p>
+                    <p class="caption status-danger" *ngIf="otherError">{{errorMessage}}</p>
+                </ng-container>
+            </div>
+            <nb-progress-bar class="mt-2" *ngIf="porcentajeSubida > 0" status="info" [value]="porcentajeSubida">
+                {{porcentajeSubida/100 | percent}}
+            </nb-progress-bar>
+            <div class="row mt-4">
+                <div class="col">
+                    <button nbButton status="primary" [disabled]="finalizado" class="mr-3">
+                        Subir archivo
+                    </button>
+                    <a *ngIf="finalizado" class="my-auto" [href]="URLPublica$ | async" target="_blank">Descargar</a>
+                </div>
+            </div>
+        </form>
+    </nb-card-body>
+</nb-card>

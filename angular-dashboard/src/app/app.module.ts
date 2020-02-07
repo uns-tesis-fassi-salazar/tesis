@@ -17,15 +17,17 @@ import { AngularFireAuthModule } from '@angular/fire/auth';
 import {
   // NbChatModule,
   // NbDatepickerModule,
-  // NbDialogModule,
+  NbDialogModule,
   NbMenuModule,
   NbSidebarModule,
-  // NbToastrModule,
+  NbToastrModule,
   NbWindowModule,
 } from '@nebular/theme';
 import { environment } from '../environments/environment';
-import { ErrorInterceptor } from './helpers/error.interceptor';
 import { AngularFireAuthGuard } from '@angular/fire/auth-guard';
+import { AngularFireStorageModule } from '@angular/fire/storage';
+import { MiscellaneousModule } from './pages/miscellaneous/miscellaneous.module';
+import { ErrorInterceptor } from './helpers';
 
 @NgModule({
   declarations: [AppComponent],
@@ -34,14 +36,15 @@ import { AngularFireAuthGuard } from '@angular/fire/auth-guard';
     BrowserAnimationsModule,
     HttpClientModule,
     AppRoutingModule,
+    MiscellaneousModule,
     ThemeModule.forRoot(),
 
     NbSidebarModule.forRoot(),
     NbMenuModule.forRoot(),
     // NbDatepickerModule.forRoot(),
-    // NbDialogModule.forRoot(),
+    NbDialogModule.forRoot(),
     NbWindowModule.forRoot(),
-    // NbToastrModule.forRoot(),
+    NbToastrModule.forRoot(),
     // NbChatModule.forRoot({
     //   messageGoogleMapKey: 'AIzaSyA_wNuCzia92MAmdLRzmqitRGvCF7wCZPY',
     // }),
@@ -50,11 +53,11 @@ import { AngularFireAuthGuard } from '@angular/fire/auth-guard';
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireDatabaseModule,
     AngularFireAuthModule,
+    AngularFireStorageModule,
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
     AngularFireAuthGuard
-    // { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
   ],
   bootstrap: [AppComponent],
 })

@@ -1,29 +1,66 @@
-<h1 *ngIf="aulaData.nombre !== ''">{{ aulaData.departamento + ' - ' + aulaData.nombre + ' ( ' + aulaData.nodoMac + ' )' }}</h1>
-<!-- <h1 >{{ aulaData.departamento + ' - ' + aulaData.nombre + ' ( ' + aulaData.nodoMac + ' )' }}</h1> -->
-<h2 class="pb-2">Estado del aula: {{(movimiento | async) ? 'En uso': 'vacía'}}</h2>
-<h2 class="pb-2">Tiempo Vacia: {{(tiempoVacia | async)}}</h2>
-<h2 class="pb-2">Tiempo Lecturas: {{(tiempoEntreLecturas | async) + ' - Actualmente en desuso'}}</h2>
-<div class="row">
-  <div class="col-xxxl-3 col-md-6" *ngFor="let statusCard of statusCards">
-    <ngx-status-card (click)="onClickStatusButton(statusCard)" id="statusCard.actuadorId"
-      [title]="statusCard.title" [type]="statusCard.type" [on]="statusCard.status">
-      <i [ngClass]="statusCard.iconClass"></i>
-    </ngx-status-card>
+<nb-card *ngIf="!esperandoAula">
+  <nb-card-header>
+    <div class="row justify-content-between">
+      <div class="col-auto">
+        <h2 class="h4 page-heading d-inline">
+          {{aulaData.edificio+' '}}<i class="fas fa-angle-right"></i> {{aulaData.nombre}}
+        </h2>
+      </div>
+      <div class="col-auto">
+        <button *ngIf="aulaConNodo" nbButton class="ml-2" shape="round" status="info" size="tiny"
+          (click)="goToEditarAula()">
+          <nb-icon icon="settings-outline"></nb-icon>
+        </button>
+      </div>
+    </div>
+  </nb-card-header>
+  <nb-card-body *ngIf="!aulaConNodo">
+    <p><i>El aula no tiene un nodo asignado todavía.</i></p>
+    <button nbButton status="success" (click)="goToEditarAula()">Agregar</button>
+  </nb-card-body>
+</nb-card>
+<div *ngIf="!esperandoAula && aulaConNodo">
+  <nb-card>
+    <nb-card-body>
+      <ul class="pl-4 mb-0">
+        <li>Nodo asignado: {{aulaData.nodoMac}}</li>
+        <li>Estado del aula: {{(movimiento$ | async) ? 'En uso': 'vacía'}}</li>
+        <li>Tiempo entre lecturas: {{(tiempoEntreLecturas$ | async) + ' - Actualmente en desuso'}}</li>
+      </ul>
+    </nb-card-body>
+  </nb-card>
+  <div class="row">
+    <div class="col-xxl-3 col-md-6 col-12">
+      <!-- <div class="col-xxxl-3 col-md-6" *ngFor="let statusCard of statusCards"> -->
+      <ngx-status-card (click)="onClickLightCard(lightCard)" id="statusCard.actuadorId" [title]="lightCard.title"
+        [type]="lightCard.type" [on]="lightCard.status">
+        <i [ngClass]="lightCard.iconClass"></i>
+      </ngx-status-card>
+    </div>
+    <div class="col-xxl-3 col-md-6 col-12">
+      <ngx-status-card (click)="onClickACCard(AirConditionerCard)" id="statusCard.actuadorId" class="nostatus"
+        [title]="AirConditionerCard.title" [type]="AirConditionerCard.type" [on]="AirConditionerCard.status">
+        <i [ngClass]="AirConditionerCard.iconClass"></i>
+      </ngx-status-card>
+      <!-- <ngx-status-card (click)="onClickStatusButton(statusCard)" id="statusCard.actuadorId" [title]="statusCard.title"
+        [type]="statusCard.type" [on]="statusCard.status">
+        <i [ngClass]="statusCard.iconClass"></i>
+      </ngx-status-card> -->
+    </div>
   </div>
-</div>
 
-
-<div class="row">
-  <div class="col-xxxl-3 col-xxl-4 col-lg-4 col-md-6">
-    <ngx-sensor-display [title]="'Temperatura'" [value]='(temperatura | async)' [unit_name]="'Celsius'"
-      [unit_symbol]="'temperature'" [minValue]=0 [maxValue]=100 [displayOff]=false></ngx-sensor-display>
-  </div>
-  <div class="col-xxxl-3 col-xxl-4 col-lg-4 col-md-6">
-    <ngx-sensor-display [title]="'Humedad'" [value]='(humedad | async)' [unit_name]="'%'" [unit_symbol]="'none'"
-      [minValue]=0 [maxValue]=100 [displayOff]=false></ngx-sensor-display>
-  </div>
-  <div class="col-xxxl-3 col-xxl-4 col-lg-4 col-md-6">
-    <ngx-sensor-display [title]="'Luminocidad'" [value]='(luminocidad | async)' [unit_name]="'Lux'"
-      [unit_symbol]="'none'" [minValue]=1 [maxValue]=5000 [displayOff]=false></ngx-sensor-display>
+  <div class="row">
+    <div class="col-xxxl-3 col-xl-4 col-lg-6 col-md-6 col-12">
+      <ngx-sensor-display [title]="'Temperatura'" [value]='(temperatura$ | async)' [unit_name]="'Celsius'"
+        [unit_symbol]="'temperature'" [minValue]=0 [maxValue]=100 [displayOff]=false></ngx-sensor-display>
+    </div>
+    <div class="col-xxxl-3 col-xl-4 col-lg-6 col-md-6 col-12">
+      <ngx-sensor-display [title]="'Humedad'" [value]='(humedad$ | async)' [unit_name]="'%'" [unit_symbol]="'none'"
+        [minValue]=0 [maxValue]=100 [displayOff]=false></ngx-sensor-display>
+    </div>
+    <div class="col-xxxl-3 col-xl-4 col-lg-6 col-md-6 col-12">
+      <ngx-sensor-display [title]="'Luminocidad'" [value]='(luminocidad$ | async)' [unit_name]="'Lux'"
+        [unit_symbol]="'none'" [minValue]=1 [maxValue]=5000 [displayOff]=false></ngx-sensor-display>
+    </div>
   </div>
 </div>

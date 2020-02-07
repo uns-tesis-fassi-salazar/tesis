@@ -1,0 +1,21 @@
+<nb-card>
+    <nb-card-header><h2 class="h4 page-heading">Editar edificio</h2></nb-card-header>
+    <nb-card-body>
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label for="inputNombre" class="label">Nombre *</label>
+          <input type="text" id="inputNombre" placeholder="Nombre" formControlName="nombre" nbInput fullWidth
+            [status]="(submitted && f.nombre.errors) ? 'danger' : ''"
+            [attr.aria-invalid]="(submitted && f.nombre.errors) ? true : null">
+          <ng-container *ngIf="(submitted && f.nombre.errors)">
+            <p class="caption status-danger" *ngIf="f.nombre.errors?.required">El nombre no puede estar vacío</p>
+          </ng-container>
+        </div>
+        
+        <button nbButton type="submit" status="primary">Guardar</button>
+        <button nbButton class="ml-2" type="button" status="danger" (click)="eliminarEdificio()" disabled>Eliminar</button>
+        <div class="w-100 d-sm-none mt-2"></div>
+        <button nbButton class="ml-2" type="button" status="basic" (click)="navigateToEdificiosList()">Cancelar</button>
+      </form>
+    </nb-card-body>
+  </nb-card>

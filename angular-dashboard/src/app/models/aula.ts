@@ -1,12 +1,14 @@
 export class Aula {
-    public departamento: string;
+    public key: string;
+    public edificio: string;
     public nombre: string;
     public nodoMac: string;
+    public tiempoEntreLecturas: number;
+    public comandoIR: string;
 
-    constructor(departamento?: string, nombre?: string, nodoMac?: string) {
-        this.departamento = departamento || '';
+    constructor(key?:string, edificio?: string, nombre?: string, nodoMac?: string) {
+        this.edificio = edificio || '';
         this.nombre = nombre || '';
         this.nodoMac = nodoMac || '';
     }
-
 }

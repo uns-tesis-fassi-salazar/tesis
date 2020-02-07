@@ -16,6 +16,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   private destroy$: Subject<void> = new Subject<void>();
   userPictureOnly: boolean = false;
+  isLessThanLg: boolean = false;
+  isLessThanXl: boolean = false;
   user: any;
 
   themes = [
@@ -57,15 +59,18 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.authService.currentUser
       .pipe(takeUntil(this.destroy$))
       .subscribe((user: any) => this.user = user);
-
-    const { xl } = this.breakpointService.getBreakpointsMap();
+    
+    const { lg, xl } = this.breakpointService.getBreakpointsMap();
     this.themeService.onMediaQueryChange()
       .pipe(
-        map(([, currentBreakpoint]) => currentBreakpoint.width < xl),
         takeUntil(this.destroy$),
       )
-      .subscribe((isLessThanXl: boolean) => this.userPictureOnly = isLessThanXl);
-
+      .subscribe( ([, currentBreakpoint]) => {
+        this.userPictureOnly = currentBreakpoint.width < xl;;
+        this.isLessThanXl = currentBreakpoint.width < xl;
+        this.isLessThanLg = currentBreakpoint.width < lg;
+      });
+    
     this.themeService.onThemeChange()
       .pipe(
         map(({ name }) => name),
@@ -77,12 +82,25 @@ export class HeaderComponent implements OnInit, OnDestroy {
       .pipe(
         filter(({ tag }) => tag === 'user-context-menu'),
         map(({ item: { title } }) => title),
+        takeUntil(this.destroy$),
       )
       .subscribe(title => {
-        console.log(`${title} was clicked!`)
-        if(title === this.userMenu[0].title){// Salir
+        if(title === 'Salir'){// Salir
           this.authService.signOut();
         } 
+      });
+
+      this.menuService.onItemClick()
+      .pipe(
+        filter(({ tag }) => tag === 'sidebarMenu'),
+        map(({ item, tag }) => item),
+        takeUntil(this.destroy$),
+      )
+      .subscribe( nbMenuItem => {
+        if(this.isLessThanXl){
+          this.sidebarService.compact('menu-sidebar');
+          this.menuService.collapseAll('sidebarMenu');
+        }
       });
   }
 

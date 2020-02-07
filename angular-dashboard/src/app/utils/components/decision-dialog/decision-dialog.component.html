@@ -1,0 +1,14 @@
+<nb-card>
+  <nb-card-header><h2 class="h5 text-center">¿ Esta seguro ?</h2></nb-card-header>
+  <nb-card-body>
+    <p class="mb-0">{{message}}</p>
+  </nb-card-body>
+  <nb-card-footer>
+    <div class="row justify-content-center">
+      <div class="col-auto">
+        <button class="cancel" nbButton status="success" (click)="yes()">Aceptar</button>
+        <button nbButton status="basic" (click)="no()">Cancelar</button>
+      </div>
+    </div>
+  </nb-card-footer>
+</nb-card>

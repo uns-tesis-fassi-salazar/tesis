@@ -1,0 +1,38 @@
+<nb-card>
+  <nb-card-header><h2 class="h4 page-heading">Nueva aula</h2></nb-card-header>
+  <nb-card-body>
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="inputNombre" class="label">Nombre *</label>
+        <input type="text" id="inputNombre" placeholder="Nombre" formControlName="nombre" nbInput fullWidth
+          [status]="(submitted && f.nombre.errors) ? 'danger' : ''"
+          [attr.aria-invalid]="(submitted && f.nombre.errors) ? true : null">
+        <ng-container *ngIf="(submitted && f.nombre.errors)">
+          <p class="caption status-danger" *ngIf="f.nombre.errors?.required">El nombre no puede estar vacío</p>
+        </ng-container>
+      </div>
+      <div class="form-group">
+        <label for="inputEdificio" class="label">Edificio *</label>
+        <nb-select id="inputEdificio" placeholder="Seleccionar edificio..." fullWidth
+          [formControl]="registerForm.get('edificio')" 
+          [status]="submitted && f.edificio.errors ? 'danger': ''">          
+          <nb-option *ngIf="(edificios$ | async)?.length == 0"><i>No se encontraron edificios</i></nb-option>
+          <nb-option *ngFor="let depto of (edificios$ | async)" [value]="depto.nombre">{{depto.nombre}}</nb-option>
+        </nb-select>
+        <ng-container *ngIf="(submitted && f.edificio.errors)">
+          <p class="caption status-danger" *ngIf="f.edificio.errors?.required">Se debe seleccionar un edificio</p>
+        </ng-container>
+      </div>
+      <div class="form-group">
+        <label for="inputNodo" class="label">Nodo asignado</label>
+        <nb-select id="inputNodo" placeholder="Seleccionar nodo..." [formControl]="registerForm.get('nodoMac')" fullWidth>
+          <nb-option value=''>Sin Nodo</nb-option>
+          <nb-option *ngIf="(nodos$ | async)?.length == 0"><i>No se encontraron nodos</i></nb-option>
+          <nb-option *ngFor="let nodo of (nodos$ | async)" [value]="nodo.mac">{{nodo.mac}}</nb-option>
+        </nb-select>
+      </div>
+      <button nbButton type="submit" status="primary">Guardar</button>
+      <button nbButton class="ml-3" type="button" status="basic" (click)="onClickCancelar()">Cancelar</button>
+    </form>
+  </nb-card-body>
+</nb-card>

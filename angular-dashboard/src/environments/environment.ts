@@ -13,12 +13,11 @@ export const environment = {
 
   firebase: {
     apiKey: 'AIzaSyDm_UKlFtJZIxJDhLBCw4ypad-Erefg-Ow',
-    // apiKey: '603o4dr3kNDaNIfJotOhbN82cfMGbAOh9nJ21MPh',
     authDomain: 'aulas-sustentables.firebaseapp.com',
     databaseURL: 'https://finalproject-35a1b.firebaseio.com',
     projectId: 'finalproject-35a1b',
-    // storageBucket: "gs://finalproject-35a1b.appspot.com",
-    // messagingSenderId: "1077643404202"
+    storageBucket: "finalproject-35a1b.appspot.com",
+    appId: "1:473880504450:web:0e62f92c31ef226337ec9b"
   }
 };
 

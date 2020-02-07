@@ -1,0 +1,49 @@
+.custom-button {
+    width: 160px;
+    justify-content: start !important;
+}
+
+nb-select.mini-dropdown {
+    button {
+        min-width: auto !important;
+        padding-left: .4rem !important;
+    }
+}
+
+.options-list-container {
+    min-width: 100px !important;
+}
+
+nb-card {
+    border: 0px !important;
+    nb-card-header.card-semi-round {
+        border-radius: 0.75rem !important;
+        // border-color: #3366ff !important;
+    }
+}
+
+.dropdown-toggle {
+    border-color: transparent;
+}
+
+.dropdown-toggle::after {
+    display: none;
+}
+
+.dropup .dropdown-toggle::after {
+    display: none;
+}
+
+.seleccionable {
+    cursor: pointer;
+}
+
+.custom-file-label::after {
+    content: "Elegir";
+}
+
+ngx-status-card.nostatus {
+    .status {
+        visibility: hidden !important;
+    }
+}
