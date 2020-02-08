@@ -30,14 +30,14 @@
     </nb-card-body>
   </nb-card>
   <div class="row">
-    <div class="col-xxl-3 col-md-6 col-12">
+    <div class="col-md-6 col-12">
       <!-- <div class="col-xxxl-3 col-md-6" *ngFor="let statusCard of statusCards"> -->
       <ngx-status-card (click)="onClickLightCard(lightCard)" id="statusCard.actuadorId" [title]="lightCard.title"
         [type]="lightCard.type" [on]="lightCard.status">
         <i [ngClass]="lightCard.iconClass"></i>
       </ngx-status-card>
     </div>
-    <div class="col-xxl-3 col-md-6 col-12">
+    <div class="col-md-6 col-12">
       <ngx-status-card (click)="onClickACCard(AirConditionerCard)" id="statusCard.actuadorId" class="nostatus"
         [title]="AirConditionerCard.title" [type]="AirConditionerCard.type" [on]="AirConditionerCard.status">
         <i [ngClass]="AirConditionerCard.iconClass"></i>
