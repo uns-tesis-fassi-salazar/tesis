@@ -34,7 +34,7 @@ export class DashboardComponent implements OnDestroy, OnInit {
     type: 'warning',
     status: true,
   };
-  
+
   AirConditionerCard: CardSettings = {
     title: 'Apagar AC',
     iconClass: 'nb-snowy-circled',
@@ -75,6 +75,7 @@ export class DashboardComponent implements OnDestroy, OnInit {
   public temperatura$: Observable<any>;
   public movimiento$: Observable<any>;
   public hallValue: number = 0;
+  public lightCardClicked = false;
   // public tiempoVacia$: Observable<any>;
   public tiempoEntreLecturas$: Observable<any>;
 
@@ -88,11 +89,6 @@ export class DashboardComponent implements OnDestroy, OnInit {
     private utilService: UtilService
   ) {
     this.aulaData = new Aula();
-    this.themeService.getJsTheme()
-      .pipe(takeWhile(() => this.alive))
-      .subscribe(theme => {
-        // this.statusCards = this.statusCardsByThemes[theme.name];
-      });
   }
 
   ngOnInit() {
@@ -120,7 +116,7 @@ export class DashboardComponent implements OnDestroy, OnInit {
     return this.aulaData.key == null;
   }
 
-  get aulaConNodo(){
+  get aulaConNodo() {
     return this.aulaData.nodoMac != '';
   }
 
@@ -131,11 +127,13 @@ export class DashboardComponent implements OnDestroy, OnInit {
       this.temperatura$ = this.nodoService.getSensor(this.aulaData.nodoMac, DBConstants.nodoSensorTemperatura);
       this.movimiento$ = this.nodoService.getSensor(this.aulaData.nodoMac, DBConstants.nodoSensorMovimiento);
       this.nodoService.getSensor(this.aulaData.nodoMac, DBConstants.nodoSensorHall)
-        .subscribe( hallValue => {
-          if (hallValue > 1) {
-            this.lightCard.status = true;
-          } else {
-            this.lightCard.status = false;
+        .subscribe(hallValue => {
+          if (!this.lightCardClicked) {
+            if (hallValue > 1.8) {
+              this.lightCard.status = true;
+            } else {
+              this.lightCard.status = false;
+            }
           }
         });
     }
@@ -143,14 +141,18 @@ export class DashboardComponent implements OnDestroy, OnInit {
 
   goToEditarAula() {
     this.aulaService.updateCurrentAula(this.aulaData);
-    this.router.navigate([UrlRoutes.edificios,UrlRoutes.aulasEdificio,UrlRoutes.editarAula])
+    this.router.navigate([UrlRoutes.edificios, UrlRoutes.aulasEdificio, UrlRoutes.editarAula])
   }
 
   onClickLightCard(lightCard) {
     lightCard.status = !lightCard.status;
+    this.lightCardClicked = true;
     this.nodoService.updateNodoComando(this.aulaData.nodoMac, lightCard.status ? DBConstants.comandoEncenderLuces : DBConstants.comandoApagarLuces);
+    setTimeout(() => {
+      this.lightCardClicked = false;
+    }, 3000);
   }
-  
+
   onClickACCard(ACCard) {
     ACCard.status = !ACCard.status;
     this.nodoService.updateNodoComando(this.aulaData.nodoMac, DBConstants.comandoEmitirIR);
@@ -165,5 +167,4 @@ export class DashboardComponent implements OnDestroy, OnInit {
       this.router.navigate([UrlRoutes.home]);
     }
   }
-
 }

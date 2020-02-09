@@ -1,8 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { NbDialogService } from '@nebular/theme';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { AulaService, UtilService, NodoService } from '../../../services';
-import { Aula, Edificio, Nodo } from '../../../models';
+import { AulaService, UtilService, NodoService, IRService } from '../../../services';
+import { Aula, Edificio, Nodo, ComandoIR } from '../../../models';
 import { Observable } from 'rxjs';
 import { Router } from '@angular/router';
 import { takeWhile } from 'rxjs/operators';
@@ -19,6 +19,7 @@ export class CreateAulaComponent implements OnInit, OnDestroy {
   submitted = false;
   edificios$: Observable<Edificio[]>;
   nodos$: Observable<Nodo[]>;
+  comandosIR$: Observable<ComandoIR[]>;
 
   constructor(
     private dialogService: NbDialogService,
@@ -26,19 +27,24 @@ export class CreateAulaComponent implements OnInit, OnDestroy {
     private aulaService: AulaService,
     private utilService: UtilService,
     private nodoService: NodoService,
-    private router: Router) { }
+    private router: Router,
+    private irService: IRService) { }
 
   ngOnInit() {
     this.registerForm = this.formBuilder.group({
       nombre: ['', Validators.required],
       edificio: ['', Validators.required],
-      nodoMac: ['']
+      nodoMac: [''],
+      comandoIR: ['']
     });
 
     this.edificios$ = this.aulaService.getEdificios()
       .pipe(takeWhile(() => this.alive));
 
     this.nodos$ = this.nodoService.getNodos()
+      .pipe(takeWhile(() => this.alive));
+
+    this.comandosIR$ = this.irService.getComandosIR()
       .pipe(takeWhile(() => this.alive));
   }
 

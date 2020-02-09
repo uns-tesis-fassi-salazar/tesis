@@ -6,9 +6,10 @@ export class Aula {
     public tiempoEntreLecturas: number;
     public comandoIR: string;
 
-    constructor(key?:string, edificio?: string, nombre?: string, nodoMac?: string) {
+    constructor(key?:string, edificio?: string, nombre?: string, nodoMac?: string, comandoIR?: string) {
         this.edificio = edificio || '';
         this.nombre = nombre || '';
         this.nodoMac = nodoMac || '';
+        this.comandoIR = comandoIR || '';
     }
 }

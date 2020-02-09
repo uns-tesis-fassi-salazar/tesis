@@ -37,8 +37,12 @@ export class NodoService {
     return this.db.list<Nodo>(DBConstants.nodos).update(oldNodo.mac, newNodo);
   }
 
-  updateNodoAula(mac: string, newAulaKey: string) {
-    return this.db.object(DBConstants.nodos + mac).update({ [DBConstants.nodoAulaAsignada]: newAulaKey });
+  async updateNodoAula(mac: string, newAulaKey: string) {
+    await this.db.object(DBConstants.nodos + mac).update({ 
+      [DBConstants.nodoAulaAsignada]: newAulaKey,
+      [DBConstants.nodoComando]: DBConstants.comandoActualizarAula 
+    });
+    return this.resetNodoComando(mac);
   }
 
   updateNodoComando(nodoMac, comandoValue) {

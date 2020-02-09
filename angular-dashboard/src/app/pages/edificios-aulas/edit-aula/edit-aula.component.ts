@@ -1,11 +1,11 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
-import { Edificio, Aula, Nodo } from '../../../models';
+import { Edificio, Aula, Nodo, ComandoIR } from '../../../models';
 import { NbDialogService } from '@nebular/theme';
-import { AulaService, UtilService, NodoService } from '../../../services';
+import { AulaService, UtilService, NodoService, IRService } from '../../../services';
 import { Router } from '@angular/router';
-import { takeWhile } from 'rxjs/operators';
+import { takeWhile, take } from 'rxjs/operators';
 import { DecisionDialogComponent } from '../../../utils';
 import { UrlRoutes } from '../../../helpers';
 
@@ -20,6 +20,7 @@ export class EditAulaComponent implements OnInit, OnDestroy {
   submitted = false;
   edificios$: Observable<Edificio[]>;
   nodos$: Observable<Nodo[]>;
+  comandosIR$: Observable<ComandoIR[]>;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -27,7 +28,8 @@ export class EditAulaComponent implements OnInit, OnDestroy {
     private utilService: UtilService,
     private nodoService: NodoService,
     private router: Router,
-    private dialogService: NbDialogService) { }
+    private dialogService: NbDialogService,
+    private irService: IRService) { }
 
   ngOnInit() {
     if (!this.aulaService.currentAula || this.aulaService.currentAula.key == null)
@@ -36,7 +38,8 @@ export class EditAulaComponent implements OnInit, OnDestroy {
     this.registerForm = this.formBuilder.group({
       nombre: ['', Validators.required],
       edificio: ['', Validators.required],
-      nodoMac: ['']
+      nodoMac: [''],
+      comandoIR: ['']
     });
 
     this.nodos$ = this.nodoService.getNodos()
@@ -45,7 +48,10 @@ export class EditAulaComponent implements OnInit, OnDestroy {
     this.edificios$ = this.aulaService.getEdificios()
       .pipe(takeWhile(() => this.alive));
 
-    this.edificios$.subscribe(x => {
+    this.comandosIR$ = this.irService.getComandosIR()
+      .pipe(takeWhile(() => this.alive));
+
+    this.edificios$.pipe(take(1)).subscribe(x => {
       setTimeout(() => {
         // TODO: Solucionar este parche. No encontre otra forma de 
         // actualizar el valor del select en la vista
@@ -53,7 +59,7 @@ export class EditAulaComponent implements OnInit, OnDestroy {
       }, 100);
     });
 
-    this.nodos$.subscribe(x => {
+    this.nodos$.pipe(take(1)).subscribe(x => {
       setTimeout(() => {
         // TODO: Solucionar este parche. No encontre otra forma de 
         // actualizar el valor del select en la vista

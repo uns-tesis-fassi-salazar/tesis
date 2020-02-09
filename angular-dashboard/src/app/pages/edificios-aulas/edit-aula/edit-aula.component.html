@@ -29,6 +29,13 @@
             <nb-option *ngFor="let nodo of (nodos$ | async)" [value]="nodo.mac">{{nodo.mac}}</nb-option>
           </nb-select>
         </div>
+        <div class="form-group">
+          <label for="inputAC" class="label">Aire acondicionado</label>
+          <nb-select id="inputAC" placeholder="Seleccionar AC..." formControlName="comandoIR" fullWidth>
+            <nb-option value=''>Sin AC</nb-option>
+            <nb-option *ngFor="let comando of (comandosIR$ | async)" [value]="comando.key">{{comando.marca +' - '+ comando.modelo}}</nb-option>
+          </nb-select>
+        </div>
         <button nbButton type="submit" status="primary">Guardar</button>
         <button nbButton class="ml-2" type="button" status="danger" (click)="eliminarAula()" >Eliminar</button>
         <div class="w-100 d-sm-none mt-2"></div>

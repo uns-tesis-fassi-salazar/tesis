@@ -18,7 +18,7 @@ export const MENU_ITEMS: NbMenuItem[] = [
     children: [
       {
         title: 'Comandos infrarrojos',
-        link: '#',
+        link: '/configuracion/comandos-ir',
       },
       {
         title: 'Firmware',

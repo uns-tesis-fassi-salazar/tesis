@@ -111,7 +111,6 @@ export class AulaService {
                 ref.update(aulasSinNodoMac);
             });
         }
-
         return this.db.list<Aula>(DBConstants.aulas).update(oldAula.key, newAula);
     }
 

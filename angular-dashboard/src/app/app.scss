@@ -38,6 +38,14 @@ nb-card {
     cursor: pointer;
 }
 
+.list-seleccionable:hover {
+    background-color: rgba(0,0,0,.03);
+}
+
+.font-weight-inherit {
+    font-weight: inherit !important;
+}
+
 .custom-file-label::after {
     content: "Elegir";
 }
