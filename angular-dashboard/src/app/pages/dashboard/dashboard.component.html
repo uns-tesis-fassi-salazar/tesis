@@ -6,11 +6,16 @@
           {{aulaData.edificio+' '}}<i class="fas fa-angle-right"></i> {{aulaData.nombre}}
         </h2>
       </div>
-      <div class="col-auto">
-        <button *ngIf="aulaConNodo" nbButton class="ml-2" shape="round" status="info" size="tiny"
-          (click)="goToEditarAula()">
-          <nb-icon icon="settings-outline"></nb-icon>
-        </button>
+      <div class="col-auto" *ngIf="aulaConNodo">
+        <div ngbDropdown  class="d-inline-block">
+          <button  nbButton ngbDropdownToggle shape="round" status="info" size="tiny">
+            <nb-icon icon="settings-outline"></nb-icon>
+          </button>
+          <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+            <button ngbDropdownItem (click)="goToEditarAula()">Editar aula</button>
+            <button ngbDropdownItem (click)="grabarComandoAC()">Grabar comando AC</button>
+          </div>
+        </div>
       </div>
     </div>
   </nb-card-header>
@@ -23,15 +28,16 @@
   <nb-card>
     <nb-card-body>
       <ul class="pl-4 mb-0">
+        <li>Estado del aula: <b>{{(movimiento$ | async) ? 'En uso': 'vacía'}}</b></li>
         <li>Nodo asignado: {{aulaData.nodoMac}}</li>
-        <li>Estado del aula: {{(movimiento$ | async) ? 'En uso': 'vacía'}}</li>
-        <li>Tiempo entre lecturas: {{(tiempoEntreLecturas$ | async) + ' - Actualmente en desuso'}}</li>
+        <li>Tiempo entre lecturas: {{(aulaData.intervaloLecturas) + ' min'}}</li>
+        <li>Tiempo sin movimiento para asumir aula vacía: {{(aulaData.timeoutAulaVacia) + ' min'}}</li>
+        <li>Intervalo de comportamiento automático: {{(aulaData.horaInicioAuto) + ' - '+ aulaData.horaFinAuto+' hs'}}</li>
       </ul>
     </nb-card-body>
   </nb-card>
   <div class="row">
     <div class="col-md-6 col-12">
-      <!-- <div class="col-xxxl-3 col-md-6" *ngFor="let statusCard of statusCards"> -->
       <ngx-status-card (click)="onClickLightCard(lightCard)" id="statusCard.actuadorId" [title]="lightCard.title"
         [type]="lightCard.type" [on]="lightCard.status">
         <i [ngClass]="lightCard.iconClass"></i>
@@ -42,10 +48,6 @@
         [title]="AirConditionerCard.title" [type]="AirConditionerCard.type" [on]="AirConditionerCard.status">
         <i [ngClass]="AirConditionerCard.iconClass"></i>
       </ngx-status-card>
-      <!-- <ngx-status-card (click)="onClickStatusButton(statusCard)" id="statusCard.actuadorId" [title]="statusCard.title"
-        [type]="statusCard.type" [on]="statusCard.status">
-        <i [ngClass]="statusCard.iconClass"></i>
-      </ngx-status-card> -->
     </div>
   </div>
 

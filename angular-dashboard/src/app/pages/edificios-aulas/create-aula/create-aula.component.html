@@ -1,43 +1,93 @@
 <nb-card>
-  <nb-card-header><h2 class="h4 page-heading">Nueva aula</h2></nb-card-header>
+  <nb-card-header>
+    <h2 class="h4 page-heading">Nueva aula</h2>
+  </nb-card-header>
   <nb-card-body>
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-      <div class="form-group">
-        <label for="inputNombre" class="label">Nombre *</label>
-        <input type="text" id="inputNombre" placeholder="Nombre" formControlName="nombre" nbInput fullWidth
-          [status]="(submitted && f.nombre.errors) ? 'danger' : ''"
-          [attr.aria-invalid]="(submitted && f.nombre.errors) ? true : null">
-        <ng-container *ngIf="(submitted && f.nombre.errors)">
-          <p class="caption status-danger" *ngIf="f.nombre.errors?.required">El nombre no puede estar vacío</p>
-        </ng-container>
+
+      <div class="row form-group">
+        <div class="col-md-6 col-12">
+          <label for="inputEdificio" class="label">Edificio *</label>
+          <nb-select id="inputEdificio" placeholder="Seleccionar edificio..." fullWidth
+            [formControl]="registerForm.get('edificio')" [status]="submitted && f.edificio.errors ? 'danger': ''">
+            <nb-option *ngIf="(edificios$ | async)?.length == 0"><i>No se encontraron edificios</i></nb-option>
+            <nb-option *ngFor="let depto of (edificios$ | async)" [value]="depto.nombre">{{depto.nombre}}</nb-option>
+          </nb-select>
+          <ng-container *ngIf="(submitted && f.edificio.errors)">
+            <p class="caption status-danger" *ngIf="f.edificio.errors?.required">Se debe seleccionar un edificio</p>
+          </ng-container>
+        </div>
+        <div class="w-100 d-md-none mb-3"></div>
+        <div class="col-md-6 col-12">
+          <label for="inputNombre" class="label">Nombre *</label>
+          <input type="text" id="inputNombre" placeholder="Nombre" formControlName="nombre" nbInput fullWidth
+            [status]="(submitted && f.nombre.errors) ? 'danger' : ''"
+            [attr.aria-invalid]="(submitted && f.nombre.errors) ? true : null">
+          <ng-container *ngIf="(submitted && f.nombre.errors)">
+            <p class="caption status-danger" *ngIf="f.nombre.errors?.required">El nombre no puede estar vacío</p>
+          </ng-container>
+        </div>
       </div>
-      <div class="form-group">
-        <label for="inputEdificio" class="label">Edificio *</label>
-        <nb-select id="inputEdificio" placeholder="Seleccionar edificio..." fullWidth
-          [formControl]="registerForm.get('edificio')" 
-          [status]="submitted && f.edificio.errors ? 'danger': ''">          
-          <nb-option *ngIf="(edificios$ | async)?.length == 0"><i>No se encontraron edificios</i></nb-option>
-          <nb-option *ngFor="let depto of (edificios$ | async)" [value]="depto.nombre">{{depto.nombre}}</nb-option>
-        </nb-select>
-        <ng-container *ngIf="(submitted && f.edificio.errors)">
-          <p class="caption status-danger" *ngIf="f.edificio.errors?.required">Se debe seleccionar un edificio</p>
-        </ng-container>
-      </div>
+
       <div class="form-group">
         <label for="inputNodo" class="label">Nodo asignado</label>
-        <nb-select id="inputNodo" placeholder="Seleccionar nodo..." [formControl]="registerForm.get('nodoMac')" fullWidth>
+        <nb-select id="inputNodo" placeholder="Seleccionar nodo..." [formControl]="registerForm.get('nodoMac')"
+          fullWidth>
           <nb-option value=''>Sin Nodo</nb-option>
           <nb-option *ngIf="(nodos$ | async)?.length == 0"><i>No se encontraron nodos</i></nb-option>
           <nb-option *ngFor="let nodo of (nodos$ | async)" [value]="nodo.mac">{{nodo.mac}}</nb-option>
         </nb-select>
       </div>
+
       <div class="form-group">
         <label for="inputAC" class="label">Aire acondicionado</label>
         <nb-select id="inputAC" placeholder="Seleccionar AC..." formControlName="comandoIR" fullWidth>
           <nb-option value=''>Sin AC</nb-option>
-          <nb-option *ngFor="let comando of (comandosIR$ | async)" [value]="comando.key">{{comando.marca +' - '+ comando.modelo}}</nb-option>
+          <nb-option *ngFor="let comando of (comandosIR$ | async)" [value]="comando.key">
+            {{comando.marca +' - '+ comando.modelo}}</nb-option>
         </nb-select>
       </div>
+
+      <div class="row form-group">
+        <div class="col-md-6 col-12">
+          <label class="label">Tiempo sin movimiento para aula vacía (min) *</label>
+          <input type="number" placeholder="Timeout sin movimiento" formControlName="timeoutAulaVacia" nbInput
+            fullWidth [status]="(submitted && f.timeoutAulaVacia.errors) ? 'danger' : ''">
+          <ng-container *ngIf="(submitted && f.timeoutAulaVacia.errors)">
+            <p class="caption status-danger" *ngIf="f.timeoutAulaVacia.errors?.required">El campo no puede estar vacío
+            </p>
+          </ng-container>
+        </div>
+        <div class="w-100 d-md-none mb-3"></div>
+        <div class="col-md-6 col-12">
+          <label class="label">Tiempo entre lecturas de los sensores (min) *</label>
+          <input type="number" placeholder="Tiempo entre lecturas" formControlName="intervaloLecturas" nbInput
+            fullWidth [status]="(submitted && f.intervaloLecturas.errors) ? 'danger' : ''">
+          <ng-container *ngIf="(submitted && f.intervaloLecturas.errors)">
+            <p class="caption status-danger" *ngIf="f.intervaloLecturas.errors?.required">El campo no puede estar vacío
+            </p>
+          </ng-container>
+        </div>
+      </div>
+
+      <div class="row form-group">
+        <div class="col-12"><label class="label">Intervalo de comportamiento automático *</label></div>
+        <div class="col-6">
+          <input type="time" formControlName="horaInicioAuto" nbInput fullWidth
+          [status]="(submitted && f.horaInicioAuto.errors) ? 'danger' : ''">
+          <ng-container *ngIf="(submitted && f.horaInicioAuto.errors)">
+            <p class="caption status-danger">El campo no puede estar vacío</p>
+          </ng-container>
+        </div>
+        <div class="col-6">
+          <input type="time" formControlName="horaFinAuto" nbInput fullWidth
+          [status]="(submitted && f.horaFinAuto.errors) ? 'danger' : ''">
+          <ng-container *ngIf="(submitted && f.horaFinAuto.errors)">
+            <p class="caption status-danger">El campo no puede estar vacío</p>
+          </ng-container>
+        </div>
+      </div>
+
       <button nbButton type="submit" status="primary">Guardar</button>
       <button nbButton class="ml-3" type="button" status="basic" (click)="onClickCancelar()">Cancelar</button>
     </form>

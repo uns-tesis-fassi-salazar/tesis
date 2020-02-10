@@ -102,6 +102,9 @@ export class DashboardComponent implements OnDestroy, OnInit {
         this.aulaService.getAulaByKey(aulaKey).pipe(takeWhile(() => this.alive))
           .subscribe(aula => {
             this.checkAula(aula);
+            if (this.aulaData.nodoMac != '' && this.aulaData.comandoIR != aula.comandoIR) {
+              this.utilService.showToast('primary','Nuevo comando registrado!','Dirijase a las configuraciones de los comandos infrarrojos para guardar la marca y modelo del AC', 8000);
+            }
             this.aulaData = aula;
             this.loadValues();
           })
@@ -127,6 +130,7 @@ export class DashboardComponent implements OnDestroy, OnInit {
       this.temperatura$ = this.nodoService.getSensor(this.aulaData.nodoMac, DBConstants.nodoSensorTemperatura);
       this.movimiento$ = this.nodoService.getSensor(this.aulaData.nodoMac, DBConstants.nodoSensorMovimiento);
       this.nodoService.getSensor(this.aulaData.nodoMac, DBConstants.nodoSensorHall)
+        .pipe(takeWhile(() => this.alive))
         .subscribe(hallValue => {
           if (!this.lightCardClicked) {
             if (hallValue > 1.8) {
@@ -142,6 +146,11 @@ export class DashboardComponent implements OnDestroy, OnInit {
   goToEditarAula() {
     this.aulaService.updateCurrentAula(this.aulaData);
     this.router.navigate([UrlRoutes.edificios, UrlRoutes.aulasEdificio, UrlRoutes.editarAula])
+  }
+
+  grabarComandoAC() {
+    this.nodoService.updateNodoComando(this.aulaData.nodoMac, DBConstants.comandoGrabarIR);
+    this.utilService.showToast('primary', 'Grabar nuevo comando', 'Dirija el control remoto hacia el nodo y presione el boton de apagado', 5000);
   }
 
   onClickLightCard(lightCard) {

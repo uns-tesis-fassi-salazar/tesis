@@ -91,7 +91,8 @@ export class AulaService {
             ref.update(aulasSinNodoMac);
         });
         const result = await this.db.list<Aula>('aulas').push(aula);
-        return this.nodoSercive.updateNodoAula(aula.nodoMac, result.key);
+        await this.nodoSercive.updateNodoAula(aula.nodoMac, result.key);
+        return result;
     }
 
     async updateAula(oldAula: Aula, newAula: Aula) {

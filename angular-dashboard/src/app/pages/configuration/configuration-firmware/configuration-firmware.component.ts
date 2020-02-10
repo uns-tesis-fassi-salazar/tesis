@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { NodoService } from '../../../services';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { finalize } from 'rxjs/operators';
+import { finalize, takeWhile } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 
 @Component({
@@ -9,7 +9,7 @@ import { Observable } from 'rxjs';
   templateUrl: './configuration-firmware.component.html',
   styleUrls: ['./configuration-firmware.component.scss']
 })
-export class ConfigurationFirmwareComponent implements OnInit {
+export class ConfigurationFirmwareComponent implements OnInit, OnDestroy {
   registerForm: FormGroup;
   file: any;
   nombreArchivo = '';
@@ -19,6 +19,7 @@ export class ConfigurationFirmwareComponent implements OnInit {
   submitted = false;
   otherError = false;
   errorMessage = '';
+  alive = true;
 
   constructor(private formBuilder: FormBuilder,
     private nodoService: NodoService) { }
@@ -27,7 +28,10 @@ export class ConfigurationFirmwareComponent implements OnInit {
     this.registerForm = this.formBuilder.group({
       archivo: [null, Validators.required],
     });
+  }
 
+  ngOnDestroy() {
+    this.alive = false;
   }
 
   //Evento que se gatilla cuando el input de tipo archivo cambia
@@ -96,12 +100,14 @@ export class ConfigurationFirmwareComponent implements OnInit {
     let referencia = this.nodoService.getFileReference(version);
     let tarea = this.nodoService.uploadFileTask(version, this.file);
 
-    tarea.percentageChanges().subscribe(procentaje => {
-      this.porcentajeSubida = procentaje;
-    });
+    tarea.percentageChanges().pipe(takeWhile(() => this.alive))
+      .subscribe(procentaje => {
+        this.porcentajeSubida = procentaje;
+      });
 
     // get notified when the download URL is available
     tarea.snapshotChanges().pipe(
+      takeWhile(() => this.alive),
       finalize(() => {
         this.URLPublica$ = referencia.getDownloadURL();
         this.URLPublica$.subscribe( imageUrl => {

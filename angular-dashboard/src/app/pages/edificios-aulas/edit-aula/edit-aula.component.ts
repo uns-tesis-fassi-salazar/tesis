@@ -39,7 +39,11 @@ export class EditAulaComponent implements OnInit, OnDestroy {
       nombre: ['', Validators.required],
       edificio: ['', Validators.required],
       nodoMac: [''],
-      comandoIR: ['']
+      comandoIR: [''],
+      timeoutAulaVacia: [1, Validators.required],
+      intervaloLecturas: [5, Validators.required],
+      horaInicioAuto: ['22:00', Validators.required],
+      horaFinAuto: ['06:00', Validators.required],
     });
 
     this.nodos$ = this.nodoService.getNodos()
@@ -60,6 +64,14 @@ export class EditAulaComponent implements OnInit, OnDestroy {
     });
 
     this.nodos$.pipe(take(1)).subscribe(x => {
+      setTimeout(() => {
+        // TODO: Solucionar este parche. No encontre otra forma de 
+        // actualizar el valor del select en la vista
+        this.registerForm.patchValue(this.aulaService.currentAula);
+      }, 100);
+    });
+
+    this.comandosIR$.pipe(take(1)).subscribe(x => {
       setTimeout(() => {
         // TODO: Solucionar este parche. No encontre otra forma de 
         // actualizar el valor del select en la vista
@@ -94,7 +106,9 @@ export class EditAulaComponent implements OnInit, OnDestroy {
       context: { 
         message: 'Se eliminara el aula seleccionada'
       } 
-    }).onClose.subscribe( respuesta => {
+    }).onClose
+    .pipe(takeWhile(() => this.alive))
+    .subscribe( respuesta => {
       if (respuesta) {
         this.aulaService.removeAula(this.aulaService.currentAula)
         .then(res => {
@@ -103,9 +117,7 @@ export class EditAulaComponent implements OnInit, OnDestroy {
         })
         .catch(err => this.utilService.showToast('warning', 'Error al eliminar el aula', 'Es posible que se deba a un fallo en la comunicación', 4000))
       }
-
     });
-
   }
 
   navigateToAulasList() {

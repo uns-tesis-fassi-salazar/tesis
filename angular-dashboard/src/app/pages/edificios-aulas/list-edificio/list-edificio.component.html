@@ -1,55 +1,57 @@
 <nb-card>
-    <nb-card-header>
-      <h2 class="h4 page-heading">Edificios y aulas</h2>
-    </nb-card-header>
-    <nb-card-body>
-      <div class="row justify-content-start">
-        <div class="col">
-          <button ngClass="custom-button" nbButton class="mr-3" status="primary" size="small"
-            (click)="onClickNuevoEdificio()">
-            <nb-icon icon="plus-outline"></nb-icon>
-            Nuevo edificio
-          </button>
-          <div class="w-100 mt-3 d-sm-none"></div>
-          <button ngClass="custom-button" nbButton class="" status="warning" size="small"
-            (click)="onClickNuevaAula()">
-            <nb-icon icon="plus-outline"></nb-icon>
-            Nueva aula
-          </button>
-        </div>
+  <nb-card-header>
+    <h2 class="h4 page-heading">Edificios y aulas</h2>
+  </nb-card-header>
+  <nb-card-body>
+    <div class="row">
+      <div class="col-xxl-2 col-md-3 col-sm-4 col-12">
+        <button ngClass="custom-button" nbButton status="primary" size="small" (click)="onClickNuevoEdificio()"
+          fullWidth>
+          <nb-icon icon="plus-outline"></nb-icon>
+          Nuevo edificio
+        </button>
       </div>
-      <div class="row">
-        <div class="col-12 mt-4">
-          <h2 class="h5">Lista de edificios</h2>
-        </div>
+      <div class="w-100 my-2 d-sm-none"></div>
+      <div class="col-xxl-2 col-md-3 col-sm-4 col-12">
+        <button ngClass="custom-button" nbButton status="warning" size="small" (click)="onClickNuevaAula()"
+          fullWidth>
+          <nb-icon icon="plus-outline"></nb-icon>
+          Nueva aula
+        </button>
       </div>
-      <div class="form-group">
-        <label for="inputSearch" class="label">Buscar edificio</label>
-        <input id="inputSearch" placeholder="Buscar edificio" nbInput fullWidth type="text" #inSearch
-          (ngModel)="inSearch">
+    </div>
+    <div class="row">
+      <div class="col-12 mt-4">
+        <h2 class="h5">Lista de edificios</h2>
       </div>
-      <div class="row mb-2">
-        <div class="col-12 col-sm-6 col-md-4 col-xl-3 mt-3"
-          *ngFor="let edificio of (edificios$ | async| filterByProperty:'nombre':inSearch.value)">
-          <nb-card class="seleccionable" status="primary" (click)="!optionsClicked && onClickEdificio(edificio)">
-            <nb-card-header class="card-semi-round">
-              <div class="row">
-                <div class="col">{{edificio.nombre | uppercase}}</div>
-                <div class="col-auto">
-                  <div ngbDropdown class="d-inline-block" (click)="optionsClicked=true" (focusout)="optionsClicked=false">
-                    <button class="btn btn-sm btn-outline-light" id="dropdownBasic1" ngbDropdownToggle>
-                      <i class="fas fa-ellipsis-v"></i>
-                    </button>
-                    <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
-                      <button ngbDropdownItem (click)="editarEdificio(edificio)">Editar</button>
-                      <button ngbDropdownItem (click)="eliminarEdificio(edificio)">Eliminar</button>
-                    </div>
+    </div>
+    <div class="form-group">
+      <label for="inputSearch" class="label">Buscar edificio</label>
+      <input id="inputSearch" placeholder="Buscar edificio" nbInput fullWidth type="text" #inSearch
+        (ngModel)="inSearch">
+    </div>
+    <div class="row my-4">
+      <div class="col-12 col-sm-6 col-md-4 col-xl-3"
+        *ngFor="let edificio of (edificios$ | async| filterByProperty:'nombre':inSearch.value)">
+        <nb-card class="seleccionable  mb-4" status="primary" (click)="!optionsClicked && onClickEdificio(edificio)">
+          <nb-card-header class="card-semi-round">
+            <div class="row">
+              <div class="col">{{edificio.nombre | uppercase}}</div>
+              <div class="col-auto">
+                <div ngbDropdown class="d-inline-block" (click)="optionsClicked=true" (focusout)="optionsClicked=false">
+                  <button class="btn btn-sm btn-outline-light" id="dropdownBasic1" ngbDropdownToggle>
+                    <i class="fas fa-ellipsis-v"></i>
+                  </button>
+                  <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+                    <button ngbDropdownItem (click)="editarEdificio(edificio)">Editar</button>
+                    <button ngbDropdownItem (click)="eliminarEdificio(edificio)">Eliminar</button>
                   </div>
                 </div>
               </div>
-            </nb-card-header>
-          </nb-card>
-        </div>
+            </div>
+          </nb-card-header>
+        </nb-card>
       </div>
-    </nb-card-body>
-  </nb-card>
+    </div>
+  </nb-card-body>
+</nb-card>

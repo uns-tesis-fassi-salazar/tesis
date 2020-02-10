@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { NbLayoutModule, NbCardModule, NbButtonModule } from '@nebular/theme';
+import { NbLayoutModule, NbCardModule, NbButtonModule, NbAlertModule } from '@nebular/theme';
 import { ThemeModule } from '../../@theme/theme.module';
 import { MyAuthRoutingModule } from './auth-routing.module';
 
@@ -19,7 +19,7 @@ import { CommonModule } from '@angular/common';
     ReactiveFormsModule,
     NbCardModule,
     NbButtonModule,
-    // NbAlertModule,
+    NbAlertModule,
     // NbIconModule,
   ],
   declarations: [

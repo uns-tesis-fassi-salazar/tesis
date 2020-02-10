@@ -19,6 +19,7 @@ import { TemperatureComponent } from './temperature/temperature.component';
 import { TemperatureDraggerComponent } from './temperature/temperature-dragger/temperature-dragger.component';
 import { FormsModule } from '@angular/forms';
 import { SensorDisplayComponent } from './sensor-display/sensor-display.component';
+import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
   imports: [
@@ -34,6 +35,7 @@ import { SensorDisplayComponent } from './sensor-display/sensor-display.componen
     // NbListModule,
     NbIconModule,
     // NgxEchartsModule,
+    NgbDropdownModule
   ],
   declarations: [
     DashboardComponent,

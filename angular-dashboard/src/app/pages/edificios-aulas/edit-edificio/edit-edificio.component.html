@@ -11,11 +11,17 @@
             <p class="caption status-danger" *ngIf="f.nombre.errors?.required">El nombre no puede estar vacío</p>
           </ng-container>
         </div>
-        
-        <button nbButton type="submit" status="primary">Guardar</button>
-        <button nbButton class="ml-2" type="button" status="danger" (click)="eliminarEdificio()" disabled>Eliminar</button>
-        <div class="w-100 d-sm-none mt-2"></div>
-        <button nbButton class="ml-2" type="button" status="basic" (click)="navigateToEdificiosList()">Cancelar</button>
+      
+        <div class="row mt-2 justify-content-between">
+          <div class="col">
+            <button nbButton type="submit" status="primary">Guardar</button>
+            <button nbButton class="ml-3" type="button" status="basic" (click)="navigateToEdificiosList()">Cancelar</button>
+          </div>
+          <div class="w-100 d-sm-none mt-1"></div>
+          <div class="col-auto">
+            <button class="btn btn-link text-danger" type="button" status="danger" (click)="eliminarEdificio()" >Eliminar</button>
+          </div>
+        </div>
       </form>
     </nb-card-body>
   </nb-card>

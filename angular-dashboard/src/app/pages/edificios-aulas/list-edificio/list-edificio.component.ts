@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Edificio } from '../../../models';
 import { AulaService, UtilService } from '../../../services';
@@ -13,7 +13,7 @@ import { UrlRoutes } from '../../../helpers';
   templateUrl: './list-edificio.component.html',
   styleUrls: ['./list-edificio.component.scss']
 })
-export class ListEdificioComponent implements OnInit {
+export class ListEdificioComponent implements OnInit, OnDestroy {
 
   alive = true;
   optionsClicked = false;
@@ -55,18 +55,20 @@ export class ListEdificioComponent implements OnInit {
 
   async eliminarEdificio(edificio: Edificio) {
     this.aulaService.getAulasByEdificio(edificio)
+      .pipe(takeWhile(() => this.alive))
       .subscribe(aulas => {
-        console.log(aulas);
-
         if (aulas.length == 0) {
           this.dialogService.open(DecisionDialogComponent, {
             context: {
               message: 'Se eliminara el departamento seleccionado.'
             }
-          }).onClose.subscribe(respuesta => {
+          }).onClose
+          .pipe(takeWhile(() => this.alive))
+          .subscribe(respuesta => {
             if (respuesta) {
               this.aulaService.removeEdificio(edificio)
                 .then(res => {
+                  this.utilService.showToast('success', 'Edificio eliminado satisfactoriamente!');
                 })
                 .catch(err => this.utilService.showToast('warning', 'Error al eliminar el edificio', 'Es posible que se deba a un fallo en la comunicación', 4000))
             } else {

@@ -12,6 +12,7 @@ export class LoginComponent implements OnInit {
   registerForm: FormGroup;
   submitted = false;
   returnUrl: string;
+  userOrPassIncorrect = false;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -35,6 +36,7 @@ export class LoginComponent implements OnInit {
   }
 
   onSubmit() {
+    this.userOrPassIncorrect = false;
     this.submitted = true;
     // stop here if form is invalid
     if (this.registerForm.invalid) {
@@ -48,6 +50,7 @@ export class LoginComponent implements OnInit {
       })
       .catch(err => {
         console.log("Error al iniciar sesion: ", err);
+        this.userOrPassIncorrect = true;
       });
   }
 

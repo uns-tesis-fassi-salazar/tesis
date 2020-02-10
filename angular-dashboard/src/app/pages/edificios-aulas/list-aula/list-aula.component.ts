@@ -52,7 +52,9 @@ export class ListAulaComponent implements OnInit, OnDestroy {
       context: {
         message: 'Se eliminara el aula seleccionada'
       }
-    }).onClose.subscribe(respuesta => {
+    }).onClose
+    .pipe(takeWhile(() => this.alive))
+    .subscribe(respuesta => {
       if (respuesta) {
         this.aulaService.removeAula(aula)
           .then(res => {
