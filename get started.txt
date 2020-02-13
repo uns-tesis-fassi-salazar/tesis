@@ -24,3 +24,16 @@ Pasos que realice al bajar el proyecto de nuevo (habiendo reinstalado windows):
         - (sensor hall)
         - 
         
+
+Deploy de app web en Firebase:
+- Compilar app (genera archivos en /dist):
+    $ ng build --prod
+- Instalar las herramientas de consola de firebase:
+    $ npm install -g firebase-tools
+- Logearse e inicializar proyecto
+    $ firebase login
+    $ firebase init
+- Completar preguntas
+    > Database
+- Realizar Deploy
+    $ firebase deploy
