@@ -55,3 +55,8 @@ ngx-status-card.nostatus {
         visibility: hidden !important;
     }
 }
+
+.scroll {
+    max-height: calc(100vh - 200px);
+    overflow: auto !important;
+}

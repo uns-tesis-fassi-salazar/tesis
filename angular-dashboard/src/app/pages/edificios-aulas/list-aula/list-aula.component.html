@@ -24,7 +24,7 @@
         <div class="row my-4">
             <div class="col" *ngIf="(aulas$ | async)?.length == 0"><i>Edificio sin aulas</i></div>
             <div class="col-12 col-sm-6 col-md-4 col-xl-3"
-                *ngFor="let aula of (aulas$ | async | filterByProperty:'nombre':inSearch.value)">
+                *ngFor="let aula of (aulas$ | async | filterByProperty:['nombre']:inSearch.value)">
                 <nb-card class="seleccionable mb-4" status="warning" (click)="!optionsClicked && onClickAula(aula)">
                     <nb-card-header class="card-semi-round">
                         <div class="row">

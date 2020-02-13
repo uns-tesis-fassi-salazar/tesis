@@ -132,6 +132,7 @@ export class DashboardComponent implements OnDestroy, OnInit {
       this.nodoService.getSensor(this.aulaData.nodoMac, DBConstants.nodoSensorHall)
         .pipe(takeWhile(() => this.alive))
         .subscribe(hallValue => {
+          console.log(hallValue);
           if (!this.lightCardClicked) {
             if (hallValue > 1.8) {
               this.lightCard.status = true;

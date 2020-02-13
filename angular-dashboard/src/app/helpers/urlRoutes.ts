@@ -11,4 +11,7 @@ export class UrlRoutes{
 
     // Dashboard
     public static readonly dashboardAula = 'dashboard/aula';    
+
+    // Logs
+    public static readonly logs = 'logs/';
 }

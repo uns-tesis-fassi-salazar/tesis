@@ -13,6 +13,8 @@ import { ListAulaComponent } from './edificios-aulas/list-aula/list-aula.compone
 import { CreateAulaComponent } from './edificios-aulas/create-aula/create-aula.component';
 import { EditAulaComponent } from './edificios-aulas/edit-aula/edit-aula.component';
 import { ListEdificioComponent } from './edificios-aulas/list-edificio/list-edificio.component';
+import { LogsComponent } from './logs/logs.component';
+import { ShowLogsComponent } from './logs/show-logs/show-logs.component';
 
 const routes: Routes = [{
   path: '',
@@ -65,6 +67,16 @@ const routes: Routes = [{
       path: 'configuracion',
       loadChildren: () => import('./configuration/configuration.module')
         .then(m => m.ConfigurationModule),
+    },
+    {
+      path: 'logs',
+      pathMatch: 'full',
+      component: LogsComponent,
+    },
+    {
+      path: 'logs/:nodoMac',
+      pathMatch: 'full',
+      component: ShowLogsComponent,
     },
     {
       path: '',

@@ -1,7 +1,7 @@
 export class Nodo {
     public mac: string; //key
-    public AulaAsignada: string;
-    public FirmwareVersion: string;
+    public aulaAsignada: string;
+    public firmwareVersion: string;
     // public actuadores: {
     //     aire: boolean,
     //     led: boolean,

@@ -1,0 +1,29 @@
+<nb-card>
+    <nb-card-header>Logs</nb-card-header>
+    <nb-card-body>
+        <div class="row">
+            <div class="col-12">
+                <h2 class="h6">Lista de nodos</h2>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="inputSearch" class="label">Buscar nodo</label>
+            <input id="inputSearch" placeholder="Buscar aula" nbInput fullWidth type="text" #inSearch
+                (ngModel)="inSearch" autofocus>
+        </div>
+        <div class="row my-4">
+            <div class="col" *ngIf="(nodos)?.length == 0"><i>No se econtraron nodos en el sístema</i></div>
+            <div class="col-12 col-sm-6 col-md-4 col-xl-3"
+                *ngFor="let nodo of (nodos | filterByProperty:['mac','aulaAsignada']:inSearch.value)">
+                <nb-card class="seleccionable mb-4" status="warning" (click)="onClickNodo(nodo)">
+                    <nb-card-header class="card-semi-round">
+                        <div class="row">
+                            <div class="col-12">{{nodo.mac | uppercase}}</div>
+                            <div class="col-12">{{nodo.aulaAsignada | uppercase}}</div>
+                        </div>
+                    </nb-card-header>
+                </nb-card>
+            </div>
+        </div>
+    </nb-card-body>
+</nb-card>

@@ -28,7 +28,7 @@ export class NodoService {
   getNodoByMac(mac: string) {
     return this.db.object<Nodo>(DBConstants.nodos + mac).valueChanges();
   }
-  
+
   getSensor(nodoMac, sensorId) {
     return this.db.object(DBConstants.nodos + nodoMac + '/' + DBConstants.nodoSensores + sensorId).valueChanges();
   }
@@ -38,9 +38,9 @@ export class NodoService {
   }
 
   async updateNodoAula(mac: string, newAulaKey: string) {
-    await this.db.object(DBConstants.nodos + mac).update({ 
+    await this.db.object(DBConstants.nodos + mac).update({
       [DBConstants.nodoAulaAsignada]: newAulaKey,
-      [DBConstants.nodoComando]: DBConstants.comandoActualizarAula 
+      [DBConstants.nodoComando]: DBConstants.comandoActualizarAula
     });
     return this.resetNodoComando(mac);
   }

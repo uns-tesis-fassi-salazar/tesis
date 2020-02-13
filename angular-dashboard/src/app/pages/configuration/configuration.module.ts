@@ -9,7 +9,7 @@ import { MiscellaneousModule } from '../miscellaneous/miscellaneous.module';
 import { ConfigurationComponent } from './configuration.component';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { ConfigurationFirmwareComponent } from './configuration-firmware/configuration-firmware.component'
-import { FilterByPropertyPipe } from '../../utils';
+import { FilterByPropertiesPipe } from '../../utils';
 import { ConfigurationIrComponent } from './configuration-ir/configuration-ir.component';
 
 @NgModule({

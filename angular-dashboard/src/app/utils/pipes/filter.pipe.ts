@@ -3,13 +3,18 @@ import { Pipe, PipeTransform } from '@angular/core';
 @Pipe({
     name: 'filterByProperty'
 })
-export class FilterByPropertyPipe implements PipeTransform {
-    transform(items: any[], porpertyName: string , searchText: string): any[] {
+export class FilterByPropertiesPipe implements PipeTransform {
+    transform(items: any[], propertiesName: string[], searchText: string): any[] {
         if (!items) return [];
-        if (!searchText || !porpertyName) return items;
+        if (!searchText || !propertiesName) return items;
         searchText = searchText.toLowerCase();
         return items.filter(it => {
-            return it[porpertyName].toLowerCase().includes(searchText);
+            let contieneAlgo = false;
+            for (const propertyName of propertiesName) {
+                if (it[propertyName].toLowerCase().includes(searchText))
+                    contieneAlgo = true;
+            }
+            return contieneAlgo;
         });
     }
 }

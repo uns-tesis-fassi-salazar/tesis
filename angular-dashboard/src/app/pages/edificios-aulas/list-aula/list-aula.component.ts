@@ -34,6 +34,7 @@ export class ListAulaComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.alive = false;
   }
+  
   onClickAula(aula: Aula) {
     this.router.navigate([UrlRoutes.dashboardAula,aula.key]);
   }

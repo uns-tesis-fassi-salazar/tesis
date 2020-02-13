@@ -27,6 +27,11 @@ export const MENU_ITEMS: NbMenuItem[] = [
     ]
   },
   {
+    title: 'Logs',
+    icon: 'file-text-outline',
+    link: '/logs',
+  },
+  {
     title: 'Edificios',
     group: true,
   }

@@ -32,7 +32,7 @@
     </div>
     <div class="row my-4">
       <div class="col-12 col-sm-6 col-md-4 col-xl-3"
-        *ngFor="let edificio of (edificios$ | async| filterByProperty:'nombre':inSearch.value)">
+        *ngFor="let edificio of (edificios$ | async| filterByProperty:['nombre']:inSearch.value)">
         <nb-card class="seleccionable  mb-4" status="primary" (click)="!optionsClicked && onClickEdificio(edificio)">
           <nb-card-header class="card-semi-round">
             <div class="row">

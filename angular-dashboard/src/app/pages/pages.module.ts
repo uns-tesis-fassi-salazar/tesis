@@ -11,7 +11,7 @@ import { HomeComponent } from './home/home.component';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ConfigurationModule } from './configuration/configuration.module';
-import { DialogNamePromptComponent, FilterByPropertyPipe, DecisionDialogComponent } from '../utils';
+import { DialogNamePromptComponent, FilterByPropertiesPipe, DecisionDialogComponent } from '../utils';
 import { ListEdificioComponent } from './edificios-aulas/list-edificio/list-edificio.component';
 import { CreateEdificioComponent } from './edificios-aulas/create-edificio/create-edificio.component';
 import { ListAulaComponent } from './edificios-aulas/list-aula/list-aula.component';
@@ -19,6 +19,8 @@ import { EditAulaComponent } from './edificios-aulas/edit-aula/edit-aula.compone
 import { EditEdificioComponent } from './edificios-aulas/edit-edificio/edit-edificio.component';
 import { CreateAulaComponent } from './edificios-aulas/create-aula/create-aula.component';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
+import { LogsComponent } from './logs/logs.component';
+import { ShowLogsComponent } from './logs/show-logs/show-logs.component';
 
 @NgModule({
   imports: [
@@ -55,9 +57,11 @@ import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
     EditEdificioComponent,
     ListEdificioComponent,
 
-    FilterByPropertyPipe,
+    FilterByPropertiesPipe,
     DialogNamePromptComponent,
     DecisionDialogComponent,
+    LogsComponent,
+    ShowLogsComponent,
   ],
   entryComponents: [
     DialogNamePromptComponent,

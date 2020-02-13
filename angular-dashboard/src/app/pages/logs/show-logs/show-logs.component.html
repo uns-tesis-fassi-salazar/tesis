@@ -1,0 +1,9 @@
+<nb-card>
+    <nb-card-header>Logs {{nodoMac}}</nb-card-header>
+    <nb-card-body class="scroll" id="srollViewport" (scroll)="onScroll($event)">
+        <div class="d-flex flex-row mb-0" *ngFor="let log of logs$ | async">
+            <div class="p-1 text-info" style="width: 160px;">{{log.fecha}}</div>
+            <div class="p-1">{{log.contenido}}</div>
+        </div>
+    </nb-card-body>
+</nb-card>
