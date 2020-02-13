@@ -21,6 +21,7 @@ import { CreateAulaComponent } from './edificios-aulas/create-aula/create-aula.c
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { LogsComponent } from './logs/logs.component';
 import { ShowLogsComponent } from './logs/show-logs/show-logs.component';
+import { EdificiosAulasComponent } from './edificios-aulas/edificios-aulas.component';
 
 @NgModule({
   imports: [
@@ -56,6 +57,7 @@ import { ShowLogsComponent } from './logs/show-logs/show-logs.component';
     EditAulaComponent,
     EditEdificioComponent,
     ListEdificioComponent,
+    EdificiosAulasComponent,
 
     FilterByPropertiesPipe,
     DialogNamePromptComponent,
