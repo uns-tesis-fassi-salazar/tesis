@@ -9,12 +9,6 @@ struct commandoAC {
 
 commandoAC comando;
 
-void setUpAC() {
-    if (getCommand(&comando.command)) {
-        comando.hasCommand = true;
-    }
-}
-
 void turnOffAC() {
     bool resultado = getCommand(&comando.command);
     resultado ? uploadLogs("getCommand: true") : uploadLogs("getCommand: false");

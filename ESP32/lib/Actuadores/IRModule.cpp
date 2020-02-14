@@ -88,12 +88,10 @@ bool uploadCommand(decode_results &command);
 
 void setUpIRSender() {
     irsend.begin();
-    uploadLogs("IRSender will retransmit it on Pin " + kIrLedPin);
 }
 
 void setUpIRReceiver() {
     irrecv.enableIRIn();
-    uploadLogs("IRReceiver is now running and waiting for IR input on Pin " + kRecvPin);
 }
 
 bool recordingAndUploadCommand() { // Pasar por parametro un timeout de escucha

@@ -1,9 +1,8 @@
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef UTILIDADES_H
+#define UTILIDADES_H
 
 #include <Arduino.h>
 #include <FirebaseModule.h>
-#include <Utils.h>
 
 const char dias_semana[7][10] = {"Domingo","Lunes","Martes","Miercoles","Jueves","Viernes","Sabado"};
 const char meses[12][11] = {"Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"};

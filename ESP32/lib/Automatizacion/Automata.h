@@ -5,7 +5,7 @@
 #include <Sensores.h>
 #include <Luces.h>
 #include <AC.h>
-#include <Utils.h>
+#include <utilidades.h>
 
 struct aulaConfig {
     int timeOutAulaVacia;

@@ -6,21 +6,21 @@
 #include <Automata.h>
 #include <BH1750.h>
 #include <DHT.h>
-// #include <ACS712.h>
+#include <ACS712.h>
 #include <Wire.h>
-#include <Utils.h>
+#include <utilidades.h>
 
 #define MOVEMENT_PIN GPIO_NUM_5
 #define LUX_SDA_PIN GPIO_NUM_21
 #define LUX_CSL_PIN GPIO_NUM_22
 #define DHT_PIN GPIO_NUM_32
-// #define HALL_PIN GPIO_NUM_34
+#define HALL_PIN GPIO_NUM_34
 
 void setUpSensors();
 void loopSensors();
 void printSensors();
 bool emptyRoomState();
-bool detectCurrentFlow();
+bool hasCurrentFlow();
 void setTimerTimeout(int timeout);
 
 #endif

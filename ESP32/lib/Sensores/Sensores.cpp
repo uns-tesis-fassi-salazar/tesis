@@ -4,14 +4,14 @@ void logSensores();
 
 FirebaseJson jsonSensorData;
 
-// ACS712 hallSensor(ACS712_30A, HALL_PIN);
+ACS712 hallSensor(ACS712_20A, HALL_PIN);
 BH1750 lightMeter;
 DHT dht;
 
 float prevLuxValue, currentLuxValue;
 float prevTempValue, currentTempValue;
 float prevHumidityValue, currentHumidityValue;
-// float prevHallValue, currentHallValue;
+float prevHallValue, currentHallValue;
 
 ulong tiempoUltimaLecturaDHT = 0;
 
@@ -44,11 +44,11 @@ void setUpSensors() {
     prevLuxValue = 0;
     prevTempValue = 0;
     prevHumidityValue = 0;
-    // prevHallValue = 0;
+    prevHallValue = 0;
     // Inicializacion Sensor ACS712
     // If you are not sure that the current through the sensor will not leak during calibration - comment out this method
     uploadLogs("Calibrating... Ensure that no current flows through the sensor at this moment");
-    // uploadLogs("Valor calibrado: " + hallSensor.calibrate());
+    uploadLogs("Valor calibrado: " + hallSensor.calibrate());
 
     // Inicializacion sensor Luz
     Wire.begin(LUX_SDA_PIN, LUX_CSL_PIN);
@@ -80,7 +80,7 @@ float readLuxValue() {
 }
 
 void readSensorsValues() {
-    // currentHallValue = hallSensor.getCurrentAC(50);
+    currentHallValue = hallSensor.getCurrentAC(50);
     currentLuxValue = readLuxValue();
     
     if (lapTimer(2500, &tiempoUltimaLecturaDHT)) {
@@ -93,7 +93,7 @@ void uploadSensorsValues() {
     if ((prevTempValue != currentTempValue) || 
         (prevHumidityValue != currentHumidityValue) || 
         (prevLuxValue != currentLuxValue) || 
-        // (prevHallValue != currentHallValue) ||
+        (prevHallValue != currentHallValue) ||
         movement.roomStateChange) {
             // printSensors();
             logSensores();
@@ -114,17 +114,17 @@ void uploadSensorsValues() {
             prevLuxValue = currentLuxValue;
             prevTempValue = currentTempValue;
             prevHumidityValue = currentHumidityValue;
-            // prevHallValue = currentHallValue;
+            prevHallValue = currentHallValue;
             movement.roomStateChange = false;
     }
 }
 
-// bool detectCurrentFlow() {
-//     if (currentHallValue > 2.50) {
-//         return true;
-//     }
-//     return false;
-// }
+bool hasCurrentFlow() {
+    if (currentHallValue > 2.50) {
+        return true;
+    }
+    return false;
+}
 
 void setTimerTimeout(int timeout) {
     movementTimer = timerTimeout(timeout*1000, aulaVacia);

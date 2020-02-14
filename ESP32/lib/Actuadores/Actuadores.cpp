@@ -6,5 +6,4 @@ void setUpActuadores() {
     setUpIRSender();
     setUpIRReceiver();
     setUpLed();
-    setUpAC();
 }
