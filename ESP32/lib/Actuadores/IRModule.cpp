@@ -83,39 +83,59 @@ IRrecv irrecv(kRecvPin, kCaptureBufferSize, kTimeout, false);
 decode_results results;
 
 String commandKey = "";
-void uploadCommand(decode_results &command);
+extern String aulaKey;
+bool uploadCommand(decode_results &command);
 
 void setUpIRSender() {
     irsend.begin();
-    // Serial.print("IRSender will retransmit it on Pin ");
-    // Serial.println(kIrLedPin);
+    uploadLogs("IRSender will retransmit it on Pin " + kIrLedPin);
 }
 
 void setUpIRReceiver() {
     irrecv.enableIRIn();
-    // Serial.print("IRReceiver is now running and waiting for IR input on Pin ");
-    // Serial.println(kRecvPin);
+    uploadLogs("IRReceiver is now running and waiting for IR input on Pin " + kRecvPin);
 }
 
-boolean recordingAndUploadCommand() { // Pasar por parametro un timeout de escucha
+bool recordingAndUploadCommand() { // Pasar por parametro un timeout de escucha
 
-    if (irrecv.decode(&results)) {
-        
-        uploadCommand(results);
-
+    uploadLogs("Iniciando la grabacion del comando AC...");
+    // irrecv.enableIRIn();
+    bool todoOk = false;
+    bool commandDecode = false;
+    bool timeOut = false;
+    ulong recordTimeOut = 30000;    // 30 segundos
+    ulong redordStartTime = millis();
+    while ((!commandDecode) && (!timeOut)) {
+        blinkLed();
+        commandDecode = irrecv.decode(&results);
+        yield();  // Or delay(milliseconds); This ensures the ESP doesn't WDT reset.
+        if (lapTimer(recordTimeOut, &redordStartTime)){
+            timeOut = true;
+        }
+    }
+    
+    if (commandDecode) {
+        encenderLed();
+        if (!uploadCommand(results)) {
+            todoOk = false;
+        }
         // Resume capturing IR messages. It was not restarted until after we sent
         // the message so we didn't capture our own message.
         irrecv.resume();
-        return true;
+        todoOk = true;
     }
-    yield();  // Or delay(milliseconds); This ensures the ESP doesn't WDT reset.
-    return false;
+    uploadLogs("Saliendo del modo grabación comando AC...");
+    apagarLed();
+    // irrecv.disableIRIn();
+    return todoOk;
 }
 
 bool sendCommand(decode_results *command) {
 
     uint16_t size = command->bits;
     decode_type_t protocol = command->decode_type;
+
+    uploadLogs("Emitir comando");
 
     // The capture has stopped at this point.
     bool success = true;
@@ -130,35 +150,44 @@ bool sendCommand(decode_results *command) {
         irsend.sendRaw(raw_array, size, kFrequency);
         // Deallocate the memory allocated by resultToRawArray().
         delete[] raw_array;
+
+        uploadLogs("decode_type_t::UNKNOWN");
     } else if (hasACState(protocol)) {  // Does the message require a state[]?
         // It does, so send with bytes instead.
         success = irsend.send(protocol, command->state, size / 8);
+        uploadLogs("HasACState");
     } else {  // Anything else must be a simple message protocol. ie. <= 64 bits
         success = irsend.send(protocol, command->value, size);
+        uploadLogs("default");
     }
-    // Serial.print("Saliendo de sendCommand con status: ");
-    // Serial.println(success);
+    success ? uploadLogs("Comando emitido: true") : uploadLogs("Comando emitido: false");
     return success;
 }
 
-boolean getCommand(decode_results *command) {
-    boolean toRet = false;
-    String aulaKey = getAulaAsignada();
+bool getCommand(decode_results *command) {
+    bool todoOk = false;
     if (aulaKey != "") {
 
+        uploadLogs("Downloading command...");
+
         commandKey = getKeyCommand(aulaKey);
+        Serial.println("getKeyCommand(): "+ commandKey);
         
         if (commandKey != "") {
             
             // ***** DECODE_TYPE *****
             std::vector<uint8_t> blobDecodeType;
-            getBlobData(commandKey + "/decodeType",&blobDecodeType);
-            // Serial.printf("DecodeType from firebase: %hu\n", blobDecodeType[0]);
+            if (!getBlobData(commandKey + "/decodeType",&blobDecodeType)) {
+                return todoOk;
+            }
+            Serial.printf("DecodeType from firebase: %hu\n", blobDecodeType[0]);
             command->decode_type = (decode_type_t)blobDecodeType[0];
 
             // ***** VALUE *****
             std::vector<uint8_t> blobValue;
-            getBlobData(commandKey + "/value",&blobValue);
+            if (!getBlobData(commandKey + "/value",&blobValue)) {
+                return todoOk;
+            }
             uint64_t auxValue;
             auxValue = blobValue[0] << 56;
             auxValue |= blobValue[1] << 48;
@@ -168,44 +197,52 @@ boolean getCommand(decode_results *command) {
             auxValue |= blobValue[5] << 16;
             auxValue |= blobValue[6] << 8;
             auxValue |= blobValue[7];
-            // Serial.printf("Value from firebase: %iu", (uint32_t)auxValue >> 32);
-            // Serial.printf("%iu\n", (uint32_t)(auxValue) && 0xFFFFFFFF);
+            Serial.printf("Value from firebase: %iu", (uint32_t)auxValue >> 32);
+            Serial.printf("%iu\n", (uint32_t)(auxValue) && 0xFFFFFFFF);
             command->value = auxValue;
 
             // ***** COMMAND *****
             std::vector<uint8_t> blobCommand;
-            getBlobData(commandKey + "/command",&blobCommand);
+            if (!getBlobData(commandKey + "/command",&blobCommand)) {
+                return todoOk;
+            }
             uint32_t auxCommand;
             auxCommand = blobCommand[0] << 24;
             auxCommand |= blobCommand[1] << 16;
             auxCommand |= blobCommand[2] << 8;
             auxCommand |= blobCommand[3];
-            // Serial.printf("Command from firebase: %hu\n", auxCommand);
+            Serial.printf("Command from firebase: %hu\n", auxCommand);
             command->command = auxCommand;
 
             // ***** ADDRESS *****
             std::vector<uint8_t> blobAddress;
-            getBlobData(commandKey + "/address",&blobAddress);
+            if (!getBlobData(commandKey + "/address",&blobAddress)) {
+                return todoOk;
+            }
             uint32_t auxAddress;
             auxAddress = blobAddress[0] << 24;
             auxAddress |= blobAddress[1] << 16;
             auxAddress |= blobAddress[2] << 8;
             auxAddress |= blobAddress[3];
-            // Serial.printf("Address from firebase: %hu\n", auxAddress);
+            Serial.printf("Address from firebase: %hu\n", auxAddress);
             command->address = auxAddress;
 
             // ***** STATE *****
             std::vector<uint8_t> blobState;
-            getBlobData(commandKey + "/state",&blobState);
-            // Serial.println("State from firebase: ");
+            if (!getBlobData(commandKey + "/state",&blobState)){
+                return todoOk;
+            }
+            Serial.println("State from firebase: ");
             for (size_t i = 0; i < blobState.size(); i++) {
-                // Serial.printf("%hu ",blobState[i]);
+                Serial.printf("%hu ",blobState[i]);
                 command->state[i] = blobState[i];
             }
 
             // ***** RAWBUF *****
             std::vector<uint8_t> blobRawbuf;
-            getBlobData(commandKey + "/rawbuf",&blobRawbuf);
+            if (!getBlobData(commandKey + "/rawbuf",&blobRawbuf)) {
+                return todoOk;
+            }
             // convert vector<uint8_t> to uint16_t[]
             uint16_t doubleByteArray[blobRawbuf.size() / 2];
             for (int i = 0; i < blobRawbuf.size(); i++) {
@@ -220,169 +257,262 @@ boolean getCommand(decode_results *command) {
 
             // ***** RAWLEN *****
             std::vector<uint8_t> blobRawlen;
-            getBlobData(commandKey + "/rawlen",&blobRawlen);
+            if (!getBlobData(commandKey + "/rawlen",&blobRawlen)) {
+                return todoOk;
+            }
             uint16_t auxRawlen;
             auxRawlen = blobRawlen[0] << 8;
             auxRawlen |= blobRawlen[1];
-            // Serial.println();
-            // Serial.printf("Rawlen from firebase: %hu\n", auxRawlen);
+            Serial.println();
+            Serial.printf("Rawlen from firebase: %hu\n", auxRawlen);
             command->rawlen = auxRawlen;
 
             // ***** BITS *****
             std::vector<uint8_t> blobBits;
-            getBlobData(commandKey + "/bits",&blobBits);
+            if (!getBlobData(commandKey + "/bits",&blobBits)) {
+                return todoOk;
+            }
             uint16_t auxBits;
             auxBits = blobBits[0] << 8;
             auxBits |= blobBits[1];
-            // Serial.printf("Bits from firebase: %hu\n", auxBits);
+            Serial.printf("Bits from firebase: %hu\n", auxBits);
             command->bits = auxBits;
 
             // ***** REPEAT *****
             std::vector<uint8_t> blobRepeat;
-            getBlobData(commandKey + "/repeat",&blobRepeat);
-            // Serial.printf("Repeat from firebase: %hu\n", blobRepeat[0]);
+            if (!getBlobData(commandKey + "/repeat",&blobRepeat)) {
+                return todoOk;
+            }
+            Serial.printf("Repeat from firebase: %hu\n", blobRepeat[0]);
             command->repeat = blobRepeat[0];
 
             // ***** OVERFLOW *****
             std::vector<uint8_t> blobOverflow;
-            getBlobData(commandKey + "/overflow",&blobOverflow);
-            // Serial.printf("Overflow from firebase: %hu\n", blobOverflow[0]);
+            if (!getBlobData(commandKey + "/overflow",&blobOverflow)) {
+                return todoOk;
+            }
+            Serial.printf("Overflow from firebase: %hu\n", blobOverflow[0]);
             command->overflow = blobOverflow[0];
 
-            toRet = true;
+            todoOk = true;
         }
     }
-    return toRet;
+    // uploadLogs("getCommand: " + todoOk);
+    return todoOk;
 }
 
-void uploadCommand(decode_results &command) {
+bool uploadCommand(decode_results &command) {
+    bool todoOk = true;
     commandKey = createKeyCommand();
 
-    // ***** DECODE_TYPE *****
-    uint8_t byteDecodeType = command.decode_type;
-    // Serial.printf("Decode_type: %hu\n", command.decode_type);
-    if (uploadBlobData(commandKey + "/decodeType", &byteDecodeType, 1)) {
-        // Serial.println("PASSED");
+    if (commandKey != "") {
+
+        uploadLogs("Uploading command...");
+
+        // ***** DECODE_TYPE *****
+        uint8_t byteDecodeType = command.decode_type;
+        // Serial.printf("Decode_type: %hu\n", command.decode_type);
+        if (uploadBlobData(commandKey + "/decodeType", &byteDecodeType, 1)) {
+            // uploadLogs("Decode_type: PASSED");
+        } else {
+            uploadLogs("Decode_type: FAILED");
+            todoOk = false;
+        }
+        
+        // ***** VALUE *****
+        uint8_t byteArrayValue[8];
+        byteArrayValue[0] = command.value >> 56;
+        byteArrayValue[1] = command.value >> 48;
+        byteArrayValue[2] = command.value >> 40;
+        byteArrayValue[3] = command.value >> 32;
+        byteArrayValue[4] = command.value >> 24;
+        byteArrayValue[5] = command.value >> 16;
+        byteArrayValue[6] = command.value >> 8;
+        byteArrayValue[7] = command.value & 0xFF;
+
+        // Serial.printf("Value: %iu", (uint32_t)command.value >> 32);
+        // Serial.printf("%iu\n", (uint32_t)(command.value) && 0xFFFFFFFF);
+        if (uploadBlobData(commandKey + "/value", byteArrayValue, 8)) {
+            // uploadLogs("Value: PASSED");
+        } else {
+            uploadLogs("Value: FAILED");
+            todoOk = false;
+        }
+
+        // ***** COMMAND *****
+        uint8_t byteArrayCommand[4];
+        byteArrayCommand[0] = command.command >> 24;
+        byteArrayCommand[1] = command.command >> 16;
+        byteArrayCommand[2] = command.command >> 8;
+        byteArrayCommand[3] = command.command & 0xFF;
+
+        // Serial.printf("Command: %hu\n", command.command);
+        if (uploadBlobData(commandKey + "/command", byteArrayCommand, 4)) {
+            // uploadLogs("Command: PASSED");
+        } else {
+            uploadLogs("Command: FAILED");
+            todoOk = false;
+        }
+
+        // ***** ADDRESS *****
+        uint8_t byteArrayAddress[4];
+        byteArrayAddress[0] = command.address >> 24;
+        byteArrayAddress[1] = command.address >> 16;
+        byteArrayAddress[2] = command.address >> 8;
+        byteArrayAddress[3] = command.address & 0xFF;
+
+        // Serial.printf("Address: %hu\n", command.address);
+        if (uploadBlobData(commandKey + "/address", byteArrayAddress, 4)) {
+            // uploadLogs("Address: PASSED");
+        } else {
+            uploadLogs("Address: FAILED");
+            todoOk = false;
+        }
+
+        // ***** STATE *****
+        // Serial.println("State: ");
+        // for (size_t i = 0; i < kStateSizeMax; i++) {
+        //     Serial.printf("%hu ", command.state[i]);
+        // }
+        // Serial.println();
+        if (uploadBlobData(commandKey + "/state", command.state, kStateSizeMax)) {
+            // uploadLogs("State: PASSED");
+        } else {
+            uploadLogs("State: FAILED");
+            todoOk = false;
+        }
+
+        // ***** RAWBUF *****
+        uint8_t firstByte, secondByte;
+        uint8_t byteArrayRawbuf[command.rawlen * 2];
+
+        for (int i = 0; i < command.rawlen; i++) {
+            firstByte = command.rawbuf[i] >> 8;
+            secondByte = command.rawbuf[i] & 0xFF;
+            byteArrayRawbuf[i * 2] = firstByte;
+            byteArrayRawbuf[i * 2 + 1] = secondByte;
+        }
+        // printRawbuf(command);
+        // Serial.println();
+        if (uploadBlobData(commandKey + "/rawbuf", byteArrayRawbuf, command.rawlen * 2)) {
+            // uploadLogs("Rawbuf: PASSED");
+        } else {
+            uploadLogs("Rawbuf: FAILED");
+            todoOk = false;
+        }
+
+        // ***** RAWLEN *****
+        uint8_t byteArrayRawlen[2];
+        byteArrayRawlen[0] = command.rawlen >> 8;
+        byteArrayRawlen[1] = command.rawlen & 0xFF;
+
+        // Serial.printf("Rawlen: %hu\n", command.rawlen);
+        if (uploadBlobData(commandKey + "/rawlen", byteArrayRawlen, 2)) {
+            // uploadLogs("Rawlen: PASSED");
+        } else {
+            uploadLogs("Rawlen: FAILED");
+            todoOk = false;
+        }
+
+        // ***** BITS *****
+        uint8_t byteArrayBits[2];
+        byteArrayBits[0] = command.bits >> 8;
+        byteArrayBits[1] = command.bits & 0xFF;
+
+        // Serial.printf("Bits: %hu\n", command.bits);
+        if (uploadBlobData(commandKey + "/bits", byteArrayBits, 2)) {
+            // uploadLogs("Bits: PASSED");
+        } else {
+            uploadLogs("Bits: FAILED");
+            todoOk = false;
+        }
+
+        // ***** REPEAT *****
+        uint8_t byteRepeat = command.repeat;
+        // Serial.printf("Repeat: %hu\n", command.repeat);
+        if (uploadBlobData(commandKey + "/repeat", &byteRepeat, 1)) {
+            // uploadLogs("Repeat: PASSED");
+        } else {
+            uploadLogs("Repeat: FAILED");
+            todoOk = false;
+        }
+
+        // ***** OVERFLOW *****
+        uint8_t byteOverflow = command.overflow;
+        // Serial.printf("Overflow: %hu\n", command.overflow);
+        if (uploadBlobData(commandKey + "/overflow", &byteOverflow, 1)) {
+            // uploadLogs("Overflow: PASSED");
+        } else {
+            uploadLogs("Overflow: FAILED");
+            todoOk = false;
+        }
+
+        // ***** SETTIMESTAMP en MARCA *****
+        if (setCommandValue(commandKey + "/marca",tiempoToString())) {
+            // uploadLogs("Marca: PASSED");
+        } else {
+            uploadLogs("Marca: FAILED");
+            todoOk = false;
+        }
+        if (setCommandValue(commandKey + "/modelo","")) {
+            // uploadLogs("Modelo: PASSED");
+        } else {
+            uploadLogs("Modelo: FAILED");
+            todoOk = false;
+        }
+
+        todoOk = todoOk && true;
     } else {
-        // Serial.println("FAILED");
-    }
-    
-    // ***** VALUE *****
-    uint8_t byteArrayValue[8];
-    byteArrayValue[0] = command.value >> 56;
-    byteArrayValue[1] = command.value >> 48;
-    byteArrayValue[2] = command.value >> 40;
-    byteArrayValue[3] = command.value >> 32;
-    byteArrayValue[4] = command.value >> 24;
-    byteArrayValue[5] = command.value >> 16;
-    byteArrayValue[6] = command.value >> 8;
-    byteArrayValue[7] = command.value & 0xFF;
-
-    // Serial.printf("Value: %iu", (uint32_t)command.value >> 32);
-    // Serial.printf("%iu\n", (uint32_t)(command.value) && 0xFFFFFFFF);
-    if (uploadBlobData(commandKey + "/value", byteArrayValue, 8)) {
-        // Serial.println("PASSED");
-    } else {
-        // Serial.println("FAILED");
+        todoOk = false;
     }
 
-    // ***** COMMAND *****
-    uint8_t byteArrayCommand[4];
-    byteArrayCommand[0] = command.command >> 24;
-    byteArrayCommand[1] = command.command >> 16;
-    byteArrayCommand[2] = command.command >> 8;
-    byteArrayCommand[3] = command.command & 0xFF;
-
-    // Serial.printf("Command: %hu\n", command.command);
-    if (uploadBlobData(commandKey + "/command", byteArrayCommand, 4)) {
-        // Serial.println("PASSED");
-    } else {
-        // Serial.println("FAILED");
+    if (!todoOk) {
+        deleteKeyCommand(commandKey);
     }
 
-    // ***** ADDRESS *****
-    uint8_t byteArrayAddress[4];
-    byteArrayAddress[0] = command.address >> 24;
-    byteArrayAddress[1] = command.address >> 16;
-    byteArrayAddress[2] = command.address >> 8;
-    byteArrayAddress[3] = command.address & 0xFF;
-
-    // Serial.printf("Address: %hu\n", command.address);
-    if (uploadBlobData(commandKey + "/address", byteArrayAddress, 4)) {
-        // Serial.println("PASSED");
-    } else {
-        // Serial.println("FAILED");
+    if ((aulaKey != "") && (todoOk)) {
+        uploadKeyCommand(aulaKey,commandKey);
     }
 
-    // ***** STATE *****
-    // Serial.println("State: ");
-    for (size_t i = 0; i < kStateSizeMax; i++) {
-        // Serial.printf("%hu ", command.state[i]);
-    }
-    Serial.println();
-    if (uploadBlobData(commandKey + "/state", command.state, kStateSizeMax)) {
-        // Serial.println("PASSED");
-    } else {
-        // Serial.println("FAILED");
-    }
+    return todoOk;
+}
 
-    // ***** RAWBUF *****
-    uint8_t firstByte, secondByte;
-    uint8_t byteArrayRawbuf[command.rawlen * 2];
+// --------------------- BUTTON -----------------------
 
-    for (int i = 0; i < command.rawlen; i++) {
-        firstByte = command.rawbuf[i] >> 8;
-        secondByte = command.rawbuf[i] & 0xFF;
-        byteArrayRawbuf[i * 2] = firstByte;
-        byteArrayRawbuf[i * 2 + 1] = secondByte;
+struct RecordButton {
+    const uint8_t PIN;
+    bool state;
+    bool pressed;
+    ulong pressTime;
+};
+
+RecordButton recordButton = {IR_BUTTON_PIN, false, false, 0};
+
+void IRAM_ATTR recordButtonInterrupt() {
+    recordButton.pressTime = millis();
+    recordButton.pressed = true;
+}
+
+void setUpRecordCommandButton() {
+    pinMode(recordButton.PIN, PULLUP);
+    attachInterrupt(recordButton.PIN, recordButtonInterrupt, FALLING);
+}
+
+void recordButtonListener() {
+    if (recordButton.pressed) {
+        if (digitalRead(recordButton.PIN) == LOW) {
+            ulong readTime = millis();
+            if ((readTime - recordButton.pressTime) > 1000) {
+                uploadLogs("IR Record Command Button pressss!");
+                recordButton.pressed = false;
+                recordingAndUploadCommand();
+            }
+        } else {
+            recordButton.pressed = false;
+        }
     }
-    // printRawbuf(command);
-    // Serial.println();
-    if (uploadBlobData(commandKey + "/rawbuf", byteArrayRawbuf, command.rawlen * 2)) {
-        // Serial.println("PASSED");
-    } else {
-        // Serial.println("FAILED");
-    }
+}
 
-    // ***** RAWLEN *****
-    uint8_t byteArrayRawlen[2];
-    byteArrayRawlen[0] = command.rawlen >> 8;
-    byteArrayRawlen[1] = command.rawlen & 0xFF;
-
-    // Serial.printf("Rawlen: %hu\n", command.rawlen);
-    if (uploadBlobData(commandKey + "/rawlen", byteArrayRawlen, 2)) {
-        // Serial.println("PASSED");
-    } else {
-        // Serial.println("FAILED");
-    }
-
-    // ***** BITS *****
-    uint8_t byteArrayBits[2];
-    byteArrayBits[0] = command.bits >> 8;
-    byteArrayBits[1] = command.bits & 0xFF;
-
-    // Serial.printf("Bits: %hu\n", command.bits);
-    if (uploadBlobData(commandKey + "/bits", byteArrayBits, 2)) {
-        // Serial.println("PASSED");
-    } else {
-        // Serial.println("FAILED");
-    }
-
-    // ***** REPEAT *****
-    uint8_t byteRepeat = command.repeat;
-    // Serial.printf("Repeat: %hu\n", command.repeat);
-    if (uploadBlobData(commandKey + "/repeat", &byteRepeat, 1)) {
-        // Serial.println("PASSED");
-    } else {
-        // Serial.println("FAILED");
-    }
-
-    // ***** OVERFLOW *****
-    uint8_t byteOverflow = command.overflow;
-    // Serial.printf("Overflow: %hu\n", command.overflow);
-    if (uploadBlobData(commandKey + "/overflow", &byteOverflow, 1)) {
-        // Serial.println("PASSED");
-    } else {
-        // Serial.println("FAILED");
-    }
+void listenRecordCommandButton() {
+    recordButtonListener();
 }

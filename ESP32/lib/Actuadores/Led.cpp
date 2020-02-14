@@ -1,8 +1,9 @@
 #include <Led.h>
 
-#define LED_PIN GPIO_NUM_4
-
-int ledValue = 0;
+extern bool blink;
+int ledValue = LOW;
+ulong ledBlinkTime = 1000;
+ulong ledLastBlink = 0;
 
 void setUpLed() {
     pinMode(LED_PIN,OUTPUT);
@@ -12,17 +13,33 @@ int getLedValue() {
     return ledValue;
 }
 
+void encenderLed() {
+    ledValue = HIGH;
+    digitalWrite(LED_PIN, ledValue);
+}
+
+void apagarLed() {
+    ledValue = LOW;
+    digitalWrite(LED_PIN, ledValue);
+}
+
 void toggleLed() {
     ledValue = !ledValue;
     ledValue ? digitalWrite(LED_PIN,HIGH) : digitalWrite(LED_PIN,LOW);
 }
 
+void startBlink() {
+    blink = true;
+}
+
+void endBlink() {
+    blink = false;
+}
+
 void blinkLed() {
-    for (size_t i = 0; i < 3; i++)
-    {
-        digitalWrite(LED_PIN,HIGH);
-        delay(500);
-        digitalWrite(LED_PIN,LOW);
-        delay(500);
+    // ledLastBlink = millis();
+    if (lapTimer(ledBlinkTime,&ledLastBlink)) {
+        !ledValue ? ledValue = HIGH : ledValue = LOW;
+        digitalWrite(LED_PIN, ledValue);
     }
 }

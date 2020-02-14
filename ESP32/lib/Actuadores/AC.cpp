@@ -1,25 +1,37 @@
 #include <AC.h>
 
-decode_results command;
-boolean hasCommand = false;
 ulong tiempoEntreComandos = 0;
 
+struct commandoAC {
+    decode_results command;
+    bool hasCommand = false;
+};
+
+commandoAC comando;
+
 void setUpAC() {
-    hasCommand = getCommand(&command);
+    if (getCommand(&comando.command)) {
+        comando.hasCommand = true;
+    }
 }
 
 void turnOffAC() {
-    if (hasCommand) {
-        for (size_t i = 0; i < 3; i++) {
-            if (lapTimer(100, &tiempoEntreComandos)) {
-                sendCommand(&command);
-            }
-        }
-    } else {
-        hasCommand = getCommand(&command);
+    bool resultado = getCommand(&comando.command);
+    resultado ? uploadLogs("getCommand: true") : uploadLogs("getCommand: false");
+
+    // if (!comando.hasCommand) {
+    //     if (getCommand(&comando.command)) {
+    //         comando.hasCommand = true;
+    //     }
+    // }
+    for (size_t i = 0; i < 3; i++) {
+        sendCommand(&comando.command);
+        delay(100);
     }
 }
 
 void updateCommand() {
-    hasCommand = getCommand(&command);
+    if (getCommand(&comando.command)) {
+        comando.hasCommand = true;
+    }
 }

@@ -17,7 +17,7 @@ void printFirebaseResult(FirebaseData &data);
 String ip;
 String nodoMac;
 
-boolean activeMode = 0;
+bool activeMode = 0;
 int secondsToSleep = 4;
 int seccodsBetweenReads = 0;
 

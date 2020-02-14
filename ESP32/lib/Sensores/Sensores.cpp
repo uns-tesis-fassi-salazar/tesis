@@ -1,18 +1,17 @@
 #include <Sensores.h>
 
-#define MOVEMENT_PIN GPIO_NUM_5
-#define LUX_SDA_PIN GPIO_NUM_21
-#define LUX_CSL_PIN GPIO_NUM_22
-#define DHT_PIN GPIO_NUM_32
+void logSensores();
 
 FirebaseJson jsonSensorData;
 
+// ACS712 hallSensor(ACS712_30A, HALL_PIN);
 BH1750 lightMeter;
 DHT dht;
 
 float prevLuxValue, currentLuxValue;
 float prevTempValue, currentTempValue;
 float prevHumidityValue, currentHumidityValue;
+// float prevHallValue, currentHallValue;
 
 ulong tiempoUltimaLecturaDHT = 0;
 
@@ -37,10 +36,20 @@ void IRAM_ATTR movementDetection() {
     timerRestart(movementTimer);
 }
 
+bool emptyRoomState() {
+    return movement.emptyRoom;
+}
+
 void setUpSensors() {
     prevLuxValue = 0;
     prevTempValue = 0;
     prevHumidityValue = 0;
+    // prevHallValue = 0;
+    // Inicializacion Sensor ACS712
+    // If you are not sure that the current through the sensor will not leak during calibration - comment out this method
+    uploadLogs("Calibrating... Ensure that no current flows through the sensor at this moment");
+    // uploadLogs("Valor calibrado: " + hallSensor.calibrate());
+
     // Inicializacion sensor Luz
     Wire.begin(LUX_SDA_PIN, LUX_CSL_PIN);
     lightMeter.begin(BH1750::ONE_TIME_HIGH_RES_MODE_2);
@@ -51,8 +60,10 @@ void setUpSensors() {
 
     // Set movement sensor timer
     int timeOutValue = 0;
-    if (!readData(AULAS + WiFi.macAddress() + "/" + TIEMPO_VACIA,&timeOutValue)) {
-        timeOutValue = 30;
+    if (hasAulaConfig()) {
+        timeOutValue = getTimeoutAulaVacia();
+    } else {
+        timeOutValue = 60;
     }
     movementTimer = timerTimeout(timeOutValue*1000, aulaVacia);
 
@@ -69,42 +80,64 @@ float readLuxValue() {
 }
 
 void readSensorsValues() {
+    // currentHallValue = hallSensor.getCurrentAC(50);
     currentLuxValue = readLuxValue();
-
+    
     if (lapTimer(2500, &tiempoUltimaLecturaDHT)) {
         currentTempValue = truncToDec(dht.getTemperature(),2);
         currentHumidityValue = truncToDec(dht.getHumidity(),2);
     }
-
 }
 
 void uploadSensorsValues() {
-    if (!isnan(currentTempValue) && !isnan(currentHumidityValue)) {
-        if ((prevTempValue != currentTempValue) || (prevHumidityValue != currentHumidityValue) || (prevLuxValue != currentLuxValue) || movement.roomStateChange) {
-            printSensors();
+    if ((prevTempValue != currentTempValue) || 
+        (prevHumidityValue != currentHumidityValue) || 
+        (prevLuxValue != currentLuxValue) || 
+        // (prevHallValue != currentHallValue) ||
+        movement.roomStateChange) {
+            // printSensors();
+            logSensores();
 
             jsonSensorData.clear();
-            jsonSensorData.add("Luminocidad", (double)currentLuxValue);
-            jsonSensorData.add("Temperatura", (double)currentTempValue);
-            jsonSensorData.add("Humedad", (double)currentHumidityValue);
-            jsonSensorData.add("Movimiento", !(double)movement.emptyRoom);
+            jsonSensorData.add("luminocidad", (double)currentLuxValue);
+            if (!isnan(currentTempValue) && !isnan(currentHumidityValue)) {
+                jsonSensorData.add("temperatura", (double)currentTempValue);
+                jsonSensorData.add("humedad", (double)currentHumidityValue);
+            }
+            // jsonSensorData.add("corriente", (double)currentHallValue);
+            jsonSensorData.add("movimiento", !(double)movement.emptyRoom);
             if (!uploadData(jsonSensorData)) {
-                Serial.println("JSON NOT OK");
+                // Serial.println("Sensor JSON NOT OK");
+                uploadLogs("Sensor JSON NOT OK");
             }
 
             prevLuxValue = currentLuxValue;
             prevTempValue = currentTempValue;
             prevHumidityValue = currentHumidityValue;
+            // prevHallValue = currentHallValue;
             movement.roomStateChange = false;
-        }
     }
 }
 
+// bool detectCurrentFlow() {
+//     if (currentHallValue > 2.50) {
+//         return true;
+//     }
+//     return false;
+// }
+
+void setTimerTimeout(int timeout) {
+    movementTimer = timerTimeout(timeout*1000, aulaVacia);
+}
+
 void printSensors() {
-    Serial.print("\nLuminocidad\tHumedad\t\tTemperatura\tAula Vacia\n");
+    Serial.print("\nLuminocidad\tCorriente\tHumedad\t\tTemperatura\tAula Vacia\n");
     Serial.print(currentLuxValue);
     Serial.print(" lux");
     Serial.print("\t");
+    // Serial.print(currentHallValue);
+    // Serial.print(" A");
+    Serial.print("\t\t");
     Serial.print(currentHumidityValue);
     Serial.print(" %");
     Serial.print("\t \t");
@@ -113,6 +146,17 @@ void printSensors() {
     Serial.print("\t\t");
     Serial.print(movement.emptyRoom);
     Serial.print("\n");
+}
+
+void logSensores() {
+    String toLog;
+    toLog += "Lux: " + String(currentLuxValue);
+    // toLog += " - I: " + String(currentHallValue) + " A";
+    toLog += " - Hum: " + String(currentHumidityValue) + " %";
+    toLog += " - Temp: " + String(currentTempValue) + " C°";
+    toLog += " - Aula Vacia: " + String(movement.emptyRoom);
+    
+    uploadLogs(toLog);
 }
 
 void loopSensors() {

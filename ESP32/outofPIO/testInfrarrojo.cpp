@@ -120,7 +120,7 @@ void setup() {
     Serial.println();
     Serial.println("Conectado.");
 
-    setupFirebase(WiFi.macAddress());
+    // setupFirebase(WiFi.macAddress());
 }
 
 // The repeating section of the code

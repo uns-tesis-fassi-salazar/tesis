@@ -6,8 +6,9 @@
 #include <HTTPClient.h>
 #include <Actuadores.h>
 #include <FirebaseModule.h>
+#include <DBStream.h>
 
-boolean updateFirmware(String new_ver);
+bool updateFirmware(String new_ver);
 void checkFirmwareVersion(const char *fVersion);
 
 #endif

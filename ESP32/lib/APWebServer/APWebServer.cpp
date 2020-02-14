@@ -1,6 +1,6 @@
 #include <APWebServer.h>
 
-void setupButton();
+void setUpButton();
 void changeToAPSTAMode();
 void changeToSTAMode();
 void webserverSetup();
@@ -163,41 +163,38 @@ void changeToAPSTAMode() {
 
 // --------------------- BUTTON -----------------------
 
-#define BUTTON_PIN GPIO_NUM_2
-
-struct Button {
+struct WifiButton {
     const uint8_t PIN;
     bool state;
     bool pressed;
     ulong pressTime;
 };
 
-Button button = {BUTTON_PIN, false, false, 0};
+WifiButton wifiButton = {AP_BUTTON_PIN, false, false, 0};
 
-void IRAM_ATTR buttonInterrupt() {
-    button.pressTime = millis();
-    button.pressed = true;
+void IRAM_ATTR wifiButtonInterrupt() {
+    wifiButton.pressTime = millis();
+    wifiButton.pressed = true;
 }
 
-void setupWiFiResetButton() {
-    pinMode(button.PIN, PULLUP);
-    attachInterrupt(button.PIN, buttonInterrupt, FALLING);
+void setUpWiFiResetButton() {
+    pinMode(wifiButton.PIN, PULLUP);
+    attachInterrupt(wifiButton.PIN, wifiButtonInterrupt, FALLING);
 }
 
-void buttonListener() {
-    if (button.pressed) {
-        if (digitalRead(button.PIN) == LOW) {
-            ulong readTime;
-            readTime = millis();
-            if ((readTime - button.pressTime) > 1000) {
-                Serial.println("Button pressss!");
-                button.pressed = false;
+void wifiButtonListener() {
+    if (wifiButton.pressed) {
+        if (digitalRead(wifiButton.PIN) == LOW) {
+            ulong readTime = millis();
+            if ((readTime - wifiButton.pressTime) > 1000) {
+                Serial.println("AP WebServer Button pressss!");
                 blinkLed();
+                wifiButton.pressed = false;
                 WiFi.disconnect(true, true);
                 ESP.restart();
             }
         } else {
-            button.pressed = false;
+            wifiButton.pressed = false;
         }
     }
 }
@@ -205,12 +202,11 @@ void buttonListener() {
 void APWebServerSetup(void) {
 
     webserverSetup();
-
     changeToAPSTAMode();
 }
 
 bool GetWifiConnection() {
-    buttonListener();
+    wifiButtonListener();
     if (WiFi.getMode() == WIFI_MODE_APSTA) {
         server.handleClient();
         if (canConnect) {
@@ -226,6 +222,6 @@ bool GetWifiConnection() {
     return false;
 }
 
-void listenButtonWiFiReset() {
-    buttonListener();
+void listenWiFiResetButton() {
+    wifiButtonListener();
 }

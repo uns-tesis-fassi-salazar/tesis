@@ -14,8 +14,8 @@
 void setupInet();
 void setupFirebase();
 void setupSensors();
-boolean lookupActiveMode();
-boolean readLedActionValue();
+bool lookupActiveMode();
+bool readLedActionValue();
 void printTittle();
 void uploadData();
 void doActions();
@@ -37,9 +37,9 @@ int luxPortCSL = GPIO_NUM_21;
 int dhtPort = GPIO_NUM_5;
 int ledPort = GPIO_NUM_32;
 int movementSensorPort = GPIO_NUM_25;
-boolean turnOnOffLed = false;
+bool turnOnOffLed = false;
 
-boolean activeMode = 0;
+bool activeMode = 0;
 int secondsToSleep = 10;
 int seccodsBetweenReads = 5;
 
@@ -175,7 +175,7 @@ void setupSensors() {
     pinMode(ledPort,OUTPUT);
 }
 
-boolean lookupActiveMode() {
+bool lookupActiveMode() {
     if (Firebase.pathExist(firebaseData,nodePath + mac)) {
         if (Firebase.getInt(firebaseData,nodePath + mac + "/AulaAsignada")) {
             if (firebaseData.intData() == 0) {
@@ -193,7 +193,7 @@ boolean lookupActiveMode() {
     }
 }
 
-boolean readLedActionValue() {
+bool readLedActionValue() {
     if (Firebase.pathExist(firebaseData,nodePath + mac)) {
         if (Firebase.getInt(firebaseData,nodePath + mac + "/Actuadores/Led")) {
             return firebaseData.intData() == 1;

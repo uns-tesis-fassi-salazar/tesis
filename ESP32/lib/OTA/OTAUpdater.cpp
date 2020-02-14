@@ -6,19 +6,14 @@ String newFirmwareVersion = "";
 void checkFirmwareVersion(const char *fVersion)
 {
 	newFirmwareVersion = getFirmwareVersion();
-	// Serial.print("Version obtenida: ");
-	// Serial.println(newFirmwareVersion.c_str());
-	// Serial.print("  Version actual: ");
-	// Serial.println(fVersion);
 	if ((strcmp(newFirmwareVersion.c_str(), fVersion) != 0) && (strcmp(newFirmwareVersion.c_str(), "") != 0)) {
-		// Serial.println("Need to Update...");
 		if (!updateFirmware(newFirmwareVersion)) {
-			setUpStream();
+			setUpStream(fVersion);
 		}
 	}
 }
 
-boolean updateFirmware(String new_ver)
+bool updateFirmware(String new_ver)
 {
 	String firmware_url = getFirmwareURL(new_ver);
 	// Serial.print("firmware URL: ");
@@ -68,4 +63,5 @@ boolean updateFirmware(String new_ver)
 			return false;
 		}
 	}
+	return false;
 }

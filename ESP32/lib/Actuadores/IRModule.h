@@ -1,17 +1,23 @@
 #ifndef IRMODULE_H
 #define IRMODULE_H
 
+#include <Led.h>
 #include <FirebaseModule.h>
 #include <IRremoteESP8266.h>
 #include <IRrecv.h>
 #include <IRsend.h>
 #include <IRutils.h>
+#include <Utils.h>
+
+#define IR_BUTTON_PIN GPIO_NUM_15
 
 void setUpIRSender();
 void setUpIRReceiver();
-boolean recordingAndUploadCommand();
-boolean sendCommand(decode_results *command);
-// void uploadCommand(decode_results &command);
-boolean getCommand(decode_results *command);
+bool recordingAndUploadCommand();
+bool sendCommand(decode_results *command);
+bool getCommand(decode_results *command);
+
+void setUpRecordCommandButton();
+void listenRecordCommandButton();
 
 #endif

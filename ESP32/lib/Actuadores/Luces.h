@@ -3,6 +3,8 @@
 
 #include <Arduino.h>
 
+#define LUCES_PIN GPIO_NUM_19
+
 void setUpLuces();
 void toggleLuces();
 int lucesValue();

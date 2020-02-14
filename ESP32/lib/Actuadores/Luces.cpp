@@ -1,11 +1,10 @@
 #include <Luces.h>
 
-#define LUCES_PIN GPIO_NUM_19
-
-int turnOnOffLuces = 0;
+int turnOnOffLuces = HIGH;
 
 void setUpLuces() {
     pinMode(LUCES_PIN,OUTPUT);
+    digitalWrite(LUCES_PIN,HIGH);
 }
 
 int lucesValue() {
@@ -13,11 +12,11 @@ int lucesValue() {
 }
 
 void apagarLuces() {
-    digitalWrite(LUCES_PIN,LOW);
+    digitalWrite(LUCES_PIN,HIGH);
 }
 
 void encenderLuces() {
-    digitalWrite(LUCES_PIN,HIGH);
+    digitalWrite(LUCES_PIN,LOW);
 }
 
 void toggleLuces() {

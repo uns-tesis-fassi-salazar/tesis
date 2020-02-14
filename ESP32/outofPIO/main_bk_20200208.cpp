@@ -5,33 +5,23 @@
 #include <APWebServer.h>
 #include <Sensores.h>
 #include <Actuadores.h>
-#include <Automata.h>
 #include <IRModule.h>
 #include <WiFi.h>
 #include <esp_wifi.h>
 #include <Utils.h>
-#include "time.h"
 
-// Constante para la versión del programa
 const char FIRMWARE_VERSION[] = ("__AuLaSSuStEnTaBlEs__ " __DATE__ " " __TIME__ "__");
-// Constantes para el protocolo NTP
-const char *ntpServer = "pool.ntp.org";
-const long GMTOffset_sec = 3600*(-3);   //UTC -3: Buenos Aires
-const int daylightOffset_sec = 0;
 
 // Funciones
 bool hasWifiConfig();
-void printLocalTime();
 
 String aulaKey = "";
 String firmwareVersion = "";
 int secondsToSleep = 5;
-int seccodsBetweenUploads = 2*1000;
-int secondsBetweenChecks = 60*1000;    // 1 minutos
+int seccodsBetweenUploads = 5;
 ulong tiempoUltimaLecturaSensores = 0;
 ulong currentTime = 0;
-ulong lastTimeCheck = 0;
-bool blink = false;
+ulong nextTimeCheck = 1000*60;
 
 void setup() {
     Serial.begin(9600);
@@ -39,11 +29,7 @@ void setup() {
         ;  // wait for serial port to connect.
     }
 
-    setUpWiFiResetButton();
-    setUpRecordCommandButton();
-
-    // Inicializacion actuadores
-    setUpActuadores();
+    setupWiFiResetButton();
 
     delay(100);
     WiFi.mode(WIFI_STA);
@@ -52,6 +38,8 @@ void setup() {
     if (!hasWifiConfig()) {
         APWebServerSetup();
         while (!GetWifiConnection()) { }
+    } else {
+        Serial.println("Config establecida");
     }
 
     WiFi.begin();
@@ -68,62 +56,47 @@ void setup() {
     // WL_CONNECT_FAILED
     if ((WiFi.status() != WL_CONNECTED) && (WiFi.status() == WL_CONNECT_FAILED)) {
         Serial.println("No se pudo conectar al wifi");
-        // uploadLogs("No se pudo conectar al wifi");
     } else {
         Serial.println("");
         IPAddress IP = WiFi.localIP();
         Serial.print("STA IP address: ");
         Serial.println(IP);
-        // uploadLogs("STA IP address: " + IP);
     }
 
-    // uploadLogs("MAC Address: " + WiFi.macAddress());
-    Serial.println("MAC Address: " + WiFi.macAddress());
-
-    //init and get the time
-    configTime(GMTOffset_sec, daylightOffset_sec, ntpServer);
-    printLocalTimeSpanish();
+    Serial.print("MAC Address: ");
+    Serial.println(WiFi.macAddress());
 
     // Inicializacion Firebase
-    setUpFirebase(FIRMWARE_VERSION);
+    setUpFirebase();
 
-    // Forzar recargar configuracion del aula
-    resetAulaConfig();
-    
-    // Inicializacion sensores
-    setUpSensors();
+    // Actualiza la versión del firmware en Firebase
+    updateFirmwareVersion(FIRMWARE_VERSION);
 
     // Inicializacion del Stream de datos para los comandos que recibe el ESP32
     setUpStream(FIRMWARE_VERSION);
 
-    uploadLogs("Virmware Version: " + String(FIRMWARE_VERSION));
-    uploadLogs("Update: Prueba 9 semi final instalacion");
+    // Inicializacion sensores
+    setUpSensors();
     
-    uploadLogs("*** ESP32 Setup OK ***");
-    Serial.println("*** ESP32 Setup OK ***");
+    // Inicializacion actuadores
+    setUpActuadores();
+
+    Serial.println("*** Setup OK ***");
 }
 
 void loop() {
-
-    listenWiFiResetButton();
-    listenRecordCommandButton();
+    listenButtonWiFiReset();
 
     if (WiFi.status() == WL_CONNECTED) {
         if (aulaKey != "") {
-            if (lapTimer(seccodsBetweenUploads, &tiempoUltimaLecturaSensores)) {
+            if (lapTimer(seccodsBetweenUploads*1000, &tiempoUltimaLecturaSensores)) {
                 loopSensors();
-            }
-            if (lapTimer(secondsBetweenChecks, &lastTimeCheck)) {
-                checkAulaState();
             }
             loopStream();
         } else {
-            uploadLogs("Esperando asignacion de aula...");
-            // printLocalTimeSpanish();
+            Serial.println("Esperando asignacion de aula...");
             delay(1000 * secondsToSleep);  // esperando configuracion...
             aulaKey = getAulaAsignada();
-            resetAulaConfig();
-            checkAulaState();
             checkFirmwareVersion(FIRMWARE_VERSION);
         }
     }
