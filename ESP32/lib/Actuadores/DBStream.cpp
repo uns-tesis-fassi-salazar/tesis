@@ -28,6 +28,14 @@ void setDownStream() {
     removeStreamCallback(fbDataStream);
 }
 
+bool pauseStream() {
+    return pauseStreamCallback(fbDataStream);
+}
+
+bool restoreStream() {
+    return restoreStreamCallback(fbDataStream,(String)NODOS + WiFi.macAddress() + "/" + COMANDO);
+}
+
 void streamCallback(StreamData data)
 {
     accion = data.intData();
@@ -78,7 +86,7 @@ void streamCallback(StreamData data)
             break;
     
         default:
-            uploadLogs("Accion no encontrada...");
+            Serial.println("Comando no encontrado");
             break;
     }
 }
@@ -102,8 +110,7 @@ void loopStream() {
         flagGrabarIR = false;
     }
     if (flagActualizarIR) {
-        uploadLogs("ACTUALIZAR_IR");
-        updateCommand();
+        uploadLogs("ACTUALIZAR_IR: Esta funcion está en desuso.");
         flagActualizarIR = false;
     }
     if (flagEncenderLuces) {

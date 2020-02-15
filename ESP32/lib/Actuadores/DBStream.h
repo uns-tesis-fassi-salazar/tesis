@@ -25,8 +25,10 @@
 #include <utilidades.h>
 
 void loopStream();
-void setUpStream(const char *fVersion);
+void setUpStream(const char *fVersion = "");
 void setDownStream();
+bool pauseStream();
+bool restoreStream();
 void streamCallback(StreamData data);
 void streamTimeoutCallback(bool timeout);
 

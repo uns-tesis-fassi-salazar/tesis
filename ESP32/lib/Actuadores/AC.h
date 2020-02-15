@@ -2,10 +2,8 @@
 #define ACTUADOR_AC_H
 
 #include <IRModule.h>
-#include <utilidades.h>
+#include <Utilidades.h>
 
-void setUpAC();
 void turnOffAC();
-void updateCommand();
 
 #endif

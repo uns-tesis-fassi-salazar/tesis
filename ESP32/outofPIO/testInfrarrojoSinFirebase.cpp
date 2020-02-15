@@ -146,6 +146,12 @@ void loop() {
 
         // Resume capturing IR messages. It was not restarted until after we sent
         // the message so we didn't capture our own message.
+
+        for (size_t i = 0; i < 10; i++) {
+            // bool success = sendCommand(results, &size, &protocol);
+            // delay(3000);
+        }
+
         irrecv.resume();
 
     }

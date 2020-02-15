@@ -55,7 +55,7 @@ void handleConfig() {
 void handleConnectWiFi() {
     int codigoRespuesta = 400;  // Bad request
     if (server.hasArg("ssid") && server.hasArg("password")) {
-        if (connectWiFi(server.arg("ssid"), server.arg("password"), 8)) {
+        if (connectWiFi(server.arg("ssid"), server.arg("password"), 10)) {
             codigoRespuesta = 200;
             canConnect = true;
         } else {

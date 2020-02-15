@@ -37,9 +37,9 @@ void setUpFirebase(const char *fVersion) {
             uploadLogs("Nodo no registrado en Firebase... intentando registrar...");
             Serial.println("Nodo no registrado en Firebase... intentando registrar...");
             json.clear();
-            json.add("aulaAsignada","");
+            // json.add("aulaAsignada","");
             json.add("firmwareVersion",fVersion);
-            json.add("comando","");
+            json.add("comando",0);
             // SENSORES
             json2.clear();
             json2.add("luminocidad",0);
@@ -71,6 +71,14 @@ void removeStreamCallback(FirebaseData &fbDataStream) {
     if (WiFi.status() == WL_CONNECTED) {
         Firebase.removeStreamCallback(fbDataStream);
     }
+}
+
+bool pauseStreamCallback(FirebaseData &fbDataStream) {
+    return Firebase.endStream(fbDataStream);
+}
+
+bool restoreStreamCallback(FirebaseData &fbDataStream, const String dbPath) {
+    return Firebase.beginStream(fbDataStream,dbPath);
 }
 
 String getAulaAsignada() {

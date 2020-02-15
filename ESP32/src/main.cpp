@@ -42,9 +42,6 @@ void setup() {
     setUpWiFiResetButton();
     setUpRecordCommandButton();
 
-    // Inicializacion actuadores
-    setUpActuadores();
-
     delay(100);
     WiFi.mode(WIFI_STA);
     delay(100);
@@ -66,21 +63,18 @@ void setup() {
     }
 
     // WL_CONNECT_FAILED
+    IPAddress IP = WiFi.localIP();
     if ((WiFi.status() != WL_CONNECTED) && (WiFi.status() == WL_CONNECT_FAILED)) {
         Serial.println("No se pudo conectar al wifi");
-        // uploadLogs("No se pudo conectar al wifi");
     } else {
         Serial.println("");
-        IPAddress IP = WiFi.localIP();
         Serial.print("STA IP address: ");
         Serial.println(IP);
-        // uploadLogs("STA IP address: " + IP);
     }
 
-    // uploadLogs("MAC Address: " + WiFi.macAddress());
     Serial.println("MAC Address: " + WiFi.macAddress());
 
-    //init and get the time
+    // init and get the time
     configTime(GMTOffset_sec, daylightOffset_sec, ntpServer);
     printLocalTimeSpanish();
 
@@ -96,10 +90,16 @@ void setup() {
     // Inicializacion del Stream de datos para los comandos que recibe el ESP32
     setUpStream(FIRMWARE_VERSION);
 
-    uploadLogs("Virmware Version: " + String(FIRMWARE_VERSION));
-    uploadLogs("Update: Prueba 9 semi final instalacion");
-    
-    uploadLogs("*** ESP32 Setup OK ***");
+    // Inicializacion actuadores
+    setUpActuadores();
+
+    String iniDet;
+    iniDet = "MAC Address: " + WiFi.macAddress();
+    iniDet += "\nSTA IP address: " + IP;
+    iniDet += "\nVirmware Version: " + String(FIRMWARE_VERSION);
+    iniDet += "\nUpdate: Prueba IR - Toma 1";
+    iniDet += "\n*** ESP32 Setup OK ***";
+    uploadLogs(iniDet);
     Serial.println("*** ESP32 Setup OK ***");
 }
 
@@ -124,9 +124,11 @@ void loop() {
             aulaKey = getAulaAsignada();
             resetAulaConfig();
             checkAulaState();
-            checkFirmwareVersion(FIRMWARE_VERSION);
+            // checkFirmwareVersion(FIRMWARE_VERSION);
         }
     }
+    // test
+    testLoop();
 }
 
 bool hasWifiConfig() {

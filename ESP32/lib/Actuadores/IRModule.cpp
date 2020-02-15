@@ -80,11 +80,16 @@ IRsend irsend(kIrLedPin);
 // The IR receiver.
 IRrecv irrecv(kRecvPin, kCaptureBufferSize, kTimeout, false);
 // Somewhere to store the captured message.
-decode_results results;
+// decode_results results;
 
 String commandKey = "";
 extern String aulaKey;
 bool uploadCommand(decode_results &command);
+
+// test
+decode_results results,command;
+void getResults(decode_results *command);
+bool sendCommand(decode_results results, uint16_t *size, decode_type_t *protocol);
 
 void setUpIRSender() {
     irsend.begin();
@@ -92,6 +97,62 @@ void setUpIRSender() {
 
 void setUpIRReceiver() {
     irrecv.enableIRIn();
+}
+
+void testLoop() {
+    if (irrecv.decode(&results)) {
+        uint16_t size;
+        decode_type_t protocol;
+
+        bool success = sendCommand(results, &size, &protocol);
+
+        uint32_t now = millis();
+        Serial.printf(
+            "%06u.%03u: A %d-bit %s message was %ssuccessfully retransmitted.\n",
+            now / 1000, now % 1000, size, typeToString(protocol).c_str(),
+            success ? "" : "un");
+        irrecv.resume();
+    }
+    yield();
+}
+
+bool sendCommand(decode_results results, uint16_t *size, decode_type_t *protocol) {
+
+    if (!pauseStream()) {
+        return false;
+    }
+    Serial.println("pauseStream()");
+    delay(100);
+
+    *protocol = results.decode_type;
+    *size = results.bits;
+    bool success = true;
+    
+    if (*protocol == decode_type_t::UNKNOWN) {
+        uint16_t *raw_array = resultToRawArray(&results);
+        *size = getCorrectedRawLength(&results);
+        irsend.sendRaw(raw_array, *size, kFrequency);
+        delete[] raw_array;
+        Serial.println(results.decode_type);
+        Serial.println("decode_type_t::UNKNOWN");
+    } else if (hasACState(*protocol)) {
+        success = irsend.send(*protocol, results.state, *size / 8);
+        Serial.println(results.decode_type);
+        Serial.println("hasACState");
+    } else {
+        success = irsend.send(*protocol, results.value, *size);
+        Serial.println(results.decode_type);
+        Serial.println("default");
+    }
+
+    delay(100);
+    if (!restoreStream()) {
+        return false;
+    }
+    Serial.println("restoreStream()");
+    delay(100);
+
+    return success;
 }
 
 bool recordingAndUploadCommand() { // Pasar por parametro un timeout de escucha
@@ -128,39 +189,39 @@ bool recordingAndUploadCommand() { // Pasar por parametro un timeout de escucha
     return todoOk;
 }
 
-bool sendCommand(decode_results *command) {
+// bool sendCommand(decode_results *command) {
 
-    uint16_t size = command->bits;
-    decode_type_t protocol = command->decode_type;
+//     uint16_t size = command->bits;
+//     decode_type_t protocol = command->decode_type;
 
-    uploadLogs("Emitir comando");
+//     uploadLogs("Emitir comando");
 
-    // The capture has stopped at this point.
-    bool success = true;
-    // Is it a protocol we don't understand?
-    if (protocol == decode_type_t::UNKNOWN) {  // Yes.
-        // Convert the results into an array suitable for sendRaw().
-        // resultToRawArray() allocates the memory we need for the array.
-        uint16_t *raw_array = resultToRawArray(command);
-        // Find out how many elements are in the array.
-        size = getCorrectedRawLength(command);
-        // Send it out via the IR LED circuit.
-        irsend.sendRaw(raw_array, size, kFrequency);
-        // Deallocate the memory allocated by resultToRawArray().
-        delete[] raw_array;
+//     // The capture has stopped at this point.
+//     bool success = true;
+//     // Is it a protocol we don't understand?
+//     if (protocol == decode_type_t::UNKNOWN) {  // Yes.
+//         // Convert the results into an array suitable for sendRaw().
+//         // resultToRawArray() allocates the memory we need for the array.
+//         uint16_t *raw_array = resultToRawArray(command);
+//         // Find out how many elements are in the array.
+//         size = getCorrectedRawLength(command);
+//         // Send it out via the IR LED circuit.
+//         irsend.sendRaw(raw_array, size, kFrequency);
+//         // Deallocate the memory allocated by resultToRawArray().
+//         delete[] raw_array;
 
-        uploadLogs("decode_type_t::UNKNOWN");
-    } else if (hasACState(protocol)) {  // Does the message require a state[]?
-        // It does, so send with bytes instead.
-        success = irsend.send(protocol, command->state, size / 8);
-        uploadLogs("HasACState");
-    } else {  // Anything else must be a simple message protocol. ie. <= 64 bits
-        success = irsend.send(protocol, command->value, size);
-        uploadLogs("default");
-    }
-    success ? uploadLogs("Comando emitido: true") : uploadLogs("Comando emitido: false");
-    return success;
-}
+//         uploadLogs("decode_type_t::UNKNOWN");
+//     } else if (hasACState(protocol)) {  // Does the message require a state[]?
+//         // It does, so send with bytes instead.
+//         success = irsend.send(protocol, command->state, size / 8);
+//         uploadLogs("HasACState");
+//     } else {  // Anything else must be a simple message protocol. ie. <= 64 bits
+//         success = irsend.send(protocol, command->value, size);
+//         uploadLogs("default");
+//     }
+//     success ? uploadLogs("Comando emitido: true") : uploadLogs("Comando emitido: false");
+//     return success;
+// }
 
 bool getCommand(decode_results *command) {
     bool todoOk = false;
@@ -300,6 +361,182 @@ bool getCommand(decode_results *command) {
 }
 
 bool uploadCommand(decode_results &command) {
+    bool todoOk = true;
+    commandKey = createKeyCommand();
+
+    if (commandKey != "") {
+
+        uploadLogs("Uploading command...");
+
+        // ***** DECODE_TYPE *****
+        uint8_t byteDecodeType = command.decode_type;
+        // Serial.printf("Decode_type: %hu\n", command.decode_type);
+        if (uploadBlobData(commandKey + "/decodeType", &byteDecodeType, 1)) {
+            // uploadLogs("Decode_type: PASSED");
+        } else {
+            uploadLogs("Decode_type: FAILED");
+            todoOk = false;
+        }
+        
+        // ***** VALUE *****
+        uint8_t byteArrayValue[8];
+        byteArrayValue[0] = command.value >> 56;
+        byteArrayValue[1] = command.value >> 48;
+        byteArrayValue[2] = command.value >> 40;
+        byteArrayValue[3] = command.value >> 32;
+        byteArrayValue[4] = command.value >> 24;
+        byteArrayValue[5] = command.value >> 16;
+        byteArrayValue[6] = command.value >> 8;
+        byteArrayValue[7] = command.value & 0xFF;
+
+        // Serial.printf("Value: %iu", (uint32_t)command.value >> 32);
+        // Serial.printf("%iu\n", (uint32_t)(command.value) && 0xFFFFFFFF);
+        if (uploadBlobData(commandKey + "/value", byteArrayValue, 8)) {
+            // uploadLogs("Value: PASSED");
+        } else {
+            uploadLogs("Value: FAILED");
+            todoOk = false;
+        }
+
+        // ***** COMMAND *****
+        uint8_t byteArrayCommand[4];
+        byteArrayCommand[0] = command.command >> 24;
+        byteArrayCommand[1] = command.command >> 16;
+        byteArrayCommand[2] = command.command >> 8;
+        byteArrayCommand[3] = command.command & 0xFF;
+
+        // Serial.printf("Command: %hu\n", command.command);
+        if (uploadBlobData(commandKey + "/command", byteArrayCommand, 4)) {
+            // uploadLogs("Command: PASSED");
+        } else {
+            uploadLogs("Command: FAILED");
+            todoOk = false;
+        }
+
+        // ***** ADDRESS *****
+        uint8_t byteArrayAddress[4];
+        byteArrayAddress[0] = command.address >> 24;
+        byteArrayAddress[1] = command.address >> 16;
+        byteArrayAddress[2] = command.address >> 8;
+        byteArrayAddress[3] = command.address & 0xFF;
+
+        // Serial.printf("Address: %hu\n", command.address);
+        if (uploadBlobData(commandKey + "/address", byteArrayAddress, 4)) {
+            // uploadLogs("Address: PASSED");
+        } else {
+            uploadLogs("Address: FAILED");
+            todoOk = false;
+        }
+
+        // ***** STATE *****
+        // Serial.println("State: ");
+        // for (size_t i = 0; i < kStateSizeMax; i++) {
+        //     Serial.printf("%hu ", command.state[i]);
+        // }
+        // Serial.println();
+        if (uploadBlobData(commandKey + "/state", command.state, kStateSizeMax)) {
+            // uploadLogs("State: PASSED");
+        } else {
+            uploadLogs("State: FAILED");
+            todoOk = false;
+        }
+
+        // ***** RAWBUF *****
+        uint8_t firstByte, secondByte;
+        uint8_t byteArrayRawbuf[command.rawlen * 2];
+
+        for (int i = 0; i < command.rawlen; i++) {
+            firstByte = command.rawbuf[i] >> 8;
+            secondByte = command.rawbuf[i] & 0xFF;
+            byteArrayRawbuf[i * 2] = firstByte;
+            byteArrayRawbuf[i * 2 + 1] = secondByte;
+        }
+        // printRawbuf(command);
+        // Serial.println();
+        if (uploadBlobData(commandKey + "/rawbuf", byteArrayRawbuf, command.rawlen * 2)) {
+            // uploadLogs("Rawbuf: PASSED");
+        } else {
+            uploadLogs("Rawbuf: FAILED");
+            todoOk = false;
+        }
+
+        // ***** RAWLEN *****
+        uint8_t byteArrayRawlen[2];
+        byteArrayRawlen[0] = command.rawlen >> 8;
+        byteArrayRawlen[1] = command.rawlen & 0xFF;
+
+        // Serial.printf("Rawlen: %hu\n", command.rawlen);
+        if (uploadBlobData(commandKey + "/rawlen", byteArrayRawlen, 2)) {
+            // uploadLogs("Rawlen: PASSED");
+        } else {
+            uploadLogs("Rawlen: FAILED");
+            todoOk = false;
+        }
+
+        // ***** BITS *****
+        uint8_t byteArrayBits[2];
+        byteArrayBits[0] = command.bits >> 8;
+        byteArrayBits[1] = command.bits & 0xFF;
+
+        // Serial.printf("Bits: %hu\n", command.bits);
+        if (uploadBlobData(commandKey + "/bits", byteArrayBits, 2)) {
+            // uploadLogs("Bits: PASSED");
+        } else {
+            uploadLogs("Bits: FAILED");
+            todoOk = false;
+        }
+
+        // ***** REPEAT *****
+        uint8_t byteRepeat = command.repeat;
+        // Serial.printf("Repeat: %hu\n", command.repeat);
+        if (uploadBlobData(commandKey + "/repeat", &byteRepeat, 1)) {
+            // uploadLogs("Repeat: PASSED");
+        } else {
+            uploadLogs("Repeat: FAILED");
+            todoOk = false;
+        }
+
+        // ***** OVERFLOW *****
+        uint8_t byteOverflow = command.overflow;
+        // Serial.printf("Overflow: %hu\n", command.overflow);
+        if (uploadBlobData(commandKey + "/overflow", &byteOverflow, 1)) {
+            // uploadLogs("Overflow: PASSED");
+        } else {
+            uploadLogs("Overflow: FAILED");
+            todoOk = false;
+        }
+
+        // ***** SETTIMESTAMP en MARCA *****
+        if (setCommandValue(commandKey + "/marca",tiempoToString())) {
+            // uploadLogs("Marca: PASSED");
+        } else {
+            uploadLogs("Marca: FAILED");
+            todoOk = false;
+        }
+        if (setCommandValue(commandKey + "/modelo","")) {
+            // uploadLogs("Modelo: PASSED");
+        } else {
+            uploadLogs("Modelo: FAILED");
+            todoOk = false;
+        }
+
+        todoOk = todoOk && true;
+    } else {
+        todoOk = false;
+    }
+
+    if (!todoOk) {
+        deleteKeyCommand(commandKey);
+    }
+
+    if ((aulaKey != "") && (todoOk)) {
+        uploadKeyCommand(aulaKey,commandKey);
+    }
+
+    return todoOk;
+}
+
+bool uploadCommandOneReq(decode_results &command) {
     bool todoOk = true;
     commandKey = createKeyCommand();
 

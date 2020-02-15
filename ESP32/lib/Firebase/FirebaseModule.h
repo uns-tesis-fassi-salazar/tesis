@@ -3,7 +3,7 @@
 
 #include <FirebaseESP32.h>
 #include <Automata.h>
-#include <utilidades.h>
+#include <Utilidades.h>
 
 #define AULAS "aulas/"
 #define NODOS "nodos/"
@@ -48,6 +48,8 @@ bool setCommandValue(String pathKey,String value);
 bool uploadLogs(String log);
 
 void setStreamCallback(FirebaseData &fbDataStream,String dbPath,StreamEventCallback eventCallBack, StreamTimeoutCallback timeoutCallback);
+bool pauseStreamCallback(FirebaseData &fbDataStream);
+bool restoreStreamCallback(FirebaseData &fbDataStream, const String dbPath);
 void removeStreamCallback(FirebaseData &fbDataStream);
 void streamCallback(StreamData data);
 void streamTimeoutCallback(bool timeout);
