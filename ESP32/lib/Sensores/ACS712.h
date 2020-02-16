@@ -7,7 +7,7 @@
 // #define VREF 5
 #define ADC_SCALE 4095.0
 #define VREF 3.3
-#define DEFAULT_FREQUENCY 50
+#define DEFAULT_FREQUENCY 50.0
 
 enum ACS712_type {ACS712_05B, ACS712_20A, ACS712_30A, CUSTOM};
 
@@ -21,7 +21,7 @@ public:
 	float getCurrentAC(uint16_t frequency = 50);
 
 private:
-	int zero = 1318; // Por divisor resistivo de 5 a 3v3
+	int zero = 1810; // Por divisor resistivo de 5 a 3v3
 	float sensitivity;
 	uint8_t pin;
 };

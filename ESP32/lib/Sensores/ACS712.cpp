@@ -24,12 +24,13 @@ ACS712::ACS712(ACS712_type type, uint8_t _pin)
 
 int ACS712::calibrate()
 {
-	uint16_t acc = 0;
-	for (int i = 0; i < 10; i++)
+	uint32_t acc = 0;
+	uint16_t cantMediciones = 50;
+	for (int i = 0; i < cantMediciones; i++)
 	{
 		acc += analogRead(pin);
 	}
-	zero = acc / 10;
+	zero = acc / cantMediciones;
 	return zero;
 }
 

@@ -49,6 +49,7 @@ void setUpSensors() {
     // If you are not sure that the current through the sensor will not leak during calibration - comment out this method
     uploadLogs("Calibrating... Ensure that no current flows through the sensor at this moment");
     uploadLogs("Valor calibrado: " + hallSensor.calibrate());
+    Serial.println("Valor calibrado: " + hallSensor.calibrate());
 
     // Inicializacion sensor Luz
     Wire.begin(LUX_SDA_PIN, LUX_CSL_PIN);
@@ -81,6 +82,7 @@ float readLuxValue() {
 
 void readSensorsValues() {
     currentHallValue = hallSensor.getCurrentAC(50);
+    Serial.printf("Hall: %f\n", currentHallValue);
     currentLuxValue = readLuxValue();
     
     if (lapTimer(2500, &tiempoUltimaLecturaDHT)) {

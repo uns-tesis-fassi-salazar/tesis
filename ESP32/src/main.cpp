@@ -97,7 +97,7 @@ void setup() {
     iniDet = "MAC Address: " + WiFi.macAddress();
     iniDet += "\nSTA IP address: " + IP;
     iniDet += "\nVirmware Version: " + String(FIRMWARE_VERSION);
-    iniDet += "\nUpdate: Prueba IR - Toma 1";
+    iniDet += "\nUpdate: Prueba Hall - Toma 2";
     iniDet += "\n*** ESP32 Setup OK ***";
     uploadLogs(iniDet);
     Serial.println("*** ESP32 Setup OK ***");

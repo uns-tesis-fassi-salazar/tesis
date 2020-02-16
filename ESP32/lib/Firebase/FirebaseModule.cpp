@@ -6,14 +6,12 @@
 FirebaseData firebaseData;
 FirebaseJson json,json2;
 
-int logIndex;
-uint secuencial;
+uint32_t logIndex = 0;
+uint32_t secuencial = 0;
 
 void setUpFirebase(const char *fVersion) {
 
     if (WiFi.status() == WL_CONNECTED) {
-        logIndex = 0;
-        secuencial = 0;
 
         Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
         Firebase.reconnectWiFi(true);
@@ -262,7 +260,8 @@ bool setCommandValue(String pathKey,String value) {
 }
 
 bool uploadLogs(String log) {
-
+    secuencial = getUIntFromNVM("secuencial");
+    logIndex = getUIntFromNVM("logIndex");
     if (WiFi.status() == WL_CONNECTED) {
         json.clear();
         json.add("fecha",tiempoCortoToString());
@@ -274,6 +273,8 @@ bool uploadLogs(String log) {
             logIndex ++;
             if (logIndex > 49) { logIndex = 0;}
             if (secuencial >= 0xFFFFFFFA) {secuencial = 0;}
+            putUIntInNVM("secuencial", secuencial);
+            putUIntInNVM("logIndex", logIndex);
             return true;
         }
     }
