@@ -127,8 +127,6 @@ void loop() {
             // checkFirmwareVersion(FIRMWARE_VERSION);
         }
     }
-    // test
-    testLoop();
 }
 
 bool hasWifiConfig() {
