@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <FirebaseModule.h>
+#include <Preferences.h>
 
 const char dias_semana[7][10] = {"Domingo","Lunes","Martes","Miercoles","Jueves","Viernes","Sabado"};
 const char meses[12][11] = {"Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"};
@@ -22,5 +23,7 @@ void printLocalTime();
 void printLocalTimeSpanish();
 String tiempoToString();
 String tiempoCortoToString();
+int getUIntFromNVM(const char *key);
+void putUIntInNVM(const char *key, uint32_t value);
 
 #endif
