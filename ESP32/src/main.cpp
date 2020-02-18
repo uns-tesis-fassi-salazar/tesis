@@ -26,8 +26,8 @@ void printLocalTime();
 String aulaKey = "";
 String firmwareVersion = "";
 int segundosADormir = 5;
-int tiempoEntreLecturas = 30*1000;      // 30 segundos
-int tiempoEntreChequeos = 60*1000;      // 1 minutos
+int tiempoEntreLecturas = 30;      // 30 segundos
+int tiempoEntreChequeos = 60;      // 1 minutos
 ulong tiempoUltimaLecturaSensores = 0;
 ulong tiempoUltimoChequeo = 0;
 bool blink = false;
@@ -109,10 +109,10 @@ void loop() {
 
     if (WiFi.status() == WL_CONNECTED) {
         if (aulaKey != "") {
-            if (lapTimer(tiempoEntreLecturas, &tiempoUltimaLecturaSensores)) {
+            if (lapTimer(tiempoEntreLecturas*1000, &tiempoUltimaLecturaSensores)) {
                 loopSensors();
             }
-            if (lapTimer(tiempoEntreChequeos, &tiempoUltimoChequeo)) {
+            if (lapTimer(tiempoEntreChequeos*1000, &tiempoUltimoChequeo)) {
                 checkAulaState();
             }
             loopStream();
