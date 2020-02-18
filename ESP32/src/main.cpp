@@ -25,12 +25,11 @@ void printLocalTime();
 
 String aulaKey = "";
 String firmwareVersion = "";
-int secondsToSleep = 5;
-int seccodsBetweenUploads = 2*1000;
-int secondsBetweenChecks = 60*1000;    // 1 minutos
+int segundosADormir = 5;
+int tiempoEntreLecturas = 30;      // 30 segundos
+int tiempoEntreChequeos = 60;      // 1 minutos
 ulong tiempoUltimaLecturaSensores = 0;
-ulong currentTime = 0;
-ulong lastTimeCheck = 0;
+ulong tiempoUltimoChequeo = 0;
 bool blink = false;
 
 void setup() {
@@ -110,17 +109,17 @@ void loop() {
 
     if (WiFi.status() == WL_CONNECTED) {
         if (aulaKey != "") {
-            if (lapTimer(seccodsBetweenUploads, &tiempoUltimaLecturaSensores)) {
+            if (lapTimer(tiempoEntreLecturas*1000, &tiempoUltimaLecturaSensores)) {
                 loopSensors();
             }
-            if (lapTimer(secondsBetweenChecks, &lastTimeCheck)) {
+            if (lapTimer(tiempoEntreChequeos*1000, &tiempoUltimoChequeo)) {
                 checkAulaState();
             }
             loopStream();
         } else {
             uploadLogs("Esperando asignacion de aula...");
             // printLocalTimeSpanish();
-            delay(1000 * secondsToSleep);  // esperando configuracion...
+            delay(1000 * segundosADormir);  // esperando configuracion...
             aulaKey = getAulaAsignada();
             resetAulaConfig();
             checkAulaState();
