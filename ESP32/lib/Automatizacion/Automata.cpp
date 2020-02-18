@@ -5,6 +5,7 @@ void apagarAutomatico();
 aulaConfig aulaCnf;
 bool flagExterior = false;
 extern String aulaKey;
+extern int tiempoEntreLecturas;
 
 bool readAulaConfig() {
     if (aulaKey != "") {
@@ -19,8 +20,9 @@ bool readAulaConfig() {
                 flagExterior = true;
             }
         }
-        setTimerTimeout(aulaCnf.timeOutAulaVacia);
+        setMovementTimeout(aulaCnf.timeOutAulaVacia);
         setSensorHall(aulaCnf.umbralSensorHall, aulaCnf.zeroSensorHall);
+        tiempoEntreLecturas = aulaCnf.intervaloLecturas;
         return true;
     }
     return false;

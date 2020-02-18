@@ -142,7 +142,7 @@ void loopStream() {
     }
     if (flagRecargarTimer) {
         uploadLogs("RECARGAR_TIMER");
-        setTimerTimeout(60);
+        setMovementTimeout(60);
         flagRecargarTimer = false;
     }
     if (flagToggleLed) {

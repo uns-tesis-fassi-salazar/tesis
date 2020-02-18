@@ -142,7 +142,7 @@ bool hasCurrentFlow() {
     return false;
 }
 
-void setTimerTimeout(int timeout) {
+void setMovementTimeout(int timeout) {
     movementTimer = timerTimeout(timeout*1000, aulaVacia);
 }
 

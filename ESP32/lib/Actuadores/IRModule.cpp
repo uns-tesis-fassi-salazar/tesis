@@ -267,9 +267,7 @@ bool getCommand(decode_results *command) {
             }
             
             command->decode_type = (decode_type_t)fullCommand[0];
-
             
-
             command->value = ((fullCommand[1] << 24) << 24) << 8;
             command->value |= (fullCommand[2] << 24) << 24;
             command->value |= (fullCommand[3] << 24) << 16;

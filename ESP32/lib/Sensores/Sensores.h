@@ -21,7 +21,7 @@ void loopSensors();
 void printSensors();
 bool emptyRoomState();
 bool hasCurrentFlow();
-void setTimerTimeout(int timeout);
+void setMovementTimeout(int timeout);
 void setSensorHall(float umbralHall, int zeroSensorHall);
 
 #endif
