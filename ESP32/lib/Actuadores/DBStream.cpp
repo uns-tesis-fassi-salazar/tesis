@@ -120,12 +120,14 @@ void loopStream() {
     }
     if (flagApagarLuces) {
         uploadLogs("APAGAR_LUCES");
-        apagarLuces();
+        if (hasCurrentFlow()) {
+            toggleLuces();
+        }
         flagApagarLuces = false;
     }
     if (flagActualizarFirmware) {
         uploadLogs("ACTUALIZAR_FIRMWARE");
-        // checkFirmwareVersion(FV.c_str());
+        checkFirmwareVersion(FV.c_str());
         flagActualizarFirmware = false;
     }
     if (flagActualizarAula) {

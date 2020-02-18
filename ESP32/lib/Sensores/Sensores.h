@@ -8,7 +8,7 @@
 #include <DHT.h>
 #include <ACS712.h>
 #include <Wire.h>
-#include <utilidades.h>
+#include <Utilidades.h>
 
 #define MOVEMENT_PIN GPIO_NUM_5
 #define LUX_SDA_PIN GPIO_NUM_21

@@ -1,6 +1,9 @@
 #include <Automata.h>
 
+void apagarAutomatico();
+
 aulaConfig aulaCnf;
+bool flagExterior = false;
 extern String aulaKey;
 
 bool readAulaConfig() {
@@ -10,12 +13,10 @@ bool readAulaConfig() {
             return false;
         }
         if (aulaCnf.horaIniAuto > aulaCnf.horaFinAuto) {
-            aulaCnf.horaFinAuto += 23;
-            aulaCnf.minFinAuto += 59;
+            flagExterior = true;
         } else {
             if ((aulaCnf.horaIniAuto == aulaCnf.horaFinAuto) && (aulaCnf.minIniAuto > aulaCnf.minFinAuto)) {
-                aulaCnf.horaFinAuto += 23;
-                aulaCnf.minFinAuto += 59;
+                flagExterior = true;
             }
         }
         setTimerTimeout(aulaCnf.timeOutAulaVacia);
@@ -31,32 +32,35 @@ void checkAulaState() {
     if (emptyRoomState()) {
         struct tm timeinfo;
         if(getLocalTime(&timeinfo)) {
-            if ((timeinfo.tm_hour > aulaCnf.horaIniAuto) && (timeinfo.tm_hour < aulaCnf.horaFinAuto)) {
-                // if (detectCurrentFlow()) {
-                //     uploadLogs("Automata: apagando luces y AC...");
-                //     apagarLuces();
-                //     delay(2000);
-                //     turnOffAC();
-                // }
-            } else {
-                if (timeinfo.tm_hour == aulaCnf.horaIniAuto) {
-                    if (timeinfo.tm_min >= aulaCnf.minIniAuto) {
-                        // if (detectCurrentFlow()) {
-                        //     uploadLogs("Automata: apagando luces y AC...");
-                        //     apagarLuces();
-                        //     delay(2000);
-                        //     turnOffAC();
-                        // }
-                    }
+            if (flagExterior) {
+                if ((timeinfo.tm_hour > aulaCnf.horaIniAuto) || (timeinfo.tm_hour < aulaCnf.horaFinAuto)) {
+                    apagarAutomatico();
                 } else {
-                    if (timeinfo.tm_hour == aulaCnf.horaFinAuto) {
-                        if (timeinfo.tm_min <= aulaCnf.minFinAuto) {
-                            // if (detectCurrentFlow()) {
-                            //     uploadLogs("Automata: apagando luces y AC...");
-                            //     apagarLuces();
-                            //     delay(2000);
-                            //     turnOffAC();
-                            // }
+                    if (timeinfo.tm_hour == aulaCnf.horaIniAuto) {
+                        if (timeinfo.tm_min >= aulaCnf.minIniAuto) {
+                            apagarAutomatico();
+                        }
+                    } else {
+                        if (timeinfo.tm_hour == aulaCnf.horaFinAuto) {
+                           if (timeinfo.tm_min <= aulaCnf.minFinAuto) {
+                               apagarAutomatico();
+                           }
+                        }
+                    }
+                }
+            } else {
+                if ((timeinfo.tm_hour > aulaCnf.horaIniAuto) && (timeinfo.tm_hour < aulaCnf.horaFinAuto)) {
+                    apagarAutomatico();
+                } else {
+                    if (timeinfo.tm_hour == aulaCnf.horaIniAuto) {
+                        if (timeinfo.tm_min >= aulaCnf.minIniAuto) {
+                            apagarAutomatico();
+                        }
+                    } else {
+                        if (timeinfo.tm_hour == aulaCnf.horaFinAuto) {
+                           if (timeinfo.tm_min <= aulaCnf.minFinAuto) {
+                               apagarAutomatico();
+                           }
                         }
                     }
                 }
@@ -67,6 +71,7 @@ void checkAulaState() {
 
 void resetAulaConfig() {
     aulaCnf.hasConfig = false;
+    flagExterior = false;
 }
 
 bool hasAulaConfig() {
@@ -75,4 +80,13 @@ bool hasAulaConfig() {
 
 int getTimeoutAulaVacia() {
     return aulaCnf.timeOutAulaVacia;
+}
+
+void apagarAutomatico() {
+    uploadLogs("Automata: apagando luces y AC...");
+    if (hasCurrentFlow()) {
+        toggleLuces();
+    }
+    delay(2000);
+    turnOffAC();
 }

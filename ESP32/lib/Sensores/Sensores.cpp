@@ -13,6 +13,8 @@ float prevTempValue, currentTempValue;
 float prevHumidityValue, currentHumidityValue;
 float prevHallValue, currentHallValue;
 
+int calibrado;
+
 ulong tiempoUltimaLecturaDHT = 0;
 
 struct Movement {
@@ -47,9 +49,9 @@ void setUpSensors() {
     prevHallValue = 0;
     // Inicializacion Sensor ACS712
     // If you are not sure that the current through the sensor will not leak during calibration - comment out this method
-    uploadLogs("Calibrating... Ensure that no current flows through the sensor at this moment");
-    uploadLogs("Valor calibrado: " + hallSensor.calibrate());
-    Serial.println("Valor calibrado: " + hallSensor.calibrate());
+    // uploadLogs("Calibrating... Ensure that no current flows through the sensor at this moment");
+    // calibrado = hallSensor.calibrate();
+    // uploadLogs("Valor calibrado: " + String(calibrado));
 
     // Inicializacion sensor Luz
     Wire.begin(LUX_SDA_PIN, LUX_CSL_PIN);
@@ -73,6 +75,15 @@ void setUpSensors() {
     attachInterrupt(movement.PIN, movementDetection, HIGH);
 }
 
+int calibrar() {
+    calibrado = hallSensor.calibrate();
+    return calibrado;
+}
+
+int getValorCalibrado() {
+    return calibrado;
+}
+
 float readLuxValue() {
     // delay(dht.getMinimumSamplingPeriod());
     lightMeter.configure(BH1750::ONE_TIME_HIGH_RES_MODE_2);
@@ -82,7 +93,6 @@ float readLuxValue() {
 
 void readSensorsValues() {
     currentHallValue = hallSensor.getCurrentAC(50);
-    Serial.printf("Hall: %f\n", currentHallValue);
     currentLuxValue = readLuxValue();
     
     if (lapTimer(2500, &tiempoUltimaLecturaDHT)) {
@@ -106,7 +116,7 @@ void uploadSensorsValues() {
                 jsonSensorData.add("temperatura", (double)currentTempValue);
                 jsonSensorData.add("humedad", (double)currentHumidityValue);
             }
-            // jsonSensorData.add("corriente", (double)currentHallValue);
+            jsonSensorData.add("corriente", (double)currentHallValue);
             jsonSensorData.add("movimiento", !(double)movement.emptyRoom);
             if (!uploadData(jsonSensorData)) {
                 // Serial.println("Sensor JSON NOT OK");
@@ -137,8 +147,8 @@ void printSensors() {
     Serial.print(currentLuxValue);
     Serial.print(" lux");
     Serial.print("\t");
-    // Serial.print(currentHallValue);
-    // Serial.print(" A");
+    Serial.print(currentHallValue);
+    Serial.print(" A");
     Serial.print("\t\t");
     Serial.print(currentHumidityValue);
     Serial.print(" %");
@@ -153,7 +163,7 @@ void printSensors() {
 void logSensores() {
     String toLog;
     toLog += "Lux: " + String(currentLuxValue);
-    // toLog += " - I: " + String(currentHallValue) + " A";
+    toLog += " - I: " + String(currentHallValue) + " A";
     toLog += " - Hum: " + String(currentHumidityValue) + " %";
     toLog += " - Temp: " + String(currentTempValue) + " C°";
     toLog += " - Aula Vacia: " + String(movement.emptyRoom);
