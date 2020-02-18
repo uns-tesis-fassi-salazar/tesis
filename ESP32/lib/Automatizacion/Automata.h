@@ -7,15 +7,15 @@
 #include <AC.h>
 #include <utilidades.h>
 
-struct aulaConfig {
-    int timeOutAulaVacia;
-    int intervaloLecturas;
-    int horaIniAuto;
-    int minIniAuto;
-    int horaFinAuto;
-    int minFinAuto;
-    bool hasConfig = false;
-};
+// struct aulaConfig {
+//     int timeOutAulaVacia;
+//     int intervaloLecturas;
+//     int horaIniAuto;
+//     int minIniAuto;
+//     int horaFinAuto;
+//     int minFinAuto;
+//     bool hasConfig = false;
+// };
 
 bool readAulaConfig();
 void checkAulaState();

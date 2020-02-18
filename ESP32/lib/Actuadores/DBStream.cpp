@@ -143,8 +143,6 @@ void loopStream() {
         setTimerTimeout(60);
         flagRecargarTimer = false;
     }
-
-
     if (flagToggleLed) {
         uploadLogs("TOGGLE_LED");
         toggleLed();

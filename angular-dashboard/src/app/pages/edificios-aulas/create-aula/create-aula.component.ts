@@ -40,6 +40,8 @@ export class CreateAulaComponent implements OnInit, OnDestroy {
       intervaloLecturas: [5, Validators.required],
       horaInicioAuto: ['22:00', Validators.required],
       horaFinAuto: ['06:00', Validators.required],
+      umbralSensorHall: [2.5],
+      zeroSensorHall: [1810],
     });
 
     this.edificios$ = this.aulaService.getEdificios()

@@ -8,6 +8,8 @@ export class Aula {
     public timeoutAulaVacia: number;
     public horaInicioAuto: string;
     public horaFinAuto: string;
+    public umbralSensorHall: number = 2.5;
+    public zeroSensorHall: number = 1810;
 
     constructor(key?: string, edificio?: string, nombre?: string, nodoMac?: string, comandoIR?: string) {
         this.edificio = edificio || '';
