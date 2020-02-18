@@ -29,8 +29,7 @@ bool readAulaConfig() {
 void checkAulaState() {
     if (!aulaCnf.hasConfig) {
         readAulaConfig();
-    }
-    if (emptyRoomState()) {
+    } else if (emptyRoomState()) {
         struct tm timeinfo;
         if(getLocalTime(&timeinfo)) {
             if (flagExterior) {
