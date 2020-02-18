@@ -1,4 +1,4 @@
-#include <utilidades.h>
+#include <Utilidades.h>
 
 // Delay no Bloqueante
 bool lapTimer(ulong lapTime, ulong *lastLapTime) {
@@ -96,14 +96,14 @@ int getUIntFromNVM(const char *key) {
     // has to use a namespace name to prevent key name collisions. We will open storage in
     // RW-mode (second parameter has to be false).
     // Note: Namespace name is limited to 15 chars.
-    preferences.begin("my-app", true);
+    preferences.begin("as-app", true);
 
     // Get the value, if the key does not exist, return a default value of 0
     // Note: Key name is limited to 15 chars.
     unsigned int value = preferences.getUInt(key, 0);
 
     // Print the value to Serial Monitor
-    Serial.printf("Value: %u\n", value);
+    // Serial.printf("Value: %u\n", value);
 
     // Close the Preferences
     preferences.end();
@@ -113,7 +113,7 @@ int getUIntFromNVM(const char *key) {
 
 void putUIntInNVM(const char *key, uint32_t value) {
     Preferences preferences;
-    preferences.begin("my-app", false);
+    preferences.begin("as-app", false);
     preferences.putUInt(key, value);
     preferences.end();
 }

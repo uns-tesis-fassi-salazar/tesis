@@ -271,7 +271,7 @@ bool uploadLogs(String log) {
         if (Firebase.setJSON(firebaseData,LOGS + WiFi.macAddress() + "/" + logIndex,json)) {
             secuencial ++;
             logIndex ++;
-            if (logIndex > 49) { logIndex = 0;}
+            if (logIndex > 4999) { logIndex = 0;}
             if (secuencial >= 0xFFFFFFFA) {secuencial = 0;}
             putUIntInNVM("secuencial", secuencial);
             putUIntInNVM("logIndex", logIndex);

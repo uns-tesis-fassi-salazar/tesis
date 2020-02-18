@@ -9,7 +9,7 @@
 #include <IRModule.h>
 #include <WiFi.h>
 #include <esp_wifi.h>
-#include <utilidades.h>
+#include <Utilidades.h>
 #include "time.h"
 
 // Constante para la versión del programa
@@ -127,8 +127,6 @@ void loop() {
             // checkFirmwareVersion(FIRMWARE_VERSION);
         }
     }
-    // test
-    testLoop();
 }
 
 bool hasWifiConfig() {

@@ -8,12 +8,9 @@
 #include <IRrecv.h>
 #include <IRsend.h>
 #include <IRutils.h>
-#include <utilidades.h>
+#include <Utilidades.h>
 
 #define IR_BUTTON_PIN GPIO_NUM_15
-
-// test
-void testLoop();
 
 void setUpIRSender();
 void setUpIRReceiver();

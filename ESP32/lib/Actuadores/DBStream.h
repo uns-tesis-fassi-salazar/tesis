@@ -19,10 +19,10 @@
 #include <Led.h>
 #include <Luces.h>
 #include <IRModule.h>
-// #include <OTAUpdater.h>
+#include <OTAUpdater.h>
 #include <FirebaseModule.h>
 #include <Automata.h>
-#include <utilidades.h>
+#include <Utilidades.h>
 
 void loopStream();
 void setUpStream(const char *fVersion = "");
