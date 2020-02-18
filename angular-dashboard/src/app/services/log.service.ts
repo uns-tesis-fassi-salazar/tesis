@@ -14,7 +14,7 @@ export class LogService {
     ) { }
 
     getLogsByMac(mac: string) {
-        return this.db.list<Log>('logs/' + mac, ref => ref.orderByChild('secuencial')).valueChanges();
+        return this.db.list<Log>('logs/' + mac).valueChanges();
     }
 
 }

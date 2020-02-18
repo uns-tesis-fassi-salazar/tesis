@@ -11,7 +11,7 @@ import { takeWhile, map } from 'rxjs/operators';
   styleUrls: ['./show-logs.component.scss']
 })
 export class ShowLogsComponent implements OnInit, OnDestroy {
-  logs$: Observable<Log[]>;
+  logs: Log[];
   nodoMac: string = '';
   alive = true;
   isScrolledToBottom = true;
@@ -28,11 +28,16 @@ export class ShowLogsComponent implements OnInit, OnDestroy {
       )
       .subscribe(nodoMac => {
         this.nodoMac = ' - ' + nodoMac;
-        this.logs$ = this.logService.getLogsByMac(nodoMac).pipe(takeWhile(() => this.alive));
-        this.logs$.subscribe(logs => {
-          if (this.isScrolledToBottom)
-            this.updateScroll()
-        });
+        this.logService.getLogsByMac(nodoMac).pipe(takeWhile(() => this.alive))
+          .subscribe(logs => {
+            this.logs = logs.sort((a, b) => {
+              if (a.secuencial < b.secuencial) return 1;
+              else if (a.secuencial == b.secuencial) return 0;
+              else return -1;
+            });
+            // if (this.isScrolledToBottom)
+            //   this.updateScroll()
+          });
       })
 
   }
