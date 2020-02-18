@@ -14,6 +14,7 @@ float prevHumidityValue, currentHumidityValue;
 float prevHallValue, currentHallValue;
 
 int calibrado;
+float umbralSensorHall = 2.5;
 
 ulong tiempoUltimaLecturaDHT = 0;
 
@@ -52,6 +53,7 @@ void setUpSensors() {
     // uploadLogs("Calibrating... Ensure that no current flows through the sensor at this moment");
     // calibrado = hallSensor.calibrate();
     // uploadLogs("Valor calibrado: " + String(calibrado));
+    hallSensor.setZeroPoint(1810);
 
     // Inicializacion sensor Luz
     Wire.begin(LUX_SDA_PIN, LUX_CSL_PIN);
@@ -68,6 +70,8 @@ void setUpSensors() {
     } else {
         timeOutValue = 60;
     }
+
+
     movementTimer = timerTimeout(timeOutValue*1000, aulaVacia);
 
     // Inicializacion Sensor Movimiento
@@ -132,7 +136,7 @@ void uploadSensorsValues() {
 }
 
 bool hasCurrentFlow() {
-    if (currentHallValue > 2.50) {
+    if (currentHallValue > umbralSensorHall) {
         return true;
     }
     return false;
@@ -140,6 +144,11 @@ bool hasCurrentFlow() {
 
 void setTimerTimeout(int timeout) {
     movementTimer = timerTimeout(timeout*1000, aulaVacia);
+}
+
+void setSensorHall(float umbralHall, int zeroSensorHall) {
+    umbralSensorHall = umbralHall;
+    hallSensor.setZeroPoint(zeroSensorHall);
 }
 
 void printSensors() {

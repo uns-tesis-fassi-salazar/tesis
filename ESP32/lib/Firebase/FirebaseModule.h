@@ -26,18 +26,6 @@
 
 #define TIEMPO_VACIA "tiempoVacia/"
 
-struct aulaConfig {
-    int timeOutAulaVacia;
-    int intervaloLecturas;
-    int horaIniAuto;
-    int minIniAuto;
-    int horaFinAuto;
-    int minFinAuto;
-    bool hasConfig = false;
-    float umbralSensorHall = 2.5;
-    int zeroSensorHall = 1810;
-};
-
 void setUpFirebase(const char *fVersion);
 String getAulaAsignada();
 bool getAulaConfig(struct aulaConfig *aulaCnf, String aulaKey);

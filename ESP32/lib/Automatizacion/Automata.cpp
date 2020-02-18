@@ -20,6 +20,7 @@ bool readAulaConfig() {
             }
         }
         setTimerTimeout(aulaCnf.timeOutAulaVacia);
+        setSensorHall(aulaCnf.umbralSensorHall, aulaCnf.zeroSensorHall);
         return true;
     }
     return false;

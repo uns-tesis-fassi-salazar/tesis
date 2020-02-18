@@ -86,11 +86,6 @@ String commandKey = "";
 extern String aulaKey;
 bool uploadCommand(decode_results &command);
 
-// test
-// decode_results results,command;
-// void getResults(decode_results *command);
-// bool sendCommand(decode_results results, uint16_t *size, decode_type_t *protocol);
-
 void setUpIRSender() {
     irsend.begin();
 }
