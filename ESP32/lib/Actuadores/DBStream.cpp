@@ -115,7 +115,9 @@ void loopStream() {
     }
     if (flagEncenderLuces) {
         uploadLogs("ENCENDER_LUCES");
-        encenderLuces();
+        if (!hasCurrentFlow()) {
+            toggleLuces();
+        }
         flagEncenderLuces = false;
     }
     if (flagApagarLuces) {
