@@ -98,7 +98,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       )
       .subscribe( nbMenuItem => {
         if(this.isLessThanXl){
-          this.sidebarService.compact('menu-sidebar');
+          this.sidebarService.collapse('menu-sidebar');
           this.menuService.collapseAll('sidebarMenu');
         }
       });

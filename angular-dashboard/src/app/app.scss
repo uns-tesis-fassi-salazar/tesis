@@ -1,3 +1,10 @@
+// Login
+.sub-title-login {
+    font-weight: 550 !important;
+    // font-size: 1.375rem !important;
+    // line-height: 2rem !important;
+}
+
 .custom-button {
     min-width: 160px;
     justify-content: start !important;
@@ -60,3 +67,4 @@ ngx-status-card.nostatus {
     max-height: calc(100vh - 200px);
     overflow: auto !important;
 }
+
