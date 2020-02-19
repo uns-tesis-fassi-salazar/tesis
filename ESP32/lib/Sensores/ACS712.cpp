@@ -39,6 +39,11 @@ void ACS712::setZeroPoint(int _zero)
 	zero = _zero;
 }
 
+int ACS712::getZeroPoint()
+{
+	return zero;
+}
+
 void ACS712::setSensitivity(float sens)
 {
 	sensitivity = sens;

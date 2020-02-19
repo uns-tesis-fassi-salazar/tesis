@@ -52,7 +52,7 @@ String tiempoToString() {
         uploadLogs("No se pudo obtener el tiempo");
         return "";
     }
-    sprintf(toRet, "%s %i de %s del %i %i:%i:%i", dias_semana[timeinfo.tm_wday], meses[timeinfo.tm_mon], timeinfo.tm_mday, timeinfo.tm_year + 1900, timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec);
+    sprintf(toRet, "%s %i de %s del %i %i:%i:%i", dias_semana[timeinfo.tm_wday], timeinfo.tm_mday, meses[timeinfo.tm_mon], timeinfo.tm_year + 1900, timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec);
     return String(toRet);
 }
 

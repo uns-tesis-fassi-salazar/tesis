@@ -132,7 +132,8 @@ void loopStream() {
     }
     if (flagActualizarAula) {
         uploadLogs("ACTUALIZAR_AULA");
-        aulaKey = "";
+        resetAulaConfig();
+        checkAulaState();
         flagActualizarAula = false;
     }
     if (flagRecargarAulaConfig) {

@@ -70,8 +70,6 @@ void setUpSensors() {
     } else {
         timeOutValue = 60;
     }
-
-
     movementTimer = timerTimeout(timeOutValue*1000, aulaVacia);
 
     // Inicializacion Sensor Movimiento
@@ -173,6 +171,7 @@ void logSensores() {
     String toLog;
     toLog += "Lux: " + String(currentLuxValue);
     toLog += " - I: " + String(currentHallValue) + " A";
+    toLog += " - Hall ADC: " + String(analogRead(HALL_PIN));
     toLog += " - Hum: " + String(currentHumidityValue) + " %";
     toLog += " - Temp: " + String(currentTempValue) + " C°";
     toLog += " - Aula Vacia: " + String(movement.emptyRoom);
