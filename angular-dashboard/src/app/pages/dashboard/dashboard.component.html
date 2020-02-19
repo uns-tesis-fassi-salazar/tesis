@@ -30,8 +30,8 @@
       <ul class="pl-4 mb-0">
         <li>Estado del aula: <b>{{(movimiento$ | async) ? 'En uso': 'vacía'}}</b></li>
         <li>Nodo asignado: {{aulaData.nodoMac}}</li>
-        <li>Tiempo entre lecturas: {{(aulaData.intervaloLecturas) + ' min'}}</li>
-        <li>Tiempo sin movimiento para asumir aula vacía: {{(aulaData.timeoutAulaVacia) + ' min'}}</li>
+        <li>Tiempo entre lecturas: {{(aulaData.intervaloLecturas) + ' seg'}}</li>
+        <li>Tiempo sin movimiento para asumir aula vacía: {{(aulaData.timeoutAulaVacia) + ' seg'}}</li>
         <li>Intervalo de comportamiento automático: {{(aulaData.horaInicioAuto) + ' - '+ aulaData.horaFinAuto+' hs'}}</li>
       </ul>
     </nb-card-body>
