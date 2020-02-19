@@ -20,7 +20,8 @@ void encenderLuces() {
 }
 
 void toggleLuces() {
-    turnOnOffLuces ? digitalWrite(LUCES_PIN,HIGH) : digitalWrite(LUCES_PIN,LOW);
+    turnOnOffLuces = !turnOnOffLuces;
+    digitalWrite(LUCES_PIN, turnOnOffLuces);
 }
 
 void blinkLuces() {
