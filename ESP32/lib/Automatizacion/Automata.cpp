@@ -6,6 +6,8 @@ aulaConfig aulaCnf;
 bool flagExterior = false;
 extern String aulaKey;
 extern int tiempoEntreLecturas;
+int cantDisparosIR = 0;
+int maxCantDisparosIR = 2;
 
 bool readAulaConfig() {
     if (aulaKey != "") {
@@ -68,6 +70,8 @@ void checkAulaState() {
                 }
             }
         }
+    } else {
+        cantDisparosIR = 0;
     }
 }
 
@@ -90,5 +94,8 @@ void apagarAutomatico() {
         toggleLuces();
     }
     delay(2000);
-    turnOffAC();
+    if (cantDisparosIR < maxCantDisparosIR) {
+        turnOffAC();
+        cantDisparosIR++;
+    }
 }

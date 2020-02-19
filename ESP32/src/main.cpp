@@ -96,7 +96,7 @@ void setup() {
     iniDet = "MAC Address: " + WiFi.macAddress();
     iniDet += "\nSTA IP address: " + IP;
     iniDet += "\nVirmware Version: " + String(FIRMWARE_VERSION);
-    iniDet += "\nUpdate: Prueba Final - Toma 3";
+    iniDet += "\nUpdate: Prueba Final - Toma 5";
     iniDet += "\n*** ESP32 Setup OK ***";
     uploadLogs(iniDet);
     Serial.println("*** ESP32 Setup OK ***");
@@ -121,6 +121,8 @@ void loop() {
             // printLocalTimeSpanish();
             delay(1000 * segundosADormir);  // esperando configuracion...
             aulaKey = getAulaAsignada();
+            uploadLogs("Aula obtenida: " + aulaKey+".");
+            uploadLogs("Buscando configuracion del aula...");
             resetAulaConfig();
             checkAulaState();
             // checkFirmwareVersion(FIRMWARE_VERSION);
