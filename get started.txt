@@ -25,7 +25,7 @@ Pasos que realice al bajar el proyecto de nuevo (habiendo reinstalado windows):
         - 
         
 
-Deploy de app web en Firebase:
+Deploy de app web en Firebase por primera vez:
 - Compilar app (genera archivos en /dist):
     $ ng build --prod
 - Instalar las herramientas de consola de firebase:
@@ -36,4 +36,8 @@ Deploy de app web en Firebase:
 - Completar preguntas
     > Database
 - Realizar Deploy
+    $ firebase deploy
+
+Deploy de firebase:
+    $ ng build --prod
     $ firebase deploy
