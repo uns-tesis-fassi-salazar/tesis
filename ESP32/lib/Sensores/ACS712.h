@@ -16,6 +16,7 @@ public:
 	ACS712(ACS712_type type, uint8_t _pin);
 	int calibrate();
 	void setZeroPoint(int _zero);
+	int getZeroPoint();
 	void setSensitivity(float sens);
 	float getCurrentDC();
 	float getCurrentAC(uint16_t frequency = 50);
