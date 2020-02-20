@@ -122,6 +122,7 @@ bool getAulaConfig(struct aulaConfig *aulaCnf, String aulaKey)
         }
         else
         {
+            Serial.println("falla horaInicioAuto");
             return false;
         }
         if (Firebase.getString(firebaseData, AULAS + aulaKey + "/horaFinAuto"))
@@ -139,6 +140,7 @@ bool getAulaConfig(struct aulaConfig *aulaCnf, String aulaKey)
         }
         else
         {
+            Serial.println("falla horaFinAuto");
             return false;
         }
         if (Firebase.getInt(firebaseData, AULAS + aulaKey + "/timeoutAulaVacia"))
@@ -147,6 +149,7 @@ bool getAulaConfig(struct aulaConfig *aulaCnf, String aulaKey)
         }
         else
         {
+            Serial.println("falla timeoutAulaVacia");
             return false;
         }
         if (Firebase.getInt(firebaseData, AULAS + aulaKey + "/intervaloLecturas"))
@@ -155,6 +158,7 @@ bool getAulaConfig(struct aulaConfig *aulaCnf, String aulaKey)
         }
         else
         {
+            Serial.println("falla intervaloLecturas");
             return false;
         }
         if (Firebase.getInt(firebaseData, AULAS + aulaKey + "/zeroSensorHall"))
@@ -163,6 +167,7 @@ bool getAulaConfig(struct aulaConfig *aulaCnf, String aulaKey)
         }
         else
         {
+            Serial.println("falla zeroSensorHall");
             return false;
         }
         if (Firebase.getFloat(firebaseData, AULAS + aulaKey + "/umbralSensorHall"))
@@ -171,6 +176,7 @@ bool getAulaConfig(struct aulaConfig *aulaCnf, String aulaKey)
         }
         else
         {
+            Serial.println("falla umbralSensorHall");
             return false;
         }
         aulaCnf->hasConfig = true;

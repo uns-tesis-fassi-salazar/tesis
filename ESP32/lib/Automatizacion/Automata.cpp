@@ -25,6 +25,8 @@ bool readAulaConfig() {
         setMovementTimeout(aulaCnf.timeOutAulaVacia);
         setSensorHall(aulaCnf.umbralSensorHall, aulaCnf.zeroSensorHall);
         tiempoEntreLecturas = aulaCnf.intervaloLecturas;
+        uploadLogs("Configuraciones del aula obtenidas!.");
+
         return true;
     }
     return false;
@@ -89,13 +91,14 @@ int getTimeoutAulaVacia() {
 }
 
 void apagarAutomatico() {
-    uploadLogs("Automata: apagando luces y AC...");
     if (hasCurrentFlow()) {
         toggleLuces();
+        uploadLogs("Automata: apagando luces...");
     }
     delay(2000);
     if (cantDisparosIR < maxCantDisparosIR) {
         turnOffAC();
         cantDisparosIR++;
+        uploadLogs("Automata: apagando AC...");
     }
 }
