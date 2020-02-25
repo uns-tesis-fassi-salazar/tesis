@@ -107,7 +107,6 @@ void loop() {
         if (aulaKey != "") {
             if (lapTimer(tiempoEntreLecturas*1000, &tiempoUltimaLecturaSensores)) {
                 loopSensors();
-                uploadLogs("Free heap: "+ String(ESP.getFreeHeap()));
             }
             if (lapTimer(tiempoEntreChequeos*1000, &tiempoUltimoChequeo)) {
                 checkAulaState();
