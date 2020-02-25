@@ -14,7 +14,6 @@
 #define LUX_SDA_PIN GPIO_NUM_21
 #define LUX_CSL_PIN GPIO_NUM_22
 #define DHT_PIN GPIO_NUM_32
-#define HALL_PIN GPIO_NUM_34
 
 void setUpSensors();
 void loopSensors();

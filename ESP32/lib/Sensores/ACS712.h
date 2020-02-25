@@ -3,6 +3,8 @@
 
 #include <Arduino.h>
 
+#define HALL_PIN GPIO_NUM_34
+
 // #define ADC_SCALE 1023.0
 // #define VREF 5
 #define ADC_SCALE 4095.0

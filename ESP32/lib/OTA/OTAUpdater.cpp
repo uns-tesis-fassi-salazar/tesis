@@ -17,8 +17,6 @@ void checkFirmwareVersion(const char *fVersion)
 bool updateFirmware(String new_ver)
 {
 	String firmware_url = getFirmwareURL(new_ver);
-	// Serial.print("firmware URL: ");
-	// Serial.println(firmware_url);
 	if (firmware_url != "") {
 		setDownStream();
 		// Start pulling down the firmware binary.
