@@ -1,5 +1,5 @@
 
-Pasos que realice al bajar el proyecto de nuevo (habiendo reinstalado windows):
+Pasos realizados al bajar el proyecto de nuevo (habiendo reinstalado windows):
     Antes de empezar tenia instalado lo siguiente:
         - Nodejs v12.14
         - npm v6.13.4
@@ -7,23 +7,19 @@ Pasos que realice al bajar el proyecto de nuevo (habiendo reinstalado windows):
         - git
         - Arduino
 
-- Bajar repo
+- Descargar repo
     git clone https://github.com/uns-tesis-fassi-salazar/tesis
 
 - Acciones para Angular
     $ cd tesis/angular-dashboard
     $ npm install
-        NOTA: La primera vez me dio error por falta de permisos. Lo volvi a ejecutar con privilegios y no hubo problemas.
+        NOTA: La primera vez puede dar error por falta de permisos. Volver a ejecutar con privilegios.
     $ npm start
 
 - Acciones para ESP32
-    Instalar platformio en VSCode.
-    Una vez instalado bajar el framework de arduino para la placa ESP32. Luego las siguientes librerias:
-        - (sensor temperatura y humedad)
-        - (sensor luz)
-        - (sensor hall)
-        - 
-        
+    Instalar platformIO en VSCode.
+    Descargar el framework de arduino para la placa ESP32.
+    Las dependencias de las librerias necesarias las resuelve platformIO al compilar.        
 
 Deploy de app web en Firebase por primera vez:
 - Compilar app (genera archivos en /dist):
@@ -38,6 +34,6 @@ Deploy de app web en Firebase por primera vez:
 - Realizar Deploy
     $ firebase deploy
 
-Deploy de firebase:
+Deploy de firebase posteriores:
     $ ng build --prod
     $ firebase deploy
