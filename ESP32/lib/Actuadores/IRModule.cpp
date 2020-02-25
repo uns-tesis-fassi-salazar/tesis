@@ -80,7 +80,7 @@ IRsend irsend(kIrLedPin);
 // The IR receiver.
 IRrecv irrecv(kRecvPin, kCaptureBufferSize, kTimeout, false);
 // Somewhere to store the captured message.
-decode_results results;
+decode_results command;
 
 String commandKey = "";
 extern String aulaKey;
@@ -105,7 +105,7 @@ bool recordingAndUploadCommand() {
     ulong redordStartTime = millis();
     while ((!commandDecode) && (!timeOut)) {
         blinkLed();
-        commandDecode = irrecv.decode(&results);
+        commandDecode = irrecv.decode(&command);
         yield();
         if (lapTimer(recordTimeOut, &redordStartTime)){
             timeOut = true;
@@ -114,7 +114,7 @@ bool recordingAndUploadCommand() {
     
     if (commandDecode) {
         encenderLed();
-        if (!uploadCommand(results)) {
+        if (!uploadCommand(command)) {
             todoOk = false;
         }
         irrecv.resume();
@@ -318,6 +318,15 @@ bool getCommand(decode_results *command) {
         }
     }
     return todoOk;
+}
+
+
+void turnOffAC() {
+    bool resultado = getCommand(&command);
+    resultado ? uploadLogs("getCommand: true") : uploadLogs("getCommand: false");
+
+    sendCommand(&command);
+    delay(100);
 }
 
 // --------------------- BUTTON -----------------------

@@ -2,7 +2,6 @@
 #include <APWebServer.h>
 #include <FirebaseModule.h>
 #include <Sensors.h>
-#include <AC.h>
 #include <Led.h>
 #include <utilidades.h>
 

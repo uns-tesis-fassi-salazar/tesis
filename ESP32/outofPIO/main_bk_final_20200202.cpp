@@ -3,7 +3,6 @@
 #include <FirebaseModule.h>
 #include <Sensors.h>
 #include <IRModule.h>
-#include <AC.h>
 #include <Led.h>
 #include <utilidades.h>
 #include <WiFi.h>

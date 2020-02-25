@@ -17,6 +17,7 @@ void setUpIRReceiver();
 bool recordingAndUploadCommand();
 bool sendCommand(decode_results *command);
 bool getCommand(decode_results *command);
+void turnOffAC();
 
 void setUpRecordCommandButton();
 void listenRecordCommandButton();

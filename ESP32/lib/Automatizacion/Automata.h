@@ -4,7 +4,7 @@
 #include <FirebaseModule.h>
 #include <Sensores.h>
 #include <Luces.h>
-#include <AC.h>
+#include <IRModule.h>
 #include <Utilidades.h>
 
 struct aulaConfig {
