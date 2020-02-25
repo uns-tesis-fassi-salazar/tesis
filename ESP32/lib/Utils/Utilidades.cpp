@@ -64,7 +64,7 @@ String tiempoCortoToString() {
         uploadLogs("No se pudo obtener el tiempo");
         return "";
     }
-    // sprintf(toRet,"%i-%i-%i %i:%i:%i",timeinfo.tm_mday,timeinfo.tm_mon,timeinfo.tm_year + 1900,timeinfo.tm_hour,timeinfo.tm_min,timeinfo.tm_sec);
+    sprintf(toRet,"%i-%i-%i %i:%i:%i",timeinfo.tm_mday,timeinfo.tm_mon,timeinfo.tm_year + 1900,timeinfo.tm_hour,timeinfo.tm_min,timeinfo.tm_sec);
     strftime(toRet, 26, "%d-%m-%Y %H:%M:%S", &timeinfo);
     return String(toRet);
 }

@@ -31,13 +31,11 @@ void setUpFirebase(const char *fVersion)
 
         if (Firebase.pathExist(firebaseData, NODOS + WiFi.macAddress() + "/"))
         {
-            uploadLogs("Nodo registrado.");
-            Serial.println("Nodo registrado.");
+            uploadLogs("Nodo ya registrado en Firebase.");
         }
         else
         {
             uploadLogs("Nodo no registrado en Firebase... intentando registrar...");
-            Serial.println("Nodo no registrado en Firebase... intentando registrar...");
             json.clear();
             // json.add("aulaAsignada","");
             json.add("firmwareVersion", fVersion);
@@ -145,7 +143,7 @@ bool getAulaConfig(struct aulaConfig *aulaCnf, String aulaKey)
         }
         if (Firebase.getInt(firebaseData, AULAS + aulaKey + "/timeoutAulaVacia"))
         {
-            aulaCnf->timeOutAulaVacia = firebaseData.intData() * 60;
+            aulaCnf->timeOutAulaVacia = firebaseData.intData();
         }
         else
         {

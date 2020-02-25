@@ -9,6 +9,7 @@ void checkFirmwareVersion(const char *fVersion)
 	if ((strcmp(newFirmwareVersion.c_str(), fVersion) != 0) && (strcmp(newFirmwareVersion.c_str(), "") != 0)) {
 		if (!updateFirmware(newFirmwareVersion)) {
 			setUpStream(fVersion);
+			uploadLogs("Fallo la actualización del firmware");
 		}
 	}
 }
@@ -53,7 +54,8 @@ bool updateFirmware(String new_ver)
 		}
 		if (Update.isFinished())
 		{
-			Serial.println("Update successfully completed. Rebooting.");
+			uploadLogs("Nuevo firmware descargado correctamente. Reiniciando...");
+			Serial.println("Nuevo firmware descargado correctamente. Reiniciando...");
 			// This line is specific to the ESP32 platform:
 			ESP.restart();
 		}

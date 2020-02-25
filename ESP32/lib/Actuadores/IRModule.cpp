@@ -130,10 +130,10 @@ bool sendCommand(decode_results *command) {
 
     uploadLogs("Emitir comando");
 
-    if (!pauseStream()) {
-        return false;
-    }
-    delay(100);
+    // if (!pauseStream()) {
+    //     return false;
+    // }
+    // delay(100);
 
     uint16_t size = command->bits;
     decode_type_t protocol = command->decode_type;
@@ -151,10 +151,10 @@ bool sendCommand(decode_results *command) {
     }
     success ? uploadLogs("Comando emitido: true") : uploadLogs("Comando emitido: false");
     
-    if (!restoreStream()) {
-        return false;
-    }
-    delay(100);
+    // if (!restoreStream()) {
+    //     return false;
+    // }
+    // delay(100);
 
     return success;
 }
@@ -254,8 +254,7 @@ bool getCommand(decode_results *command) {
     bool todoOk = false;
     if (aulaKey != "") {
 
-        Serial.println("Downloading command...");
-        uploadLogs("Downloading command...");
+        uploadLogs("Descargando comando infrarrojo...");
 
         commandKey = getKeyCommand(aulaKey);
         

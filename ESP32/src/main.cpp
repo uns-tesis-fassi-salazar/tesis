@@ -92,11 +92,12 @@ void setup() {
     // Inicializacion actuadores
     setUpActuadores();
 
+    uploadLogs(FIRMWARE_VERSION);
     String iniDet;
     iniDet = "MAC Address: " + WiFi.macAddress();
     iniDet += "\nSTA IP address: " + IP;
     iniDet += "\nVirmware Version: " + String(FIRMWARE_VERSION);
-    iniDet += "\nUpdate: Prueba Final - Toma 5";
+    iniDet += "\nUpdate: Prueba Final - Toma 7";
     iniDet += "\n*** ESP32 Setup OK ***";
     uploadLogs(iniDet);
     Serial.println("*** ESP32 Setup OK ***");
@@ -111,6 +112,7 @@ void loop() {
         if (aulaKey != "") {
             if (lapTimer(tiempoEntreLecturas*1000, &tiempoUltimaLecturaSensores)) {
                 loopSensors();
+                uploadLogs("Free heap: "+ String(ESP.getFreeHeap()));
             }
             if (lapTimer(tiempoEntreChequeos*1000, &tiempoUltimoChequeo)) {
                 checkAulaState();
@@ -128,7 +130,6 @@ void loop() {
             // checkFirmwareVersion(FIRMWARE_VERSION);
         }
     }
-    yield();
 }
 
 bool hasWifiConfig() {
