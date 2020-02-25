@@ -92,15 +92,10 @@ void setup() {
     // Inicializacion actuadores
     setUpActuadores();
 
-    uploadLogs(FIRMWARE_VERSION);
-    String iniDet;
-    iniDet = "MAC Address: " + WiFi.macAddress();
-    iniDet += "\nSTA IP address: " + IP;
-    iniDet += "\nVirmware Version: " + String(FIRMWARE_VERSION);
-    iniDet += "\nUpdate: Prueba Final - Toma 7";
-    iniDet += "\n*** ESP32 Setup OK ***";
-    uploadLogs(iniDet);
-    Serial.println("*** ESP32 Setup OK ***");
+    uploadLogs("WiFi IP address: " + IP.toString());
+    uploadLogs("Version del firmware: " + String(FIRMWARE_VERSION));
+    uploadLogs("**** Setup OK ****");
+    Serial.println("**** Setup OK ****");
 }
 
 void loop() {

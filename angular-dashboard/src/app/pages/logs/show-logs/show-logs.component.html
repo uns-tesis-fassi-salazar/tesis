@@ -1,6 +1,16 @@
 <nb-card>
-    <nb-card-header>Logs {{nodoMac}}</nb-card-header>
-    <nb-card-body class="scroll" id="srollViewport">
+    <nb-card-header>
+        <div class="row justify-content-between">
+            <div class="col">
+                Logs {{nodoMac}}
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-link text-primary" type="button" status="danger"
+                    (click)="changeLogsLength()">{{lengthButtonMsg}}</button>
+            </div>
+        </div>
+    </nb-card-header>
+    <nb-card-body class="scroll" id="srollViewport" (scroll)="onScroll($event)">
         <div class="d-flex flex-row mb-0" *ngFor="let log of logs">
             <div class="p-1 text-info" style="width: 160px;">{{log.fecha}}</div>
             <div class="p-1">{{log.contenido}}</div>

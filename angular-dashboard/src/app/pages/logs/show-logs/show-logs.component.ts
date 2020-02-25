@@ -14,13 +14,19 @@ export class ShowLogsComponent implements OnInit, OnDestroy {
   logs: Log[];
   nodoMac: string = '';
   alive = true;
-  isScrolledToBottom = true;
+  isScrolledOnTop = true;
+  logsFromFirebase: Log[];
+  logsMinLength = 500;
+  logsCurrentLength: number;
+  lengthButtonMsg = "Mostrar todos";
 
   constructor(private logService: LogService,
     private route: ActivatedRoute,
   ) { }
 
   ngOnInit() {
+    this.logsFromFirebase = [];
+    this.logsCurrentLength = this.logsMinLength;
     this.route.paramMap
       .pipe(
         takeWhile(() => this.alive),
@@ -30,13 +36,14 @@ export class ShowLogsComponent implements OnInit, OnDestroy {
         this.nodoMac = ' - ' + nodoMac;
         this.logService.getLogsByMac(nodoMac).pipe(takeWhile(() => this.alive))
           .subscribe(logs => {
-            this.logs = logs.sort((a, b) => {
+            logs = logs.sort((a, b) => {
               if (a.secuencial < b.secuencial) return 1;
               else if (a.secuencial == b.secuencial) return 0;
               else return -1;
             });
-            // if (this.isScrolledToBottom)
-            //   this.updateScroll()
+            this.logsFromFirebase = logs;
+            if(this.logsMinLength == this.logsCurrentLength)
+              this.logs = this.logsFromFirebase.slice(0, this.logsCurrentLength);
           });
       })
 
@@ -46,15 +53,26 @@ export class ShowLogsComponent implements OnInit, OnDestroy {
     this.alive = false;
   }
 
-
-  updateScroll() {
-    const element = document.getElementById("srollViewport");
-    element.scrollTop = element.scrollHeight;
+  changeLogsLength() {
+    if (this.logsCurrentLength == this.logsMinLength) {
+      this.logsCurrentLength = this.logsFromFirebase.length;
+      this.logs = this.logsFromFirebase;
+    } else {
+      this.logsCurrentLength = this.logsMinLength;
+      this.logs = this.logsFromFirebase.slice(0, this.logsCurrentLength);
+    }
+    this.lengthButtonMsg = this.lengthButtonMsg == 'Mostrar todos' ? 'Mostrar menos': 'Mostrar todos';
   }
 
   onScroll(e) {
     const out = e.srcElement;
-    this.isScrolledToBottom = out.scrollHeight - out.clientHeight <= out.scrollTop + 1;
+    console.log('-----------')
+    console.log(e);
+    console.log(out.scrollTop);
+    console.log(out.scrollHeight);
+    console.log(out.clientHeight);
+    this.isScrolledOnTop = out.scrollTop == 0;
+    console.log(out.scrollHeight - out.clientHeight <= out.scrollTop + 1);
   }
 
 }
