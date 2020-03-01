@@ -17,7 +17,7 @@ ACS712::ACS712(ACS712_type type, uint8_t _pin)
 		sensitivity = 0.066;
 		break;
 	case CUSTOM:
-		sensitivity = 0.080;
+		sensitivity = 0.0675;
 		break;
 	}
 }
