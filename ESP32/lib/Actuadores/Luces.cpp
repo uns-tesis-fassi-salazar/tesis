@@ -12,11 +12,15 @@ int lucesValue() {
 }
 
 void apagarLuces() {
-    digitalWrite(LUCES_PIN,HIGH);
+    if (hasCurrentFlow()) {
+        toggleLuces();
+    }
 }
 
 void encenderLuces() {
-    digitalWrite(LUCES_PIN,LOW);
+    if (!hasCurrentFlow()) {
+        toggleLuces();
+    }
 }
 
 void toggleLuces() {

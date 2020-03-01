@@ -2,6 +2,7 @@
 #define ACTUADOR_LUCES_H
 
 #include <Arduino.h>
+#include <Sensores.h>
 
 #define LUCES_PIN GPIO_NUM_19
 

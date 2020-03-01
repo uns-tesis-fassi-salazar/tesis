@@ -7,7 +7,7 @@ bool flagExterior = false;
 extern String aulaKey;
 extern int tiempoEntreLecturas;
 int cantDisparosIR = 0;
-int maxCantDisparosIR = 2;
+int maxCantDisparosIR = 1;
 
 bool readAulaConfig() {
     if (aulaKey != "") {
@@ -91,11 +91,9 @@ int getTimeoutAulaVacia() {
 }
 
 void apagarAutomatico() {
-    if (hasCurrentFlow()) {
-        toggleLuces();
-        uploadLogs("Automata: apagando luces...");
-    }
-    delay(2000);
+    apagarLuces();
+    uploadLogs("Automata: apagando luces...");
+    delay(1000);
     if (cantDisparosIR < maxCantDisparosIR) {
         turnOffAC();
         cantDisparosIR++;

@@ -22,6 +22,7 @@
 #include <FirebaseModule.h>
 #include <Automata.h>
 #include <Utilidades.h>
+#include <Sensores.h>
 
 void loopStream();
 void setUpStream(const char *fVersion = "");

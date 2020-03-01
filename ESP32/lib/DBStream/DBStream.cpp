@@ -115,16 +115,12 @@ void loopStream() {
     }
     if (flagEncenderLuces) {
         uploadLogs("ENCENDER_LUCES");
-        if (!hasCurrentFlow()) {
-            toggleLuces();
-        }
+        encenderLuces();
         flagEncenderLuces = false;
     }
     if (flagApagarLuces) {
         uploadLogs("APAGAR_LUCES");
-        if (hasCurrentFlow()) {
-            toggleLuces();
-        }
+        apagarLuces();
         flagApagarLuces = false;
     }
     if (flagActualizarFirmware) {
