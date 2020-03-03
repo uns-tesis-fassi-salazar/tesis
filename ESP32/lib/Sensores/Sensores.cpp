@@ -1,6 +1,8 @@
 #include <Sensores.h>
 
 void logSensores();
+void readCurrentValue();
+void calcularPromedio();
 
 FirebaseJson jsonSensorData;
 
@@ -11,10 +13,18 @@ DHT dht;
 float prevLuxValue, currentLuxValue;
 float prevTempValue, currentTempValue;
 float prevHumidityValue, currentHumidityValue;
-float prevHallValue, currentHallValue;
+float currentHallValue;
 
 int calibrado;
 float umbralSensorHall = 2.5;
+
+ulong tiempoUltimaLecturaSensores = 0;
+ulong tiempoUltimaLecturaCorriente = 0;
+int tiempoEntreLecturas = 30;      // 30 segundos
+int indiceArreglo = 0;
+float arregloLecturas[100];
+float promedioCorriente = 0;
+float promedioCorrientePrevio = 0;
 
 ulong tiempoUltimaLecturaDHT = 0;
 
@@ -47,7 +57,7 @@ void setUpSensors() {
     prevLuxValue = 0;
     prevTempValue = 0;
     prevHumidityValue = 0;
-    prevHallValue = 0;
+    promedioCorrientePrevio = 0;
     // Inicializacion Sensor ACS712
     // If you are not sure that the current through the sensor will not leak during calibration - comment out this method
     // uploadLogs("Calibrating... Ensure that no current flows through the sensor at this moment");
@@ -94,7 +104,6 @@ float readLuxValue() {
 }
 
 void readSensorsValues() {
-    currentHallValue = hallSensor.getCurrentAC(50);
     currentLuxValue = readLuxValue();
     
     if (lapTimer(2500, &tiempoUltimaLecturaDHT)) {
@@ -104,13 +113,12 @@ void readSensorsValues() {
 }
 
 void uploadSensorsValues() {
+    calcularPromedio();
     if ((prevTempValue != currentTempValue) || 
         (prevHumidityValue != currentHumidityValue) || 
         (prevLuxValue != currentLuxValue) || 
-        (prevHallValue != currentHallValue) ||
+        (promedioCorrientePrevio != promedioCorriente) ||
         movement.roomStateChange) {
-            // printSensors();
-            logSensores();
 
             jsonSensorData.clear();
             jsonSensorData.add("luminocidad", (double)currentLuxValue);
@@ -118,26 +126,37 @@ void uploadSensorsValues() {
                 jsonSensorData.add("temperatura", (double)currentTempValue);
                 jsonSensorData.add("humedad", (double)currentHumidityValue);
             }
-            jsonSensorData.add("corriente", (double)currentHallValue);
+            jsonSensorData.add("corriente", (double)promedioCorriente);
             jsonSensorData.add("movimiento", !(double)movement.emptyRoom);
             if (!uploadData(jsonSensorData)) {
                 // Serial.println("Sensor JSON NOT OK");
                 uploadLogs("Sensor JSON NOT OK");
             }
+            // printSensors();
+            logSensores();
 
             prevLuxValue = currentLuxValue;
             prevTempValue = currentTempValue;
             prevHumidityValue = currentHumidityValue;
-            prevHallValue = currentHallValue;
+            promedioCorrientePrevio = promedioCorriente;
             movement.roomStateChange = false;
     }
 }
 
 bool hasCurrentFlow() {
-    if (currentHallValue > umbralSensorHall) {
+    calcularPromedio();
+    if (promedioCorriente > umbralSensorHall) {
         return true;
     }
     return false;
+}
+
+void calcularPromedio() {
+    promedioCorriente = 0;
+    for (size_t i = 0; i < 100; i++) {
+        promedioCorriente += arregloLecturas[i];
+    }
+    promedioCorriente /= 100;
 }
 
 void setMovementTimeout(int timeout) {
@@ -154,7 +173,7 @@ void printSensors() {
     Serial.print(currentLuxValue);
     Serial.print(" lux");
     Serial.print("\t");
-    Serial.print(currentHallValue);
+    Serial.print(promedioCorriente);
     Serial.print(" A");
     Serial.print("\t\t");
     Serial.print(currentHumidityValue);
@@ -170,7 +189,7 @@ void printSensors() {
 void logSensores() {
     String toLog;
     toLog += "Lux: " + String(currentLuxValue);
-    toLog += " - I: " + String(currentHallValue) + " A";
+    toLog += " - I: " + String(promedioCorriente) + " A";
     toLog += " - Hall ADC: " + String(analogRead(HALL_PIN));
     toLog += " - Hum: " + String(currentHumidityValue) + " %";
     toLog += " - Temp: " + String(currentTempValue) + " C°";
@@ -180,6 +199,16 @@ void logSensores() {
 }
 
 void loopSensors() {
-    readSensorsValues();
-    uploadSensorsValues();
+
+    if (lapTimer(50, &tiempoUltimaLecturaCorriente)) {
+        currentHallValue = hallSensor.getCurrentAC(50);
+        arregloLecturas[indiceArreglo] = currentHallValue;
+        indiceArreglo++;
+        if (indiceArreglo > 99) indiceArreglo = 0;
+    }
+
+    if (lapTimer(tiempoEntreLecturas*1000, &tiempoUltimaLecturaSensores)) {
+        readSensorsValues();
+        uploadSensorsValues();
+    }
 }
