@@ -17,7 +17,7 @@ export class DBConstants{
     // SENSORES
     public static readonly nodoSensores = 'sensores/';
     public static readonly nodoSensorHumedad = 'humedad';
-    public static readonly nodoSensorLuminocidad = 'luminocidad';
+    public static readonly nodoSensorLuminosidad = 'luminocidad';
     public static readonly nodoSensorMovimiento = 'movimiento';
     public static readonly nodoSensorTemperatura = 'temperatura';
     public static readonly nodoSensorHall = 'corriente';

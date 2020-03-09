@@ -70,7 +70,7 @@ export class DashboardComponent implements OnDestroy, OnInit {
   //     dark: this.commonStatusCardsSet,
   //   };
 
-  public luminocidad$: Observable<any>;
+  public luminosidad$: Observable<any>;
   public humedad$: Observable<any>;
   public temperatura$: Observable<any>;
   public movimiento$: Observable<any>;
@@ -102,7 +102,7 @@ export class DashboardComponent implements OnDestroy, OnInit {
         this.aulaService.getAulaByKey(aulaKey).pipe(takeWhile(() => this.alive))
           .subscribe(aula => {
             this.checkAula(aula);
-            if (this.aulaData.nodoMac != '' && this.aulaData.comandoIR != aula.comandoIR) {
+            if (this.aulaData.nodoMac != '' && this.aulaData.key == aula.key && this.aulaData.comandoIR != aula.comandoIR) {
               this.utilService.showToast('primary','Nuevo comando registrado!','Dirijase a las configuraciones de los comandos infrarrojos para guardar la marca y modelo del AC', 8000);
             }
             this.aulaData = aula;
@@ -125,7 +125,7 @@ export class DashboardComponent implements OnDestroy, OnInit {
 
   loadValues() {
     if (this.aulaData.nodoMac != null || this.aulaData.nodoMac != '') {
-      this.luminocidad$ = this.nodoService.getSensor(this.aulaData.nodoMac, DBConstants.nodoSensorLuminocidad);
+      this.luminosidad$ = this.nodoService.getSensor(this.aulaData.nodoMac, DBConstants.nodoSensorLuminosidad);
       this.humedad$ = this.nodoService.getSensor(this.aulaData.nodoMac, DBConstants.nodoSensorHumedad);
       this.temperatura$ = this.nodoService.getSensor(this.aulaData.nodoMac, DBConstants.nodoSensorTemperatura);
       this.movimiento$ = this.nodoService.getSensor(this.aulaData.nodoMac, DBConstants.nodoSensorMovimiento);

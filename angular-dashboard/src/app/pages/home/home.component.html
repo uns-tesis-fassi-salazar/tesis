@@ -1,5 +1,9 @@
 <h1>¡Bienvenido!</h1>
-<p>
-    Proximamente se mostrara un resumen con el estado de cada aula. Indicando si se requiere 
-    alguna acción.
+<p class="mb-0 pb-0">
+    Por el momento esta página no tiene una funcionalidad definida así que decidimos utilizarla como galeria de nuestro proyecto.
 </p>
+<div class="row">
+    <div class="col-md-6 col-12 mt-4" *ngFor="let nombreFoto of nombreFotos">
+        <img [src]="pathToFotos+nombreFoto" class="img-fluid">
+    </div>
+</div>
