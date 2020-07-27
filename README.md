@@ -6,12 +6,6 @@ Proyecto final de carrera, Ingenieria en Computación, Departamento de Ciencias 
 * Fassi Jeremias
 * Salazar Gisbert Gabriel
 
-### Funcionalidad
-* TODO
-
-### Fuentes y Agradecimientos
-* TODO
-
 <br>
 <br>
 
