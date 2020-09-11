@@ -76,7 +76,7 @@ export class ListEdificioComponent implements OnInit, OnDestroy {
             }
           });
         } else {
-          this.utilService.showError(err, 'No se puede eliminar el edificio', 'Primero elimine las aulas que contiene', 4000)
+          this.utilService.showToast('warning', 'No se puede eliminar el edificio', 'Primero elimine las aulas que contiene', 4000)
         }
     });
   }
