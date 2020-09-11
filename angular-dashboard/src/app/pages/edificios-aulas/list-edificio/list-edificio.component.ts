@@ -70,13 +70,13 @@ export class ListEdificioComponent implements OnInit, OnDestroy {
                 .then(res => {
                   this.utilService.showToast('success', 'Edificio eliminado satisfactoriamente!');
                 })
-                .catch(err => this.utilService.showToast('warning', 'Error al eliminar el edificio', 'Es posible que se deba a un fallo en la comunicación', 4000))
+                .catch(err => this.utilService.showError(err, 'Error al eliminar el edificio', 'Es posible que se deba a un fallo en la comunicación', 4000))
             } else {
               this.optionsClicked = false;
             }
           });
         } else {
-          this.utilService.showToast('warning', 'No se puede eliminar el edificio', 'Primero elimine las aulas que contiene', 4000)
+          this.utilService.showError(err, 'No se puede eliminar el edificio', 'Primero elimine las aulas que contiene', 4000)
         }
     });
   }

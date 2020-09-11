@@ -54,7 +54,7 @@ export class EditEdificioComponent implements OnInit, OnDestroy {
         this.utilService.showToast('success', 'Edificio editado satisfactoriamente!');
         this.navigateToEdificiosList();
       })
-      .catch(err => this.utilService.showToast('warning', 'Error al editar el edificio', 'Es posible que se deba a un fallo en la comunicación', 4000))
+      .catch(err => this.utilService.showError(err, 'Error al editar el edificio', 'Es posible que se deba a un fallo en la comunicación', 4000))
   }
 
   // TODO: eliminar las aulas que contenga el edificio
@@ -76,11 +76,11 @@ export class EditEdificioComponent implements OnInit, OnDestroy {
                     this.utilService.showToast('success', 'Edificio eliminado satisfactoriamente!');
                     this.navigateToEdificiosList();
                   })
-                  .catch(err => this.utilService.showToast('warning', 'Error al eliminar el edificio', 'Es posible que se deba a un fallo en la comunicación', 4000))
+                  .catch(err => this.utilService.showError(err, 'Error al eliminar el edificio', 'Es posible que se deba a un fallo en la comunicación', 4000))
               }
             });
         } else {
-          this.utilService.showToast('warning', 'No se puede eliminar el edificio', 'Primero elimine las aulas que contiene', 4000)
+          this.utilService.showError(err, 'No se puede eliminar el edificio', 'Primero elimine las aulas que contiene', 4000)
         }
       });
   }

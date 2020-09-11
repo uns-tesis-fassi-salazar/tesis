@@ -45,7 +45,9 @@ export class CreateEdificioComponent implements OnInit {
         this.utilService.showToast('success','Edificio creado satisfactoriamente!');
         this.navigateToEdificios();
       })
-      .catch( err => this.utilService.showToast('warning','Error al guardar el edificio','Es posible que se deba a un fallo en la comunicación',4000))
+      .catch(err => {
+        this.utilService.showError(err, 'Error al guardar el edificio', 'Es posible que se deba a un fallo en la comunicación');
+      })
   }
 
   navigateToEdificios() {

@@ -72,7 +72,9 @@ export class CreateAulaComponent implements OnInit, OnDestroy {
         this.utilService.showToast('success', 'Aula creada satisfactoriamente!');
         this.resetForm();
       })
-      .catch(err => this.utilService.showToast('warning', 'Error al guardar el aula', 'Es posible que se deba a un fallo en la comunicación', 4000))
+      .catch(err => {
+        this.utilService.showError(err, 'Error al guardar el aula');
+      })
   }
 
   resetForm() {

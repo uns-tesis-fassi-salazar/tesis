@@ -100,7 +100,7 @@ export class EditAulaComponent implements OnInit, OnDestroy {
         this.utilService.showToast('success', 'Aula editada satisfactoriamente!');
         this.navigateToAulasList();
       })
-      .catch(err => this.utilService.showToast('warning', 'Error al editar el aula', 'Es posible que se deba a un fallo en la comunicación', 4000))
+      .catch(err => this.utilService.showError(err, 'Error al editar el aula', 'Es posible que se deba a un fallo en la comunicación', 4000))
   }
 
   async eliminarAula() {
@@ -117,7 +117,7 @@ export class EditAulaComponent implements OnInit, OnDestroy {
           this.utilService.showToast('success', 'Aula eliminada satisfactoriamente!');
           this.navigateToAulasList();
         })
-        .catch(err => this.utilService.showToast('warning', 'Error al eliminar el aula', 'Es posible que se deba a un fallo en la comunicación', 4000))
+        .catch(err => this.utilService.showError(err, 'Error al eliminar el aula', 'Es posible que se deba a un fallo en la comunicación', 4000))
       }
     });
   }

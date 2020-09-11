@@ -60,7 +60,7 @@ export class ListAulaComponent implements OnInit, OnDestroy {
         this.aulaService.removeAula(aula)
           .then(res => {
           })
-          .catch(err => this.utilService.showToast('warning', 'Error al eliminar el aula', 'Es posible que se deba a un fallo en la comunicación', 4000))
+          .catch(err => this.utilService.showError(err, 'Error al eliminar el aula', 'Es posible que se deba a un fallo en la comunicación', 4000))
       }
       this.optionsClicked = false;
     });

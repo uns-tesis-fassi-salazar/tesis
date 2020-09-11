@@ -25,7 +25,9 @@ export class ConfigurationIrComponent implements OnInit {
     .then(res => {
       this.utilService.showToast('success', 'Cambios guardados satisfactoriamente!');
     })
-    .catch(err => this.utilService.showToast('warning', 'Error al guardar los cambios', 'Es posible que se deba a un fallo en la comunicación', 4000))
+    .catch(err => {
+        this.utilService.showError(err, 'Error al guardar los cambios', 'Es posible que se deba a un fallo en la comunicación');
+    });
   }
 
 }
