@@ -19,7 +19,7 @@ Pasos realizados al bajar el proyecto de nuevo (habiendo reinstalado windows):
 - Acciones para ESP32
     Instalar platformIO en VSCode.
     Descargar el framework de arduino para la placa ESP32.
-    Las dependencias de las librerias necesarias las resuelve platformIO al compilar.        
+    Las dependencias de las librerias necesarias las resuelve platformIO al compilar (estan en platform.ini).        
 
 Deploy de app web en Firebase por primera vez:
 - Compilar app (genera archivos en /dist):
@@ -31,6 +31,8 @@ Deploy de app web en Firebase por primera vez:
     $ firebase init
 - Completar preguntas
     > Database
+    > ? What file should be used for Database Rules? database.rules.json [enter]
+    > ? File database.rules.json already exists. Do you want to overwrite it with the Database Rules for from the Firebase Console? No
 - Realizar Deploy
     $ firebase deploy
 
