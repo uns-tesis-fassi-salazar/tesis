@@ -14,6 +14,9 @@ export class LoginComponent implements OnInit {
   returnUrl: string;
   userOrPassIncorrect = false;
 
+  demoEmail = 'aulas.sustentables@gmail.com';
+  demoPass = 'aulassustentables';
+
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
@@ -24,8 +27,8 @@ export class LoginComponent implements OnInit {
 
   ngOnInit() {
     this.registerForm = this.formBuilder.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required]],
+      email: [this.demoEmail, [Validators.required, Validators.email]],
+      password: [this.demoPass, [Validators.required]],
       // acceptTerms: [false, Validators.requiredTrue]
     });
   }

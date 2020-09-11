@@ -11,6 +11,10 @@
         <nb-alert class="mt-3" *ngIf="userOrPassIncorrect" outline="danger" role="alert">
           <p class="alert-title mb-0">Email o contraseña incorrectos</p>
         </nb-alert>
+        <nb-alert class="mt-3" outline="info" role="alert">
+          <p class="alert-title mb-0">Cuenta demo: aulas.sustentables@gmail.com</p>
+          <p class="alert-title mb-0">Contraseña: aulassustentables</p>
+        </nb-alert>
 
         <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
           <div class="form-group">
