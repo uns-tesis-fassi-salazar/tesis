@@ -1,6 +1,6 @@
 {
-  "name": "ngx-admin-demo",
-  "short_name": "ngx-admin-demo",
+  "name": "Aulas sustentables",
+  "short_name": "AS",
   "theme_color": "#1976d2",
   "background_color": "#fafafa",
   "display": "standalone",
@@ -50,7 +50,7 @@
       "purpose": "maskable any"
     },
     {
-      "src": "assets/icons/icon-512x512.png",
+      "src": "assets/icons/icon-500x500.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable any"
