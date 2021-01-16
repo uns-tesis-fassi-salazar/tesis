@@ -1,11 +1,7 @@
-
-Pasos realizados al bajar el proyecto de nuevo (habiendo reinstalado windows):
-    Antes de empezar tenia instalado lo siguiente:
-        - Nodejs v12.14
-        - npm v6.13.4
-        - Angular cli 8.3.21
-        - git
-        - Arduino
+Requisitios previos:
+    - Nodejs v12 o posterior (con npm)
+    - git
+    - Arduino
 
 - Descargar repo
     git clone https://github.com/uns-tesis-fassi-salazar/tesis
@@ -17,25 +13,33 @@ Pasos realizados al bajar el proyecto de nuevo (habiendo reinstalado windows):
     $ npm start
 
 - Acciones para ESP32
-    Instalar platformIO en VSCode.
-    Descargar el framework de arduino para la placa ESP32.
+    Instalar PlatformIO en VSCode.
+    Usando PlatformIO, descargar el framework de arduino para la placa ESP32.
     Las dependencias de las librerias necesarias las resuelve platformIO al compilar (estan en platform.ini).        
 
 Deploy de app web en Firebase por primera vez:
-- Compilar app (genera archivos en /dist):
-    $ ng build --prod
-- Instalar las herramientas de consola de firebase:
+- Moverse al directorio del proyecto web.
+    $ cd angular-dashboard
+- Compilar app para producción (genera archivos en /dist):
+    $ npm run build:prod
+- Instalar las herramientas de consola de firebase (solo la primera vez):
     $ npm install -g firebase-tools
 - Logearse e inicializar proyecto
     $ firebase login
-    $ firebase init
-- Completar preguntas
-    > Database
-    > ? What file should be used for Database Rules? database.rules.json [enter]
-    > ? File database.rules.json already exists. Do you want to overwrite it with the Database Rules for from the Firebase Console? No
 - Realizar Deploy
     $ firebase deploy
+Nota: si se quiere modificar las reglas de la base de datos es necesario modificar el archivo firebase.json, indicandole
+un archivo que contendra las nuevas reglas. Es necesario agregar lo siguiente:
+{
+  "hosting": {
+    ...
+  },
+  "database": {
+    "rules": "database.rules.json"
+  }
+}
+Para mas información ver: https://firebase.google.com/docs/database/security/get-started
 
 Deploy de firebase posteriores:
-    $ ng build --prod
+    $ npm run build:prod
     $ firebase deploy
