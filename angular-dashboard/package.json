@@ -11,9 +11,10 @@
   },
   "scripts": {
     "ng": "ng",
+    "serve:pwa": "npx http-server dist -p 8080 -c-1 -o --proxy http://localhost:8080?",
     "conventional-changelog": "conventional-changelog",
     "start": "ng serve",
-    "start-pwa": "npm run build:prod && npx http-server -p 8080 -c-1 dist",
+    "start:pwa": "npm run build:prod && npm run serve:pwa",
     "build": "ng build",
     "build:prod": "npm run build -- --prod --aot",
     "test": "ng test",
