@@ -1,9 +1,15 @@
-<h1>¡Bienvenido!</h1>
+<h1>¡Bienvenido/a!</h1>
 <p class="mb-0 pb-0">
-    Por el momento esta página no tiene una funcionalidad definida así que decidimos utilizarla como galeria de nuestro proyecto.
+    Esta página es una galeria del proyecto.
 </p>
 <div class="row">
     <div class="col-md-6 col-12 mt-4" *ngFor="let nombreFoto of nombreFotos">
         <img [src]="pathToFotos+nombreFoto" class="img-fluid">
+    </div>
+</div>
+<p class="mt-4 mb-0 pb-0">Poster del proyecto públicado en la octava edición del CoNaIISI</p>
+<div class="row">
+    <div class="col-10 offset-1 mt-3">
+        <img [src]="pathToFotos+'poster-conaiisi.jpg'" class="img-fluid">
     </div>
 </div>
