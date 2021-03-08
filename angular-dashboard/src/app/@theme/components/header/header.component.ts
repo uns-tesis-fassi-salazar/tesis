@@ -6,6 +6,9 @@ import { LayoutService } from '../../../@core/utils';
 import { map, takeUntil, filter } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { AuthService } from '../../../services/auth.service';
+import { SwPush } from '@angular/service-worker';
+import { NewsletterService } from '../../../services/newsletter.service';
+import { environment } from '../../../../environments/environment.prod';
 
 @Component({
   selector: 'ngx-header',
@@ -42,7 +45,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   currentTheme = 'default';
 
   // userMenu = [ { title: 'Profile' }, { title: 'Log out' } ];
-  userMenu = [{ title: 'Salir' }];
+  userMenu = [{title: 'Subscribirse'}, {title: 'Notificar'}, { title: 'Salir' }];
 
   constructor(private sidebarService: NbSidebarService,
     private menuService: NbMenuService,
@@ -50,7 +53,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private userService: UserData,
     private layoutService: LayoutService,
     private breakpointService: NbMediaBreakpointsService,
-    private authService: AuthService) {
+    private authService: AuthService,
+    private swPush: SwPush,
+    private newsletterService: NewsletterService) {
   }
 
   ngOnInit() {
@@ -85,8 +90,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
       )
       .subscribe(title => {
-        if(title === 'Salir'){// Salir
+        if(title === 'Salir'){
           this.authService.signOut();
+        } 
+        if(title === 'Subscribirse'){
+          this.subscribeToNotifications();
+        } 
+        if(title === 'Notificar'){
+          this.newsletterService.send();
         } 
       });
 
@@ -102,6 +113,17 @@ export class HeaderComponent implements OnInit, OnDestroy {
           this.menuService.collapseAll('sidebarMenu');
         }
       });
+  }
+
+  subscribeToNotifications() {
+    this.swPush.requestSubscription({
+      serverPublicKey: environment.VAPID_PUBLIC_KEY
+    })
+      .then(sub => {
+        console.log(sub);
+        this.newsletterService.addPushSubscriber(sub).subscribe();
+      })
+      .catch(err => console.error("Could not subscribe to notifications", err));
   }
 
   ngOnDestroy() {

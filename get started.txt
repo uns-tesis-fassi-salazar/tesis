@@ -43,3 +43,8 @@ Para mas información ver: https://firebase.google.com/docs/database/security/ge
 Deploy de firebase posteriores:
     $ npm run build:prod
     $ firebase deploy
+
+Web push notifications:
+    - Generar VAPID key pair.
+        $ npm install -g web-push
+        $ web-push generate-vapid-keys --json

@@ -5,6 +5,7 @@
  */
 export const environment = {
   production: true,
+  VAPID_PUBLIC_KEY: "BKqz1XBL9ngQbvRV79l3cuwMA3jkTsLNyTkRThBBTcRXNmKbgfCvTD95cZLBR9KVpdKfTNXh2vl6lhxiUxdwAWM",
   firebase: {
     apiKey: 'AIzaSyDm_UKlFtJZIxJDhLBCw4ypad-Erefg-Ow',
     authDomain: 'aulas-sustentables.firebaseapp.com',
