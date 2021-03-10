@@ -15,6 +15,7 @@ import { EditAulaComponent } from './edificios-aulas/edit-aula/edit-aula.compone
 import { ListEdificioComponent } from './edificios-aulas/list-edificio/list-edificio.component';
 import { LogsComponent } from './logs/logs.component';
 import { ShowLogsComponent } from './logs/show-logs/show-logs.component';
+import { UserNotificationsComponent } from './user/user-notifications/user-notifications.component';
 
 const routes: Routes = [{
   path: '',
@@ -77,6 +78,11 @@ const routes: Routes = [{
       path: 'logs/:nodoMac',
       pathMatch: 'full',
       component: ShowLogsComponent,
+    },
+    {
+      path: 'user/notificaciones',
+      pathMatch: 'full',
+      component: UserNotificationsComponent,
     },
     {
       path: '',

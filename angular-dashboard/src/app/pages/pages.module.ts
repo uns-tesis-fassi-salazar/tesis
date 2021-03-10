@@ -22,6 +22,7 @@ import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { LogsComponent } from './logs/logs.component';
 import { ShowLogsComponent } from './logs/show-logs/show-logs.component';
 import { EdificiosAulasComponent } from './edificios-aulas/edificios-aulas.component';
+import { UserNotificationsComponent } from './user/user-notifications/user-notifications.component';
 
 @NgModule({
   imports: [
@@ -64,6 +65,7 @@ import { EdificiosAulasComponent } from './edificios-aulas/edificios-aulas.compo
     DecisionDialogComponent,
     LogsComponent,
     ShowLogsComponent,
+    UserNotificationsComponent,
   ],
   entryComponents: [
     DialogNamePromptComponent,

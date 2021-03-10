@@ -8,7 +8,8 @@ import { Subject } from 'rxjs';
 import { AuthService } from '../../../services/auth.service';
 import { SwPush } from '@angular/service-worker';
 import { NewsletterService } from '../../../services/newsletter.service';
-import { environment } from '../../../../environments/environment.prod';
+import { environment } from '../../../../environments/environment';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'ngx-header',
@@ -45,17 +46,16 @@ export class HeaderComponent implements OnInit, OnDestroy {
   currentTheme = 'default';
 
   // userMenu = [ { title: 'Profile' }, { title: 'Log out' } ];
-  userMenu = [{title: 'Subscribirse'}, {title: 'Notificar'}, { title: 'Salir' }];
+  userMenu = [{ title: 'Notificaciones' }, { title: 'Salir' }];
 
   constructor(private sidebarService: NbSidebarService,
     private menuService: NbMenuService,
     private themeService: NbThemeService,
-    private userService: UserData,
     private layoutService: LayoutService,
     private breakpointService: NbMediaBreakpointsService,
     private authService: AuthService,
-    private swPush: SwPush,
-    private newsletterService: NewsletterService) {
+    private router: Router,
+    ) {
   }
 
   ngOnInit() {
@@ -64,18 +64,18 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.authService.currentUser
       .pipe(takeUntil(this.destroy$))
       .subscribe((user: any) => this.user = user);
-    
+
     const { lg, xl } = this.breakpointService.getBreakpointsMap();
     this.themeService.onMediaQueryChange()
       .pipe(
         takeUntil(this.destroy$),
       )
-      .subscribe( ([, currentBreakpoint]) => {
+      .subscribe(([, currentBreakpoint]) => {
         this.userPictureOnly = currentBreakpoint.width < xl;;
         this.isLessThanXl = currentBreakpoint.width < xl;
         this.isLessThanLg = currentBreakpoint.width < lg;
       });
-    
+
     this.themeService.onThemeChange()
       .pipe(
         map(({ name }) => name),
@@ -90,40 +90,26 @@ export class HeaderComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
       )
       .subscribe(title => {
-        if(title === 'Salir'){
+        if (title === 'Salir') {
           this.authService.signOut();
-        } 
-        if(title === 'Subscribirse'){
-          this.subscribeToNotifications();
-        } 
-        if(title === 'Notificar'){
-          this.newsletterService.send();
-        } 
+        }
+        if (title === 'Notificaciones') {
+          this.router.navigate(['/user/notificaciones']);
+        }
       });
 
-      this.menuService.onItemClick()
+    this.menuService.onItemClick()
       .pipe(
         filter(({ tag }) => tag === 'sidebarMenu'),
         map(({ item, tag }) => item),
         takeUntil(this.destroy$),
       )
-      .subscribe( nbMenuItem => {
-        if(this.isLessThanXl){
+      .subscribe(nbMenuItem => {
+        if (this.isLessThanXl) {
           this.sidebarService.collapse('menu-sidebar');
           this.menuService.collapseAll('sidebarMenu');
         }
       });
-  }
-
-  subscribeToNotifications() {
-    this.swPush.requestSubscription({
-      serverPublicKey: environment.VAPID_PUBLIC_KEY
-    })
-      .then(sub => {
-        console.log(sub);
-        this.newsletterService.addPushSubscriber(sub).subscribe();
-      })
-      .catch(err => console.error("Could not subscribe to notifications", err));
   }
 
   ngOnDestroy() {
