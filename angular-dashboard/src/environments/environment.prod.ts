@@ -5,7 +5,8 @@
  */
 export const environment = {
   production: true,
-  VAPID_PUBLIC_KEY: "BKqz1XBL9ngQbvRV79l3cuwMA3jkTsLNyTkRThBBTcRXNmKbgfCvTD95cZLBR9KVpdKfTNXh2vl6lhxiUxdwAWM",
+  VAPID_PUBLIC_KEY: "BOLbda8dOJTcjzsAJd1iF_DFYSHur5e5rerqrSUBdRk9ZeuVxZFVCNk1Wraw3--L1P7X5qaw9-aNoZOVW95Ecco",
+  backendURL: 'https://aulas-sustentables.herokuapp.com',
   firebase: {
     apiKey: 'AIzaSyDm_UKlFtJZIxJDhLBCw4ypad-Erefg-Ow',
     authDomain: 'aulas-sustentables.firebaseapp.com',
