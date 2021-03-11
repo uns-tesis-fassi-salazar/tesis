@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { NbMenuModule, NbAlertModule, NbIconModule, NbSidebarModule, NbSelectModule, NbButtonModule, NbInputModule, NbCardModule, NbDialogModule, NbActionsModule, NbCheckboxModule } from '@nebular/theme';
+import { NbMenuModule, NbAlertModule, NbIconModule, NbSidebarModule, NbSelectModule, NbButtonModule, NbInputModule, NbCardModule, NbDialogModule, NbActionsModule, NbCheckboxModule, NbToggleModule } from '@nebular/theme';
 
 import { ThemeModule } from '../@theme/theme.module';
 import { PagesComponent } from './pages.component';
@@ -43,6 +43,7 @@ import { UserNotificationsComponent } from './user/user-notifications/user-notif
     NbDialogModule.forChild(),
     NbCheckboxModule,
     NbAlertModule,
+    NbToggleModule,
     
     NgbDropdownModule,
 

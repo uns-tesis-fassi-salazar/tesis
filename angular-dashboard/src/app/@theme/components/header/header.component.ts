@@ -7,7 +7,7 @@ import { map, takeUntil, filter } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { AuthService } from '../../../services/auth.service';
 import { SwPush } from '@angular/service-worker';
-import { NewsletterService } from '../../../services/newsletter.service';
+import { UserNotificationsService } from '../../../services/user-notifications.service';
 import { environment } from '../../../../environments/environment';
 import { Router } from '@angular/router';
 

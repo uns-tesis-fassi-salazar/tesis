@@ -1,1 +1,14 @@
-<p>user-notifications works!</p>
+<nb-card>
+    <nb-card-header>
+        <h2 class="h4 page-heading">Notificaciones</h2>
+    </nb-card-header>
+    <nb-card-body class="example-items-col">
+        <p>
+            ¿Desea recibir notificaciones de la app? El sistema puede informarle sobre el estado de los ambientes, como cuando un aula
+            se encuentre vacía pero con sus luminarias u otros equipamientos activos.
+        </p>
+        <nb-toggle [ngModel]="notificationsGranted" (ngModelChange)="onNotificationsToggle($event)">Recibir
+            notificaciones de la aplicación.</nb-toggle>
+        <!-- <button class="d-block btn btn-primary" (click)="test()">Test me!</button> -->
+    </nb-card-body>
+</nb-card>
