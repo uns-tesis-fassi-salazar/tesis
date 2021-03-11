@@ -22,7 +22,7 @@
       nbContextMenuTag="user-context-menu">
     </nb-action> -->
     <nb-action class="user-action" *nbIsGranted="['view', 'user']">
-      <nb-user [nbContextMenu]="userMenu" nbContextMenuTag="user-context-menu" [onlyPicture]="true">
+      <nb-user [nbContextMenu]="userMenu" nbContextMenuTag="user-context-menu" [name]="user?.email" [onlyPicture]="true">
         <!-- [picture]="user?.photoURL" -->
         <!-- [name]="user?.name" -->
       </nb-user>
