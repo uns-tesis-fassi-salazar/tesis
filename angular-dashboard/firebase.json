@@ -13,8 +13,5 @@
       }
     ],
     "site": "aulas-sustentables"
-  },
-  "database": {
-    "rules": "database.rules.json"
   }
 }
