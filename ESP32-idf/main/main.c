@@ -19,6 +19,29 @@
 
 #include "esp_tls.h"
 #include "esp_crt_bundle.h"
+#include "nvs.h"
+
+#include <stdio.h>
+#include "soc/efuse_reg.h"
+#include "esp_efuse.h"
+#include "esp_spi_flash.h"
+#include "esp_partition.h"
+#include "esp_flash_encrypt.h"
+#include "esp_efuse_table.h"
+
+
+
+// Flash encryption constants
+static const char* TAG = "Hexdump";
+#if CONFIG_IDF_TARGET_ESP32
+#define TARGET_CRYPT_CNT_EFUSE  ESP_EFUSE_FLASH_CRYPT_CNT
+#define TARGET_CRYPT_CNT_WIDTH  7
+#elif CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32C3
+#define TARGET_CRYPT_CNT_EFUSE ESP_EFUSE_SPI_BOOT_CRYPT_CNT
+#define TARGET_CRYPT_CNT_WIDTH  3
+#endif
+
+// HTTPS constants
 /* Constants that aren't configurable in menuconfig */
 #define WEB_SERVER "192.168.0.12"
 #define WEB_PORT "9999"
@@ -42,14 +65,100 @@ static const char *web_urls[MAX_URLS] = {
 
 static const char *INFO_TAG = "info";
 
-extern const uint8_t node_cert_pem_start[] asm("_binary_node_cert_pem_start");
-extern const uint8_t node_cert_pem_end[]   asm("_binary_node_cert_pem_end");
+// extern const uint8_t node_cert_pem_start[] asm("_binary_node_cert_pem_start");
+// extern const uint8_t node_cert_pem_end[]   asm("_binary_node_cert_pem_end");
 
-extern const uint8_t node_key_pem_start[] asm("_binary_node_key_pem_start");
-extern const uint8_t node_key_pem_end[]   asm("_binary_node_key_pem_end");
+// extern const uint8_t node_key_pem_start[] asm("_binary_node_key_pem_start");
+// extern const uint8_t node_key_pem_end[]   asm("_binary_node_key_pem_end");
 
 
+esp_err_t nvs_secure_initialize() {
+    static const char *nvs_tag = "nvs";
+    esp_err_t err = ESP_OK;
 
+    // 1. find partition with nvs_keys
+    const esp_partition_t *partition = esp_partition_find_first(ESP_PARTITION_TYPE_DATA,
+                                                                ESP_PARTITION_SUBTYPE_DATA_NVS_KEYS,
+                                                                "nvs_key");
+    if (partition == NULL) {
+        ESP_LOGE(nvs_tag, "Could not locate nvs_key partition. Aborting.");
+        return ESP_FAIL;
+    }
+
+    // 2. read nvs_keys from key partition
+    nvs_sec_cfg_t cfg;
+    if (ESP_OK != (err = nvs_flash_read_security_cfg(partition, &cfg))) {
+        ESP_LOGE(nvs_tag, "Failed to read nvs keys (rc=0x%x)", err);
+        return err;
+    }
+
+    // 3. initialize nvs partition
+    if (ESP_OK != (err = nvs_flash_secure_init(&cfg))) {
+        ESP_LOGE(nvs_tag, "failed to initialize nvs partition (err=0x%x). Aborting.", err);
+        return err;
+    };
+
+    return err;
+}
+
+
+void nvs_get_client_cert_key()
+{
+    esp_err_t err;
+    size_t len;
+    
+    // Open
+    printf("\n");
+    printf("Opening Non-Volatile Storage (NVS) handle... ");
+    nvs_handle_t my_handle;
+    err = nvs_open("cryptto", NVS_READWRITE, &my_handle);
+    if (err != ESP_OK) {
+        printf("Error (%s) opening NVS handle!\n", esp_err_to_name(err));
+    } else {
+        printf("Done\n");
+    }
+
+    // // Read
+    // printf("Reading client certificate from NVS ... ");
+    // int32_t restart_counter = 0; // value will default to 0, if not set yet in NVS
+    // err = nvs_get_i32(my_handle, "restart_counter", &restart_counter);
+    // switch (err) {
+    //     case ESP_OK:
+    //         printf("Done\n");
+    //         printf("Restart counter = %d\n", restart_counter);
+    //         break;
+    //     case ESP_ERR_NVS_NOT_FOUND:
+    //         printf("The value is not initialized yet!\n");
+    //         break;
+    //     default :
+    //         printf("Error (%s) reading!\n", esp_err_to_name(err));
+    // }
+
+    // Read
+    const char* key = "client_key";
+    err = nvs_get_str(my_handle, key, NULL, &len);
+    switch (err) {
+        case ESP_OK:
+            printf("Done\n");
+            char *str = (char *)malloc(len);
+            if ( (err = nvs_get_str(my_handle, key, str, &len)) == ESP_OK) {
+                printf("%s\n", str);
+            } else {
+                printf("Error (%s) reading!\n", esp_err_to_name(err));
+            }
+            free(str);
+            break;
+        case ESP_ERR_NVS_NOT_FOUND:
+            printf("Value not found!\n");
+            break;
+        default :
+            printf("Error (%s) reading!\n", esp_err_to_name(err));
+    }
+
+
+    // Close
+    nvs_close(my_handle);
+}
 
 
 static void https_get_request(struct esp_tls *tls)
@@ -112,10 +221,10 @@ static void https_get_task(void *pvParameters)
         for (int i = 0; i < MAX_URLS; i++) {
             esp_tls_cfg_t cfg = {
                 .crt_bundle_attach = esp_crt_bundle_attach,
-                .clientcert_buf  = (const unsigned char*) node_cert_pem_start,
-                .clientcert_bytes = node_cert_pem_end - node_cert_pem_start,
-                .clientkey_buf = (const unsigned char*) node_key_pem_start,
-                .clientkey_bytes = node_key_pem_end - node_key_pem_start,
+                // .clientcert_buf  = (const unsigned char*) node_cert_pem_start,
+                // .clientcert_bytes = node_cert_pem_end - node_cert_pem_start,
+                // .clientkey_buf = (const unsigned char*) node_key_pem_start,
+                // .clientkey_bytes = node_key_pem_end - node_key_pem_start,
             };
 
             struct esp_tls *tls = esp_tls_conn_http_new(web_urls[i], &cfg);
@@ -142,9 +251,75 @@ static void https_get_task(void *pvParameters)
 
 }
 
-void app_main(void)
+
+static void example_print_chip_info(void)
 {
-    ESP_ERROR_CHECK( nvs_flash_init() );
+    /* Print chip information */
+    esp_chip_info_t chip_info;
+    esp_chip_info(&chip_info);
+    printf("This is %s chip with %d CPU core(s), WiFi%s%s, ",
+            CONFIG_IDF_TARGET,
+            chip_info.cores,
+            (chip_info.features & CHIP_FEATURE_BT) ? "/BT" : "",
+            (chip_info.features & CHIP_FEATURE_BLE) ? "/BLE" : "");
+
+    printf("silicon revision %d, ", chip_info.revision);
+
+    printf("%dMB %s flash\n", spi_flash_get_chip_size() / (1024 * 1024),
+            (chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embedded" : "external");
+}
+
+
+static void example_print_flash_encryption_status(void)
+{
+    uint32_t flash_crypt_cnt = 0;
+    esp_efuse_read_field_blob(TARGET_CRYPT_CNT_EFUSE, &flash_crypt_cnt, TARGET_CRYPT_CNT_WIDTH);
+    printf("\nFLASH_CRYPT_CNT eFuse value is %d\n", flash_crypt_cnt);
+
+    esp_flash_enc_mode_t mode = esp_get_flash_encryption_mode();
+    if (mode == ESP_FLASH_ENC_MODE_DISABLED) {
+        printf("Flash encryption feature is disabled\n");
+    } else {
+        printf("Flash encryption feature is enabled in %s mode\n",
+            mode == ESP_FLASH_ENC_MODE_DEVELOPMENT ? "DEVELOPMENT" : "RELEASE");
+    }
+}
+
+
+static void example_read_write_flash(void)
+{
+    const esp_partition_t* partition = esp_partition_find_first(
+        ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_ANY, "storage");
+    assert(partition);
+
+    printf("\nErasing partition \"%s\" (0x%x bytes)\n", partition->label, partition->size);
+
+    ESP_ERROR_CHECK(esp_partition_erase_range(partition, 0, partition->size));
+
+    /* Generate the data which will be written */
+    const size_t data_size = 32;
+    uint8_t plaintext_data[data_size];
+    for (uint8_t i = 0; i < data_size; ++i) {
+        plaintext_data[i] = i;
+    }
+
+    printf("Writing data with esp_partition_write:\n");
+    ESP_LOG_BUFFER_HEXDUMP(TAG, plaintext_data, data_size, ESP_LOG_INFO);
+    ESP_ERROR_CHECK(esp_partition_write(partition, 0, plaintext_data, data_size));
+
+    uint8_t read_data[data_size];
+    printf("Reading with esp_partition_read:\n");
+    ESP_ERROR_CHECK(esp_partition_read(partition, 0, read_data, data_size));
+    ESP_LOG_BUFFER_HEXDUMP(TAG, read_data, data_size, ESP_LOG_INFO);
+
+    printf("Reading with spi_flash_read:\n");
+    ESP_ERROR_CHECK(spi_flash_read(partition->address, read_data, data_size));
+    ESP_LOG_BUFFER_HEXDUMP(TAG, read_data, data_size, ESP_LOG_INFO);
+}
+
+void testing_cert_https_request()
+{
+    // ESP_ERROR_CHECK( nvs_flash_init() );
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
 
@@ -153,8 +328,34 @@ void app_main(void)
      * examples/protocols/README.md for more information about this function.
      */
     ESP_ERROR_CHECK(example_connect());
+    // esp_err_t err = nvs_secure_initialize();
+    // if (err != ESP_OK) {
+    //     ESP_LOGE("main", "Failed to initialize nvs (rc=0x%x). Halting.", err);
+    //     while(1) { vTaskDelay(100); }
+    // }
+    // nvs_get_client_cert_key();
+    while(1) { vTaskDelay(100); }
+    // ESP_LOGI(INFO_TAG, "Size of node cert: %d", node_cert_pem_end - node_cert_pem_start);
+    // ESP_LOGI(INFO_TAG, "Size of the key: %d", node_key_pem_end - node_key_pem_start);
+    // xTaskCreate(&https_get_task, "https_get_task", 8192, NULL, 5, NULL);
+}
 
-    ESP_LOGI(INFO_TAG, "Size of node cert: %d", node_cert_pem_end - node_cert_pem_start);
-    ESP_LOGI(INFO_TAG, "Size of the key: %d", node_key_pem_end - node_key_pem_start);
-    xTaskCreate(&https_get_task, "https_get_task", 8192, NULL, 5, NULL);
+void app_main(void)
+{
+    printf("\nExample to check Flash Encryption status:\n");
+
+    example_print_chip_info();
+    example_print_flash_encryption_status();
+    example_read_write_flash();
+    /* Initialize the default NVS partition */
+
+    // TODO: Pregrabar el certificado del cliente (info encriptada) en la partición NVS. Grabar la clave utilizada en la partición de claves de NVS.
+    // Finalmente leer dicha información acá y usar para enviar el request.
+    esp_err_t ret = nvs_flash_init();
+    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+        ESP_ERROR_CHECK(nvs_flash_erase());
+        ret = nvs_flash_init();
+    }
+    ESP_ERROR_CHECK(ret);
+
 }
