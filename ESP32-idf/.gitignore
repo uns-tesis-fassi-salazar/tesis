@@ -1,0 +1,9 @@
+.vscode/
+build/
+server_certs/
+client_certs/
+certs/
+**.pem
+**.bin
+**/sdkconfig
+**/sdkconfig.old
