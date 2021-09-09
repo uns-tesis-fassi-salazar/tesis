@@ -53,17 +53,28 @@ static const char REQUEST[] = "GET " WEB_URL " HTTP/1.1\r\n"
                              "User-Agent: esp-idf/1.0 esp32\r\n"
                              "\r\n";
 
-#define MAX_URLS    5
+#define MAX_URLS    3
 
 static const char *web_urls[MAX_URLS] = {
-    "https://192.168.0.12:9999",
-    "https://aulas-sustentables.herokuapp.com",
+    // "https://aulas-sustentables.herokuapp.com",
     "https://github.com",
     "https://firebase.google.com",
-    "https://finalproject-35a1b.firebaseio.com"
+    "https://192.168.0.12:9999",
 };
 
 static const char *INFO_TAG = "info";
+
+typedef struct client_certs
+{
+    char* cert;
+    unsigned int cert_len;
+    char* priv_key;
+    unsigned int priv_key_len;
+} client_certs_t;
+
+
+client_certs_t g_client_certs;
+
 
 // extern const uint8_t node_cert_pem_start[] asm("_binary_node_cert_pem_start");
 // extern const uint8_t node_cert_pem_end[]   asm("_binary_node_cert_pem_end");
@@ -101,52 +112,53 @@ esp_err_t nvs_secure_initialize() {
     return err;
 }
 
-
-void nvs_get_client_cert_key()
+char* nvs_get_string(char* key, nvs_handle_t nvs_handle)
 {
     esp_err_t err;
     size_t len;
+    err = nvs_get_str(nvs_handle, key, NULL, &len);
+    switch (err) {
+        case ESP_OK:
+            printf("nvs[%s] -> ", key);
+            char* str = (char *)malloc(len);
+            if ( (err = nvs_get_str(nvs_handle, key, str, &len)) == ESP_OK) {
+                printf("%s\n", str);
+            } else {
+                printf("Error (%s) reading!\n", esp_err_to_name(err));
+            }
+            // free(str);
+            return str;
+            // break;
+        case ESP_ERR_NVS_NOT_FOUND:
+            printf("nvs[%s] -> Value not found!\n", key);
+            break;
+        default :
+            printf("Error (%s) reading!\n", esp_err_to_name(err));
+    }
+    return NULL;
+}
+
+void nvs_get_client_cert_key(client_certs_t* client_certs)
+{
+    esp_err_t err;
     
     // Open
     printf("\n");
     printf("Opening Non-Volatile Storage (NVS) handle... ");
     nvs_handle_t my_handle;
-    err = nvs_open("cryptto", NVS_READWRITE, &my_handle);
+    err = nvs_open("crypto", NVS_READWRITE, &my_handle);
     if (err != ESP_OK) {
         printf("Error (%s) opening NVS handle!\n", esp_err_to_name(err));
     } else {
         printf("Done\n");
     }
 
-    // // Read
-    // printf("Reading client certificate from NVS ... ");
-    // int32_t restart_counter = 0; // value will default to 0, if not set yet in NVS
-    // err = nvs_get_i32(my_handle, "restart_counter", &restart_counter);
-    // switch (err) {
-    //     case ESP_OK:
-    //         printf("Done\n");
-    //         printf("Restart counter = %d\n", restart_counter);
-    //         break;
-    //     case ESP_ERR_NVS_NOT_FOUND:
-    //         printf("The value is not initialized yet!\n");
-    //         break;
-    //     default :
-    //         printf("Error (%s) reading!\n", esp_err_to_name(err));
-    // }
-
-    // Read
-    const char* key = "client_key";
-    err = nvs_get_str(my_handle, key, NULL, &len);
+    // Read stats
+    nvs_stats_t nvs_stats;
+    err = nvs_get_stats(NULL, &nvs_stats);
     switch (err) {
         case ESP_OK:
-            printf("Done\n");
-            char *str = (char *)malloc(len);
-            if ( (err = nvs_get_str(my_handle, key, str, &len)) == ESP_OK) {
-                printf("%s\n", str);
-            } else {
-                printf("Error (%s) reading!\n", esp_err_to_name(err));
-            }
-            free(str);
+            printf("Count: UsedEntries = (%d), FreeEntries = (%d), AllEntries = (%d)\n", nvs_stats.used_entries, nvs_stats.free_entries, nvs_stats.total_entries);
             break;
         case ESP_ERR_NVS_NOT_FOUND:
             printf("Value not found!\n");
@@ -155,7 +167,12 @@ void nvs_get_client_cert_key()
             printf("Error (%s) reading!\n", esp_err_to_name(err));
     }
 
-
+    // Read
+    client_certs->priv_key = nvs_get_string("clientKey", my_handle);
+    client_certs->priv_key_len = strlen(client_certs->priv_key) + 1;
+    client_certs->cert = nvs_get_string("clientCert", my_handle);
+    client_certs->cert_len = strlen(client_certs->cert) + 1;
+    
     // Close
     nvs_close(my_handle);
 }
@@ -221,10 +238,10 @@ static void https_get_task(void *pvParameters)
         for (int i = 0; i < MAX_URLS; i++) {
             esp_tls_cfg_t cfg = {
                 .crt_bundle_attach = esp_crt_bundle_attach,
-                // .clientcert_buf  = (const unsigned char*) node_cert_pem_start,
-                // .clientcert_bytes = node_cert_pem_end - node_cert_pem_start,
-                // .clientkey_buf = (const unsigned char*) node_key_pem_start,
-                // .clientkey_bytes = node_key_pem_end - node_key_pem_start,
+                .clientcert_buf  = (const unsigned char*) g_client_certs.cert,
+                .clientcert_bytes = g_client_certs.cert_len,
+                .clientkey_buf = (const unsigned char*) g_client_certs.priv_key,
+                .clientkey_bytes = g_client_certs.priv_key_len,
             };
 
             struct esp_tls *tls = esp_tls_conn_http_new(web_urls[i], &cfg);
@@ -317,45 +334,48 @@ static void example_read_write_flash(void)
     ESP_LOG_BUFFER_HEXDUMP(TAG, read_data, data_size, ESP_LOG_INFO);
 }
 
-void testing_cert_https_request()
+void https_request()
 {
-    // ESP_ERROR_CHECK( nvs_flash_init() );
-    ESP_ERROR_CHECK(esp_netif_init());
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
-
     /* This helper function configures Wi-Fi or Ethernet, as selected in menuconfig.
      * Read "Establishing Wi-Fi or Ethernet Connection" section in
      * examples/protocols/README.md for more information about this function.
      */
     ESP_ERROR_CHECK(example_connect());
-    // esp_err_t err = nvs_secure_initialize();
-    // if (err != ESP_OK) {
-    //     ESP_LOGE("main", "Failed to initialize nvs (rc=0x%x). Halting.", err);
-    //     while(1) { vTaskDelay(100); }
-    // }
-    // nvs_get_client_cert_key();
-    while(1) { vTaskDelay(100); }
     // ESP_LOGI(INFO_TAG, "Size of node cert: %d", node_cert_pem_end - node_cert_pem_start);
     // ESP_LOGI(INFO_TAG, "Size of the key: %d", node_key_pem_end - node_key_pem_start);
-    // xTaskCreate(&https_get_task, "https_get_task", 8192, NULL, 5, NULL);
+    xTaskCreate(&https_get_task, "https_get_task", 8192, NULL, 5, NULL);
 }
 
-void app_main(void)
+void nvs_encryption()
+{
+    esp_err_t err = nvs_secure_initialize();
+    if (err != ESP_OK) {
+        ESP_LOGE("main", "Failed to initialize nvs (rc=0x%x). Halting.", err);
+        while(1) { vTaskDelay(100); }
+    }
+    // client_certs_t client_certs;
+    nvs_get_client_cert_key(&g_client_certs);
+    printf("Client certs from struct. Key len: %d; cert len: %d\n\n\n", g_client_certs.priv_key_len, g_client_certs.cert_len);
+}
+
+
+
+void flash_encryption()
 {
     printf("\nExample to check Flash Encryption status:\n");
 
     example_print_chip_info();
     example_print_flash_encryption_status();
     example_read_write_flash();
-    /* Initialize the default NVS partition */
+}
 
-    // TODO: Pregrabar el certificado del cliente (info encriptada) en la partición NVS. Grabar la clave utilizada en la partición de claves de NVS.
-    // Finalmente leer dicha información acá y usar para enviar el request.
-    esp_err_t ret = nvs_flash_init();
-    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-        ESP_ERROR_CHECK(nvs_flash_erase());
-        ret = nvs_flash_init();
-    }
-    ESP_ERROR_CHECK(ret);
+void app_main(void)
+{
+    ESP_ERROR_CHECK(esp_netif_init());
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
 
+    flash_encryption();
+    nvs_encryption();
+    https_request();
+    while(1) { vTaskDelay(100); }
 }

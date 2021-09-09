@@ -1,0 +1,5 @@
+# Sample csv file
+key,type,encoding,value
+crypto,namespace,,
+clientKey,file,string,certs\\client\\node_key.pem
+clientCert,file,string,certs\\client\\node_cert.pem
